@@ -9,9 +9,9 @@
     <meta name="apple-mobile-web-app-title" content="Control Víveres">
     <meta name="mobile-web-app-capable" content="yes">
     
-    <link rel="icon" id="dynamic-favicon" type="image/png" href="iconpremiun.png">
-    <link rel="apple-touch-icon" id="dynamic-apple-icon" href="iconpremiun.png">
-    <link rel="manifest" id="dynamic-manifest">
+    <link rel="icon" id="dynamic-favicon" type="image/png" href="icono-basico.png">
+    <link rel="apple-touch-icon" id="dynamic-apple-icon" href="icono-basico.png">
+    <link rel="manifest" id="dynamic-manifest" href="manifest.json">
     
     <title>Control de Víveres - Pro Contable v2</title>
     <style>
@@ -1259,6 +1259,34 @@
                 
                 // Actualizar UI según el plan
                 document.title = configMaestra.nombreNegocio + " - Inverteca Core";
+                
+                // --- ACTUALIZAR ICONOS Y MANIFIESTO SEGÚN EL PLAN ---
+                let iconoPlan = 'icono-basico.png';
+                if (configMaestra.version === 'PRO') iconoPlan = 'icono-pro.png';
+                if (configMaestra.version === 'PREMIUM') iconoPlan = 'icono-premium.png';
+                
+                // Si el cliente tiene un icono personalizado en configMaestra, ese manda
+                const iconoFinal = configMaestra.iconoUrl || iconoPlan;
+                
+                document.getElementById('dynamic-favicon').href = iconoFinal;
+                document.getElementById('dynamic-apple-icon').href = iconoFinal;
+                
+                // Re-generar manifiesto dinámico para reflejar el icono del plan
+                const manifest = {
+                    "name": configMaestra.nombreNegocio || "Inverteca Core",
+                    "short_name": configMaestra.nombreNegocio || "Inverteca",
+                    "start_url": window.location.href,
+                    "display": "standalone",
+                    "background_color": "#ffffff",
+                    "theme_color": "#2ecc71",
+                    "icons": [
+                        { "src": iconoFinal, "sizes": "192x192", "type": "image/png" },
+                        { "src": iconoFinal, "sizes": "512x512", "type": "image/png" }
+                    ]
+                };
+                const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+                document.querySelector('#dynamic-manifest').setAttribute('href', URL.createObjectURL(blob));
+
                 render();
             }
         });
@@ -3100,6 +3128,15 @@
         document.getElementById('monedaCostoFactura')?.addEventListener('change', calcularTotalFactura);
     });
     // init() es llamado por verificarLibrerias() una vez que Firebase y html5-qrcode están cargados
+
+    // --- REGISTRO DE SERVICE WORKER PARA PWA ---
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('🚀 Service Worker registrado:', reg.scope))
+                .catch(err => console.error('❌ Error al registrar Service Worker:', err));
+        });
+    }
 </script>
 </body>
 </html>

@@ -1,0 +1,30 @@
+{
+  "name": "Inverteca Core",
+  "short_name": "Inverteca",
+  "description": "Sistema de gestión multi-cliente profesional Inverteca Core",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2ecc71",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icono-basico.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icono-pro.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icono-premium.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
