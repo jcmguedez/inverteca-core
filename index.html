@@ -256,6 +256,10 @@
         <div style="text-align:center; margin-top:20px; opacity:0.3; font-size:0.7rem;" onclick="solicitarAccesoMaestro()">⚙️ v2.5.1</div>
     </div>
 
+    <div id="tab-admin-container" class="tabs" style="display:none; background: #2c3e50; border-radius: 10px 10px 0 0; margin-bottom: 0; padding: 5px;">
+        <button id="tab-admin" class="tab-btn" onclick="switchTab('admin')" style="color: white; width: 100%; border: none;">👑 PANEL DE CONTROL SUPERUSUARIO</button>
+    </div>
+
     <div class="tabs">
         <button id="tab-inventario" class="tab-btn" onclick="switchTab('inventario')">📦 Stock</button>
         <button id="tab-ventas" class="tab-btn" onclick="switchTab('ventas')">🛒 Venta</button>
@@ -263,6 +267,60 @@
         <button id="tab-proveedores" class="tab-btn" onclick="switchTab('proveedores')">🏢 Prov.</button>
         <button id="tab-gastos" class="tab-btn" onclick="switchTab('gastos')">💸 Gastos</button>
         <button id="tab-reportes" class="tab-btn" onclick="switchTab('reportes')">📊 Rep.</button>
+    </div>
+
+    <!-- TAB: ADMIN MASTER (SUPERUSUARIO) -->
+    <div id="admin" class="tab-content">
+        <div class="app-card" style="border: 2px solid #2c3e50;">
+            <h2 style="color: #2c3e50; border-bottom-color: #2c3e50;">🔍 Buscador de Clientes</h2>
+            <div class="input-group">
+                <label>ID del Cliente (ej: viveres_angeles):</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="adminSearchId" placeholder="Ingrese ID..." class="search-input" style="margin-bottom:0;">
+                    <button class="btn-info" onclick="adminCargarCliente()" style="background:#2c3e50;">CARGAR</button>
+                </div>
+            </div>
+
+            <div id="adminClientCard" style="display:none; margin-top:20px; padding-top:20px; border-top: 1px solid #eee;">
+                <h2 id="adminClientTitle">🏢 Datos del Cliente</h2>
+                
+                <div class="input-group">
+                    <label>Estatus del Servicio:</label>
+                    <select id="adminClientStatus" style="font-weight:bold;">
+                        <option value="activo" style="color:green;">✅ ACTIVO</option>
+                        <option value="suspendido" style="color:red;">🚫 SUSPENDIDO</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Nivel de Plan:</label>
+                    <select id="adminClientPlan">
+                        <option value="1">Básico (2 Dispositivos)</option>
+                        <option value="2">Pro (3 Dispositivos)</option>
+                        <option value="3">Premium (Ilimitado)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Límite de Dispositivos:</label>
+                    <input type="number" id="adminClientLimit" placeholder="Ej: 5">
+                </div>
+
+                <div class="input-row" style="display:flex; gap:10px;">
+                    <div style="flex:1;">
+                        <label>Nombre Negocio:</label>
+                        <input type="text" id="adminClientName">
+                    </div>
+                    <div style="flex:1;">
+                        <label>RIF:</label>
+                        <input type="text" id="adminClientRif">
+                    </div>
+                </div>
+
+                <button class="btn-add" onclick="adminGuardarCambios()" style="width:100%; margin-top:20px; background:#2c3e50;">💾 ACTUALIZAR CLIENTE EN LA NUBE</button>
+                <p style="font-size:0.7rem; color:#666; text-align:center; margin-top:10px;">Los cambios se aplicarán al instante en el dispositivo del cliente.</p>
+            </div>
+        </div>
     </div>
 
     <!-- TAB: INVENTARIO -->
@@ -720,7 +778,13 @@
             <h4>🚀 Generar Instalador para Cliente</h4>
         </div>
         <p style="font-size:0.75rem; color:#666; margin-bottom:10px;">Configura los datos arriba y presiona este botón para descargar un archivo index.html listo para enviar por WhatsApp al cliente.</p>
-        <button class="btn-add" onclick="guardarConfigMaestra(); generarArchivoCliente();" style="width:100%; margin-bottom:20px; background:#27ae60;">📥 DESCARGAR APP PARA CLIENTE</button>PARA CLIENTE</button>
+        <button class="btn-add" onclick="guardarConfigMaestra(); generarArchivoCliente();" style="width:100%; margin-bottom:20px; background:#27ae60;">📥 DESCARGAR APP PARA CLIENTE</button>
+        
+        <div class="section-header" style="margin-top:15px; color:var(--info);">
+            <h4>☁️ Gestión de Nube (Firebase)</h4>
+        </div>
+        <p style="font-size:0.75rem; color:#666; margin-bottom:10px;">Presiona este botón para crear la carpeta del cliente en Firebase con los datos fiscales configurados arriba.</p>
+        <button class="btn-info" onclick="darDeAltaCliente()" style="width:100%; margin-bottom:20px;">☁️ ACTIVAR CLIENTE EN FIREBASE</button>
 
         <div class="section-header" style="margin-top:15px; color:var(--danger);">
             <h4>⚠️ Mantenimiento Crítico</h4>
@@ -935,6 +999,23 @@
             return;
         }
 
+        // --- LÓGICA DE ADMINISTRADOR MAESTRO ---
+        if (clienteId === 'admin_master') {
+            configMaestra.pathCliente = 'admin_master/';
+            configMaestra.idActual = 'admin_master';
+            configMaestra.version = 'PREMIUM';
+            configMaestra.nombreNegocio = "ADMINISTRADOR MAESTRO";
+            document.title = "ADMIN - Inverteca Core";
+            
+            // Mostrar el panel de superusuario
+            document.getElementById('tab-admin-container').style.display = 'flex';
+            switchTab('admin');
+            
+            conectarFirebase();
+            render();
+            return;
+        }
+
         // Configurar el path del cliente dinámicamente
         configMaestra.pathCliente = 'clientes/' + clienteId + '/';
         configMaestra.idActual = clienteId;
@@ -1104,6 +1185,72 @@
         localStorage.setItem('beta_dev_config', JSON.stringify(configMaestra));
     }
 
+    function darDeAltaCliente() {
+        if (!db) { alert("❌ No hay conexión con Firebase."); return; }
+        
+        const path = document.getElementById('devPathCliente').value.trim();
+        if (!path || path === 'admin_master/') { alert("❌ ID de cliente no válido."); return; }
+
+        const config = {
+            nombre: document.getElementById('devNombreNegocio').value.trim() || "Nuevo Cliente",
+            rif: document.getElementById('devRifNegocio').value.trim() || "",
+            direccion: document.getElementById('devDireccionNegocio').value.trim() || "",
+            telefono: document.getElementById('devTelefonoNegocio').value.trim() || "",
+            nivel_plan: document.getElementById('devVersion').value === 'PREMIUM' ? 3 : (document.getElementById('devVersion').value === 'PRO' ? 2 : 1),
+            estado_servicio: 'activo'
+        };
+
+        if (confirm(`¿Deseas dar de alta al cliente en la ruta: ${path}?`)) {
+            db.ref('clientes/' + path.replace(/\//g, '') + '/config').set(config)
+                .then(() => alert("✅ Cliente activado con éxito en Firebase."))
+                .catch(err => alert("❌ Error al activar: " + err.message));
+        }
+    }
+
+    // --- FUNCIONES DEL DASHBOARD DE SUPERUSUARIO ---
+    function adminCargarCliente() {
+        const id = document.getElementById('adminSearchId').value.trim();
+        if (!id) { alert("Ingrese un ID de cliente."); return; }
+        if (!db) { alert("Sin conexión a Firebase."); return; }
+
+        db.ref('clientes/' + id + '/config').once('value', snap => {
+            const config = snap.val();
+            if (!config) {
+                alert("❌ Cliente no encontrado en la base de datos.");
+                document.getElementById('adminClientCard').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('adminClientTitle').textContent = "🏢 Gestionando: " + (config.nombre || id);
+            document.getElementById('adminClientStatus').value = config.estado_servicio || 'activo';
+            document.getElementById('adminClientPlan').value = config.nivel_plan || '1';
+            document.getElementById('adminClientLimit').value = config.limite_dispositivos || 2;
+            document.getElementById('adminClientName').value = config.nombre || '';
+            document.getElementById('adminClientRif').value = config.rif || '';
+            
+            document.getElementById('adminClientCard').style.display = 'block';
+        });
+    }
+
+    function adminGuardarCambios() {
+        const id = document.getElementById('adminSearchId').value.trim();
+        if (!id || !db) return;
+
+        const config = {
+            estado_servicio: document.getElementById('adminClientStatus').value,
+            nivel_plan: parseInt(document.getElementById('adminClientPlan').value),
+            limite_dispositivos: parseInt(document.getElementById('adminClientLimit').value) || 2,
+            nombre: document.getElementById('adminClientName').value.trim(),
+            rif: document.getElementById('adminClientRif').value.trim()
+        };
+
+        if (confirm(`¿Confirmas los cambios para ${id}?`)) {
+            db.ref('clientes/' + id + '/config').update(config)
+                .then(() => alert("✅ Cliente actualizado con éxito."))
+                .catch(err => alert("❌ Error: " + err.message));
+        }
+    }
+
     function generarArchivoCliente() {
         // 1. Obtener los datos actuales del panel
         const version = document.getElementById('devVersion').value;
@@ -1230,6 +1377,13 @@
     function iniciarFirebase() {
         db = firebase.database();
         const root = configMaestra.pathCliente;
+
+        // Excepción para el Administrador Maestro
+        if (configMaestra.idActual === 'admin_master') {
+            document.getElementById('connectionStatus').textContent = '🟢 MODO ADMIN';
+            document.getElementById('connectionStatus').className = 'connection-status online';
+            return;
+        }
 
         // --- 1. ESCUCHAR CONFIGURACIÓN DEL CLIENTE (SUSPENSIÓN Y PLANES) ---
         db.ref(root + 'config').on('value', snap => {
@@ -1369,15 +1523,24 @@
 
     function switchTab(tab) {
         const version = configMaestra.version || 'BASICO';
-        if((version === 'BASICO' || version === 'PRO') && (tab === 'proveedores' || tab === 'gastos')) {
-            alert("Este módulo no está disponible en su versión actual.");
-            return;
+        
+        // Permitir siempre la pestaña admin si es admin_master
+        if (tab !== 'admin') {
+            if((version === 'BASICO' || version === 'PRO') && (tab === 'proveedores' || tab === 'gastos')) {
+                alert("Este módulo no está disponible en su versión actual.");
+                return;
+            }
         }
 
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(tab).classList.add('active');
-        if(event && event.target) event.target.classList.add('active');
+        
+        const targetTab = document.getElementById(tab);
+        const targetBtn = document.getElementById('tab-' + tab);
+        
+        if (targetTab) targetTab.classList.add('active');
+        if (targetBtn) targetBtn.classList.add('active');
+        else if(event && event.target) event.target.classList.add('active');
         
         // Cerrar cámaras al cambiar de pestaña
         if(cameraInventarioActive) toggleCameraInventario();
