@@ -982,7 +982,7 @@
         hideTabReportes: false
     };
 
-        function init() {
+                function init() {
         const urlParams = new URLSearchParams(window.location.search);
         const clienteId = urlParams.get('id');
 
@@ -995,17 +995,28 @@
         }
 
         configMaestra.idActual = clienteId;
+        
         if (clienteId === 'admin_master') {
             configMaestra.pathCliente = 'admin_master/';
             configMaestra.version = 'PREMIUM';
             configMaestra.nombreNegocio = 'ADMINISTRADOR MAESTRO';
-            document.getElementById('tab-admin-container').style.display = 'flex';
-            }
-        else {
-            configMaestra.pathCliente = 'clientes/' + clienteId + '/';
+            
+            // Forzar UI de Admin
+            const adminContainer = document.getElementById('tab-admin-container');
+            if(adminContainer) adminContainer.style.display = 'flex';
+            
+            // Inicializar Firebase para el admin
+            conectarFirebase();
+            
+            // Renderizado inmediato para evitar pantalla blanca
+            render();
+            switchTab('admin');
+            return; // Salida rápida para admin
         }
 
-        const suffix = clienteId === 'admin_master' ? 'admin' : clienteId;
+        // Lógica normal para clientes
+        configMaestra.pathCliente = 'clientes/' + clienteId + '/';
+        const suffix = clienteId;
         items = JSON.parse(localStorage.getItem('beta_items_' + suffix)) || [];
         ventas = JSON.parse(localStorage.getItem('beta_ventas_' + suffix)) || [];
         creditos = JSON.parse(localStorage.getItem('beta_creditos_' + suffix)) || [];
@@ -1018,12 +1029,11 @@
         ivaPorcentaje = parseFloat(localStorage.getItem('beta_iva_' + suffix)) || 16;
         stockMinimoGlobal = parseFloat(localStorage.getItem('beta_stock_min_global_' + suffix)) || 5;
 
-        // // displayId fix (Corregido: elemento inexistente)
-        document.getElementById('fechaActual').textContent = diaActual;
+        const fechaEl = document.getElementById('fechaActual');
+        if(fechaEl) fechaEl.textContent = diaActual;
         
         conectarFirebase();
         render();
-        if (configMaestra.idActual === 'admin_master') switchTab('admin');
     }
 
     const firebaseConfig = {
@@ -1224,6 +1234,7 @@
             return;
         }
 
+        render(); // Render inicial preventivo
         db.ref(root + 'config').on('value', snap => {
             const config = snap.val();
             if (config) {
@@ -3085,12 +3096,13 @@
     // init() es llamado por verificarLibrerias() una vez que Firebase y html5-qrcode están cargados
 
     // --- REGISTRO DE SERVICE WORKER PARA PWA ---
-    if ('serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
+            navigator.serviceWorker.register('./sw.js')
                 .then(reg => console.log('🚀 Service Worker registrado:', reg.scope))
                 .catch(err => console.error('❌ Error al registrar Service Worker:', err));
         });
+    });
     }
 </script>
 </body>
