@@ -995,7 +995,12 @@
     };
 
         function init() {
-        console.log("🚀 Inverteca-Core Iniciado");
+        console.log("🚀 Init iniciado...");
+        const loader = document.getElementById('loading-overlay');
+        if(loader) loader.style.display = 'none';
+        console.log("🔓 Loading overlay quitado preventivamente.");
+    
+        console.log("🚀 Inverteca-Core Iniciado v2.1");
         const urlParams = new URLSearchParams(window.location.search);
         const clienteId = urlParams.get('id');
 
@@ -1014,6 +1019,14 @@
             conectarFirebase();
             render();
             setTimeout(() => switchTab('admin'), 150);
+            if(configMaestra.idActual === 'admin_master') {
+                console.log("👑 Modo Admin Master Activo.");
+                const adminContent = document.getElementById('admin');
+                if(adminContent && adminContent.innerHTML.trim() === "") {
+                    adminContent.innerHTML = '<div class="app-card" style="text-align:center; padding:40px;"><h2>👋 Bienvenido Admin</h2><p>Use el buscador para configurar su primer cliente.</p></div>';
+                }
+            }
+
             return;
         }
 
@@ -3201,13 +3214,16 @@
     // init() es llamado por verificarLibrerias() una vez que Firebase y html5-qrcode están cargados
 
     // --- REGISTRO DE SERVICE WORKER PARA PWA ---
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('🚀 Service Worker registrado:', reg.scope))
-                .catch(err => console.error('❌ Error al registrar Service Worker:', err));
-        });
+        if ('serviceWorker' in navigator) {
+        try {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('🚀 SW registrado con éxito'))
+                .catch(err => console.warn('⚠️ SW falló pero la app continúa:', err));
+        } catch (e) {
+            console.error('❌ Error crítico en registro SW:', e);
+        }
     }
+    
 </script>
 </body>
 </html>
