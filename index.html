@@ -2,108 +2,308 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inverteca Core - Bloque 1 (Configuración Maestra)</title>
-    <!-- Firebase SDK -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Inverteca Core - Bloque 2</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <style>
-        body { font-family: sans-serif; background: #f4f7f6; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; }
-        .status-dot { width: 15px; height: 15px; border-radius: 50%; display: inline-block; background: #e74c3c; margin-right: 8px; }
-        .online { background: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
-        .info { margin-top: 20px; font-size: 0.9rem; color: #666; }
-        #debug-log { margin-top: 20px; font-family: monospace; font-size: 0.8rem; background: #000; color: #0f0; padding: 10px; border-radius: 5px; width: 100%; text-align: left; height: 150px; overflow-y: auto; }
-    </style>
+    :root {
+        --primary: #27ae60;
+        --secondary: #f39c12;
+        --danger: #e74c3c;
+        --warning: #e67e22;
+        --info: #3498db;
+        --bg: #f4f7f6;
+        --card: #ffffff;
+        --text: #2c3e50;
+    }
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    .app-card { background: var(--card); width: 100%; max-width: 500px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
+    .header-info { background: linear-gradient(135deg, var(--primary), var(--info)); color: white; padding: 15px; border-radius: 15px; margin-bottom: 20px; text-align: center; }
+    .header-info h2 { margin: 0 0 10px 0; font-size: 1.2rem; }
+    .status-badge { display: inline-block; background: rgba(255,255,255,0.3); padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; }
+    .connection-status { display: inline-block; margin-left: 10px; font-size: 0.75rem; padding: 3px 8px; border-radius: 10px; color: white; background: #e74c3c; }
+    .connection-status.online { background: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; overflow-x: auto; padding-bottom: 5px; }
+    .tab-btn { background: none; border: none; padding: 10px 15px; cursor: pointer; font-weight: 600; color: #999; border-bottom: 3px solid transparent; transition: all 0.3s; white-space: nowrap; }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    h2 { color: var(--text); font-size: 1.1rem; margin-top: 20px; margin-bottom: 15px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+    .input-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 0.9rem; }
+    input, select { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; font-size: 16px; outline: none; }
+    input:focus { border-color: var(--primary); }
+    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+    button { border: none; padding: 12px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
+    .btn-add { background: var(--primary); }
+    .btn-danger { background: var(--danger); }
+    .list-container { margin-top: 20px; max-height: 400px; overflow-y: auto; }
+    .item { background: #f9f9f9; padding: 12px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--primary); }
+    .item-header { display: flex; justify-content: space-between; align-items: center; }
+    .total-section { background: var(--primary); color: white; padding: 15px; border-radius: 15px; text-align: center; margin-top: 15px; }
+    .total-amount { font-size: 1.8rem; font-weight: bold; }
+    #debug-log { margin-top: 20px; font-family: monospace; font-size: 0.7rem; background: #000; color: #0f0; padding: 10px; border-radius: 5px; width: 100%; max-width: 500px; text-align: left; height: 100px; overflow-y: auto; }
+</style>
 </head>
 <body>
+    <div class="app-card">
+        <div class="header-info">
+            <h2 id="nombreNegocioDisplay">Cargando...</h2>
+            <div class="status-badge">
+                <span id="fechaActual"></span>
+                <span id="connectionStatus" class="connection-status">DESCONECTADO</span>
+            </div>
+        </div>
 
-    <div class="card">
-        <h1 id="business-name">Conectando...</h1>
-        <div>
-            <span id="dot" class="status-dot"></span>
-            <span id="status-text">Desconectado</span>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('inventario')">📦 STOCK</button>
+            <button class="tab-btn" onclick="switchTab('ventas')">🛒 VENTA</button>
+            <button class="tab-btn" onclick="switchTab('reportes')">📊 INFO</button>
         </div>
-        <div class="info">
-            ID Detectado: <strong id="detected-id">Ninguno</strong>
+
+        <!-- TAB: INVENTARIO -->
+    <div id="inventario" class="tab-content">
+        <div class="input-row" style="display:flex; gap:10px;">
+            <div class="input-group" style="flex:1;">
+                <label>Tasa Dólar (BCV)</label>
+                <input type="number" id="tasa" step="0.01" onchange="actualizarTasa()">
+            </div>
+            <div class="input-group" style="flex:1;">
+                <label>Alerta Stock</label>
+                <input type="number" id="stockMinimo" value="5" onchange="render()">
+            </div>
         </div>
-        <div id="debug-log"></div>
+
+        <h2 id="formTitle">➕ Cargar Producto</h2>
+        <input type="hidden" id="editId">
+        <input type="text" id="nombre" placeholder="Nombre del producto" class="search-input">
+        
+        <!-- CAMPO CÓDIGO DE BARRAS (SKU) -->
+        <div class="input-group">
+            <label>Código de Barras (SKU)</label>
+            <div class="camera-container">
+                <input type="text" id="codigoBarras" placeholder="Escanea o ingresa código..." class="search-input" style="margin-bottom: 0;">
+                <button id="btn-camera-inventario" class="btn-camera" onclick="toggleCameraInventario()">📷 ESCANEAR</button>
+            </div>
+            <div id="qr-reader-inventario" style="display:none; margin-top:10px;"></div>
+            <div class="qr-reader-status" id="qr-status-inventario"></div>
+        </div>
+
+        <div class="input-row" style="display:flex; gap:10px; margin-bottom:10px; align-items: flex-end;">
+            <div style="flex:2;">
+                <label>Costo de Compra (por Unidad/Kg)</label>
+                <div style="display:flex; gap:5px;">
+                    <input type="number" id="costo" placeholder="0.00" step="0.01" oninput="calcularCostoDual()">
+                    <select id="monedaCosto" style="width:70px; padding:10px;" onchange="calcularCostoDual()">
+                        <option value="BS" selected>Bs</option>
+                        <option value="USD">$</option>
+                    </select>
+                </div>
+                <div id="costoDual" class="costo-preview">Eqv: $ 0,00</div>
+            </div>
+            <div style="flex:1;">
+                <label>Beneficio %</label>
+                <input type="number" id="beneficio" value="30" placeholder="30">
+            </div>
+        </div>
+
+        <div class="input-row" style="display:flex; gap:10px; margin-bottom:15px;">
+            <div style="flex:1;">
+                <label>Unidad</label>
+                <select id="unidad">
+                    <option value="UND">Unidad (UND)</option>
+                    <option value="KG">Kilogramo (KG)</option>
+                    <option value="LIT">Líquido (LIQ)</option>
+                    <option value="PAQ">Paquete (PAQ)</option>
+                </select>
+            </div>
+            <div style="flex:1;">
+                <label>Cantidad/Peso</label>
+                <input type="number" id="cantidad" placeholder="Cant." value="1" step="0.001">
+            </div>
+        </div>
+
+        <div class="switch-container" style="margin-bottom:15px;">
+            <span style="font-size:0.9rem; font-weight:bold;">Producto Exento de IVA</span>
+            <label class="switch">
+                <input type="checkbox" id="exentoIVA">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="btn-grid">
+            <button class="btn-add" id="btnGuardar" onclick="addItem()">CARGAR AL INVENTARIO</button>
+            <button class="btn-danger" id="btnCancelarEdit" onclick="limpiarForm()" style="display:none;">CANCELAR</button>
+        </div>
+
+        <h2>📦 Inventario Actual</h2>
+        <input type="text" id="filtroStock" class="search-input" placeholder="🔍 Buscar en Stock..." oninput="render()">
+        <div id="lista" class="list-container"></div>
+        
+        <div class="total-section">
+            <div style="font-size:0.8rem; opacity:0.9;">VALOR TOTAL INVENTARIO</div>
+            <div class="total-amount" id="totalDisplay">Bs. 0,00</div>
+            <div id="totalDisplayUSD" style="font-size:0.9rem; opacity:0.8;">$ 0,00</div>
+        </div>
     </div>
 
+    
+        
+        <div id="ventas" class="tab-content"><div style="text-align:center; padding:40px; color:#999;">Módulo de Ventas (Próximamente Bloque 3)</div></div>
+        <div id="reportes" class="tab-content"><div style="text-align:center; padding:40px; color:#999;">Módulo de Reportes (Próximamente Bloque 3)</div></div>
+    </div>
+
+    <div id="debug-log"></div>
+
     <script>
+        let items = [];
+        let tasaDolar = 36.50;
+        let diaActual = new Date().toLocaleDateString();
+        let currentTab = 'inventario';
+        let db = null;
+        let configMaestra = {
+            idActual: '',
+            pathCliente: '',
+            nombreNegocio: 'Inverteca Core'
+        };
+
         function log(msg) {
             const el = document.getElementById('debug-log');
-            el.innerHTML += `<div>> ${msg}</div>`;
-            el.scrollTop = el.scrollHeight;
+            if(el) {
+                el.innerHTML += `<div>> ${msg}</div>`;
+                el.scrollTop = el.scrollHeight;
+            }
             console.log(msg);
         }
 
-        // CONFIGURACIÓN EXTRAÍDA DEL PANEL DE SUPERUSUARIO (LA QUE FUNCIONA)
-        const firebaseConfig = {
-            apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Z",
-            authDomain: "inverteca-core.firebaseapp.com",
-            databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
-            projectId: "inverteca-core",
-            storageBucket: "inverteca-core.firebaseapp.com",
-            messagingSenderId: "647568711575",
-            appId: "1:647568711575:web:d09efc86829"
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            const target = document.getElementById(tabId);
+            if(target) target.classList.add('active');
+            
+            const btn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
+            if(btn) btn.classList.add('active');
+            currentTab = tabId;
+        }
+
+        window.onload = function() {
+            document.getElementById('fechaActual').textContent = diaActual;
+            const urlParams = new URLSearchParams(window.location.search);
+            let clienteId = urlParams.get('id') || "c001angeles";
+            
+            log("🚀 Iniciando cliente: " + clienteId);
+            configMaestra.idActual = clienteId;
+            configMaestra.pathCliente = 'clientes/' + clienteId + '/';
+            
+            inicializarFirebase();
         };
 
-        // 1. Detección de ID
-        const urlParams = new URLSearchParams(window.location.search);
-        let clienteId = urlParams.get('id');
+        function inicializarFirebase() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Zdp-7lwUSFc",
+                authDomain: "inverteca-core.firebaseapp.com",
+                databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
+                projectId: "inverteca-core",
+                storageBucket: "inverteca-core.firebasestorage.app",
+                messagingSenderId: "647568711575",
+                appId: "1:647568711575:web:d09efc868294c96b0aeed2"
+            };
 
-        // INYECCIÓN TEMPORAL PARA PRUEBAS
-        if (!clienteId) {
-            clienteId = "c001angeles"; 
-            log("⚠️ Usando ID temporal: " + clienteId);
-        }
-
-        document.getElementById('detected-id').textContent = clienteId;
-
-        // 2. Inicializar Firebase
-        try {
-            firebase.initializeApp(firebaseConfig);
-            log("🔥 Firebase Inicializado con Llave Maestra.");
-            
-            // Usamos conexión directa para el primer bloque
-            conectarADatos(clienteId);
-
-        } catch (err) {
-            log("❌ Error Init: " + err.message);
-        }
-
-        function conectarADatos(id) {
-            const db = firebase.database();
-            const path = `clientes/${id}/config`;
-            
-            log("📡 Conectando a: " + path);
-            
-            // Intento de lectura inmediata (sin Auth para probar reglas)
-            db.ref(path).on('value', snap => {
-                const config = snap.val();
-                if (config) {
-                    log("✅ ¡DATOS RECIBIDOS!");
-                    document.getElementById('business-name').textContent = config.nombre_negocio || "Sin Nombre";
-                    document.getElementById('dot').className = "status-dot online";
-                    document.getElementById('status-text').textContent = "CONECTADO";
-                    alert("¡ESTOY CONECTADO! - " + (config.nombre_negocio || id));
-                } else {
-                    log("❓ No hay datos en: " + path);
-                    document.getElementById('business-name').textContent = "ID no configurado";
-                }
-            }, err => {
-                log("❌ Error DB: " + err.message);
-                log("💡 TIP: Si sale 'Permission Denied', necesitamos Auth.");
-                
-                // Si falla por permisos, intentamos Auth Anónimo
-                log("🔐 Intentando Autenticación Anónima...");
+            try {
+                firebase.initializeApp(firebaseConfig);
                 firebase.auth().signInAnonymously().then(() => {
-                    log("✅ Autenticación OK.");
+                    log("🔐 Conexión Maestra OK.");
+                    db = firebase.database();
+                    escucharConfig();
+                    escucharDatos();
                 }).catch(e => log("❌ Error Auth: " + e.message));
+            } catch(e) { log("❌ Error Init: " + e.message); }
+        }
+
+        function escucharConfig() {
+            db.ref(configMaestra.pathCliente + 'config').on('value', snap => {
+                const config = snap.val();
+                if(config) {
+                    log("✅ Configuración cargada.");
+                    configMaestra.nombreNegocio = config.nombre_negocio || config.nombre || "Inverteca";
+                    document.getElementById('nombreNegocioDisplay').textContent = configMaestra.nombreNegocio;
+                    
+                    const statusEl = document.getElementById('connectionStatus');
+                    statusEl.textContent = '🟢 ONLINE';
+                    statusEl.className = 'connection-status online';
+                }
             });
         }
+
+        function escucharDatos() {
+            db.ref(configMaestra.pathCliente + 'data/items').on('value', snap => {
+                items = snap.val() || [];
+                log("📦 Inventario actualizado: " + items.length + " productos.");
+                render();
+            });
+        }
+
+        function addItem() {
+            const nombre = document.getElementById('nombre').value.trim();
+            const costo = parseFloat(document.getElementById('costo').value) || 0;
+            const cantidad = parseFloat(document.getElementById('cantidad').value) || 0;
+
+            if(!nombre) { alert("Ingrese nombre"); return; }
+
+            const nuevoItem = {
+                id: Date.now(),
+                nombre: nombre,
+                costo: costo,
+                cantidad: cantidad,
+                unidad: document.getElementById('unidad').value
+            };
+
+            items.push(nuevoItem);
+            db.ref(configMaestra.pathCliente + 'data/items').set(items)
+                .then(() => {
+                    log("✅ Producto guardado.");
+                    limpiarForm();
+                });
+        }
+
+        function limpiarForm() {
+            document.getElementById('nombre').value = '';
+            document.getElementById('costo').value = '';
+            document.getElementById('cantidad').value = '1';
+        }
+
+        function render() {
+            const lista = document.getElementById('lista');
+            if(!lista) return;
+            lista.innerHTML = '';
+            let total = 0;
+
+            items.forEach((item, index) => {
+                total += (item.costo * item.cantidad);
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `
+                    <div class="item-header">
+                        <span class="item-name">${item.nombre}</span>
+                        <span class="item-quantity">${item.cantidad} ${item.unidad}</span>
+                    </div>
+                    <div style="font-size:0.8rem; color:#666;">Costo: Bs. ${item.costo.toFixed(2)}</div>
+                `;
+                lista.appendChild(div);
+            });
+
+            const display = document.getElementById('totalDisplay');
+            if(display) display.textContent = "Bs. " + total.toLocaleString('es-VE', {minimumFractionDigits:2});
+        }
+        
+        function actualizarTasa() {}
+        function calcularCostoDual() {}
+        function toggleCameraInventario() { alert("Cámara próximamente en Bloque 4"); }
     </script>
 </body>
 </html>
