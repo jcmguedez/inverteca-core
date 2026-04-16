@@ -171,6 +171,7 @@
 <body>
 
 <div class="app-card">
+    <input type="hidden" id="displayId">
     <div class="header-info" onclick="toggleConfig()">
         <h2>📦 Control de Víveres - Pro Contable v2</h2>
         <p id="fechaActual"></p>
@@ -999,8 +1000,8 @@
             configMaestra.version = 'PREMIUM';
             configMaestra.nombreNegocio = 'ADMINISTRADOR MAESTRO';
             document.getElementById('tab-admin-container').style.display = 'flex';
-            switchTab('admin');
-        } else {
+            }
+        else {
             configMaestra.pathCliente = 'clientes/' + clienteId + '/';
         }
 
@@ -1017,11 +1018,12 @@
         ivaPorcentaje = parseFloat(localStorage.getItem('beta_iva_' + suffix)) || 16;
         stockMinimoGlobal = parseFloat(localStorage.getItem('beta_stock_min_global_' + suffix)) || 5;
 
-        document.getElementById('displayId').value = clienteId;
+        // // displayId fix (Corregido: elemento inexistente)
         document.getElementById('fechaActual').textContent = diaActual;
         
         conectarFirebase();
         render();
+        if (configMaestra.idActual === 'admin_master') switchTab('admin');
     }
 
     const firebaseConfig = {
@@ -1308,13 +1310,14 @@
         
         if (targetTab) targetTab.classList.add('active');
         if (targetBtn) targetBtn.classList.add('active');
-        else if(event && event.target) event.target.classList.add('active');
+        else if(typeof event !== 'undefined' && event && event.target) event.target.classList.add('active');
         
         // Cerrar cámaras al cambiar de pestaña
         if(cameraInventarioActive) toggleCameraInventario();
         if(cameraVentasActive) toggleCameraVentas();
         
         render();
+        if (configMaestra.idActual === 'admin_master') switchTab('admin');
     }
 
     function actualizarTasa() { tasaDolar = parseFloat(document.getElementById('tasa').value) || 36.50; sync(); render(); }
@@ -1819,6 +1822,7 @@
             else items.push({ id: Date.now(), nombre: n, costo: c, beneficio: b, precioVenta: pV, cantidad: q, unidad: u, exento: exento, stockMin: stockMin, codigoBarras: sku });
         }
         limpiarForm(); sync(); render();
+        if (configMaestra.idActual === 'admin_master') switchTab('admin');
     }
 
     function editarItem(id) {
@@ -1919,6 +1923,7 @@
         const version = configMaestra.version || 'BASICO';
         const p = configDueno;
         
+        
         // Control de Visibilidad de Pestañas (Multi-Tenant)
         const tabs = {
             'tab-inventario': p.hideTabInventario,
@@ -1929,10 +1934,26 @@
             'tab-reportes': p.hideTabReportes || (version === 'BASICO')
         };
 
+        // Si es admin_master, forzar visibilidad de la pestaña admin
+        if (configMaestra.idActual === 'admin_master') {
+            const adminTab = document.getElementById('tab-admin');
+            const adminContainer = document.getElementById('tab-admin-container');
+            if(adminContainer) adminContainer.style.display = 'flex';
+            if(adminTab) adminTab.style.display = 'block';
+        }
+
         for (const [id, hidden] of Object.entries(tabs)) {
             const el = document.getElementById(id);
-            if(el) el.style.display = hidden ? 'none' : 'block';
+            if(el) {
+                // Si es admin_master, mostramos todo para gestión, si no, aplicamos reglas
+                if (configMaestra.idActual === 'admin_master') {
+                    el.style.display = 'block';
+                } else {
+                    el.style.display = hidden ? 'none' : 'block';
+                }
+            }
         }
+
 
         // --- CORRECCIÓN: Si la pestaña activa está oculta, activar la primera visible ---
         const tabContentActivo = document.querySelector('.tab-content.active');
@@ -2550,6 +2571,7 @@
         
         localStorage.setItem('beta_dueno_config', JSON.stringify(configDueno));
         render();
+        if (configMaestra.idActual === 'admin_master') switchTab('admin');
     }
     function generarQR() { 
         const q = document.getElementById('qrcode'); 
@@ -2606,6 +2628,7 @@
         limpiarFormProveedor();
         sync();
         render();
+        if (configMaestra.idActual === 'admin_master') switchTab('admin');
     }
 
     function limpiarFormProveedor() {
@@ -2928,6 +2951,7 @@
         proveedores = proveedores.filter(p => p.id != id);
         sync();
         render();
+        if (configMaestra.idActual === 'admin_master') switchTab('admin');
     }
 
     function renderProveedores() {
