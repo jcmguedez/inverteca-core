@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inverteca Core - Bloque 1 (Corregido)</title>
+    <title>Inverteca Core - Bloque 1 (Configuración Maestra)</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -39,15 +39,15 @@
             console.log(msg);
         }
 
-        // CONFIGURACIÓN REAL Y COMPLETA
+        // CONFIGURACIÓN EXTRAÍDA DEL PANEL DE SUPERUSUARIO (LA QUE FUNCIONA)
         const firebaseConfig = {
-            apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Zdp-7lwUSFc",
+            apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Z",
             authDomain: "inverteca-core.firebaseapp.com",
             databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
             projectId: "inverteca-core",
-            storageBucket: "inverteca-core.firebasestorage.app",
+            storageBucket: "inverteca-core.firebaseapp.com",
             messagingSenderId: "647568711575",
-            appId: "1:647568711575:web:d09efc868294c96b0aeed2"
+            appId: "1:647568711575:web:d09efc86829"
         };
 
         // 1. Detección de ID
@@ -65,17 +65,10 @@
         // 2. Inicializar Firebase
         try {
             firebase.initializeApp(firebaseConfig);
-            log("🔥 Firebase Inicializado con Llave Correcta.");
+            log("🔥 Firebase Inicializado con Llave Maestra.");
             
-            firebase.auth().signInAnonymously().then(() => {
-                log("🔐 Autenticación Anónima OK.");
-                conectarADatos(clienteId);
-            }).catch(err => {
-                log("❌ Error Auth: " + err.message);
-                if(err.code === "auth/operation-not-allowed") {
-                    log("💡 TIP: Debes activar 'Anonymous' en la pestaña Auth de Firebase.");
-                }
-            });
+            // Usamos conexión directa para el primer bloque
+            conectarADatos(clienteId);
 
         } catch (err) {
             log("❌ Error Init: " + err.message);
@@ -87,6 +80,7 @@
             
             log("📡 Conectando a: " + path);
             
+            // Intento de lectura inmediata (sin Auth para probar reglas)
             db.ref(path).on('value', snap => {
                 const config = snap.val();
                 if (config) {
@@ -98,11 +92,16 @@
                 } else {
                     log("❓ No hay datos en: " + path);
                     document.getElementById('business-name').textContent = "ID no configurado";
-                    log("💡 TIP: Asegúrate de haber creado este ID en el Panel de Superusuario.");
                 }
             }, err => {
                 log("❌ Error DB: " + err.message);
-                log("💡 TIP: Revisa las Reglas de Realtime Database.");
+                log("💡 TIP: Si sale 'Permission Denied', necesitamos Auth.");
+                
+                // Si falla por permisos, intentamos Auth Anónimo
+                log("🔐 Intentando Autenticación Anónima...");
+                firebase.auth().signInAnonymously().then(() => {
+                    log("✅ Autenticación OK.");
+                }).catch(e => log("❌ Error Auth: " + e.message));
             });
         }
     </script>
