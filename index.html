@@ -840,13 +840,13 @@
 <script>
 
     const firebaseConfig = {
-        apiKey: 'AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Z',
-        authDomain: 'inverteca-core.firebaseapp.com',
-        databaseURL: 'https://inverteca-core-default-rtdb.firebaseio.com',
-        projectId: 'inverteca-core',
-        storageBucket: 'inverteca-core.firebaseapp.com',
-        messagingSenderId: '647568711575',
-        appId: '1:647568711575:web:d09efc86829'
+        apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Zdp-7lwUSFc",
+        authDomain: "inverteca-core.firebaseapp.com",
+        databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
+        projectId: "inverteca-core",
+        storageBucket: "inverteca-core.firebasestorage.app",
+        messagingSenderId: "647568711575",
+        appId: "1:647568711575:web:d09efc868294c96b0aeed2"
     };
 
 
@@ -859,23 +859,23 @@
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
         if (!id) {
-            log('❌ Error: No se especificó ID de cliente (?id=...)');
-            alert('Error: Acceso no autorizado. Se requiere ID de cliente.');
+            log("❌ Error: No se especificó ID de cliente (?id=...)");
+            alert("Error: Acceso no autorizado. Se requiere ID de cliente.");
             return;
         }
         clienteActual.id = id;
-        log('🔑 Iniciando sesión para: ' + id);
+        log("🔑 Iniciando sesión para: " + id);
         try {
             firebase.initializeApp(firebaseConfig);
             await firebase.auth().signInAnonymously();
-            log('🔐 Conexión Maestra OK.');
+            log("🔐 Conexión Maestra OK.");
             if (id === 'admin_master') {
                 configurarModoAdmin();
             } else {
                 await cargarConfiguracionCliente(id);
             }
         } catch (error) {
-            log('❌ Error de conexión: ' + error.message);
+            log("❌ Error de conexión: " + error.message);
         }
     }
 
@@ -884,8 +884,8 @@
         const snapshot = await db.ref('clientes/' + id + '/config').once('value');
         const config = snapshot.val();
         if (!config) {
-            log('❌ Cliente no encontrado en la nube.');
-            alert('El cliente no existe o no está configurado.');
+            log("❌ Cliente no encontrado en la nube.");
+            alert("El cliente no existe o no está configurado.");
             return;
         }
         clienteActual.config = config;
@@ -898,8 +898,8 @@
     }
 
     function configurarModoAdmin() {
-        log('👑 MODO ADMINISTRADOR ACTIVADO');
-        document.getElementById('nombreNegocioDisplay').textContent = '👑 PANEL MAESTRO';
+        log("👑 MODO ADMINISTRADOR ACTIVADO");
+        document.getElementById('nombreNegocioDisplay').textContent = "👑 PANEL MAESTRO";
         if(document.getElementById('tab-admin')) document.getElementById('tab-admin').style.display = 'block';
         switchTab('admin');
         iniciarEscuchaDatos('admin_master');
@@ -908,7 +908,7 @@
     function iniciarEscuchaDatos(id) {
         const db = firebase.database();
         const basePath = 'clientes/' + id + '/data/';
-        db.ref(basePath + 'items').on('value', snap => { items = snap.val() || []; log('📦 Inventario sincronizado.'); render(); });
+        db.ref(basePath + 'items').on('value', snap => { items = snap.val() || []; log("📦 Inventario sincronizado."); render(); });
         db.ref(basePath + 'ventas').on('value', snap => { const data = snap.val(); ventas = data ? Object.values(data) : []; render(); });
         db.ref(basePath + 'creditos').on('value', snap => { creditos = snap.val() || []; render(); });
         db.ref(basePath + 'proveedores').on('value', snap => { proveedores = snap.val() || []; render(); });
@@ -919,8 +919,8 @@
     function guardarEnNube(nodo, datos) {
         if(!clienteActual.id) return;
         firebase.database().ref('clientes/' + clienteActual.id + '/data/' + nodo).set(datos)
-            .then(() => log('✅ Datos guardados en la nube.'))
-            .catch(e => log('❌ Error al guardar: ' + e.message));
+            .then(() => log("✅ Datos guardados en la nube."))
+            .catch(e => log("❌ Error al guardar: " + e.message));
     }
 
     // --- MOTOR INVERTECA-CORE MULTI-TENANT v3.0 ---
