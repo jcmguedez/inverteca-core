@@ -834,6 +834,27 @@
 
 <script>
 
+    // --- DETECCIÓN INMEDIATA DE ID (HOISTING) ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const clienteId = urlParams.get('id');
+    console.log("🆔 ID detectado en URL:", clienteId);
+
+    if (clienteId === 'admin_master') {
+        console.log("👑 Modo Admin Master Activado");
+        // Forzar estado visual inmediato antes de que cargue el resto
+        window.addEventListener('load', () => {
+            const adminContainer = document.getElementById('tab-admin-container');
+            if(adminContainer) adminContainer.style.display = 'flex';
+            const statusEl = document.getElementById('connectionStatus');
+            if(statusEl) {
+                statusEl.textContent = '🟢 MODO ADMIN';
+                statusEl.className = 'connection-status online';
+            }
+            switchTab('admin');
+        });
+    }
+
+
     // --- SISTEMA DE DEPURACIÓN GLOBAL ---
     window.onerror = function(message, source, lineno, colno, error) {
         const errorMsg = `❌ ERROR CRÍTICO:\n\nMensaje: ${message}\nArchivo: ${source}\nLínea: ${lineno}\nColumna: ${colno}\n\nLa aplicación se ha detenido para evitar daños en los datos.`;
@@ -1012,9 +1033,6 @@
     });
 
     function init() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const clienteId = urlParams.get('id');
-
         if (!clienteId) {
             document.body.innerHTML = `<div style="padding:50px; text-align:center; font-family:sans-serif; background:#f4f7f6; height:100vh;">
                 <h1 style="color:#27ae60;">📦 Inverteca-Core</h1>
@@ -1022,6 +1040,39 @@
             </div>`;
             return;
         }
+
+        configMaestra.idActual = clienteId;
+        
+        if (clienteId === 'admin_master') {
+            configMaestra.pathCliente = 'admin_master/';
+            configMaestra.version = 'PREMIUM';
+            configMaestra.nombreNegocio = 'ADMINISTRADOR MAESTRO';
+            conectarFirebase();
+            render();
+            setTimeout(() => switchTab('admin'), 100);
+            return;
+        }
+
+        configMaestra.pathCliente = 'clientes/' + clienteId + '/';
+        const suffix = clienteId;
+        items = JSON.parse(localStorage.getItem('beta_items_' + suffix)) || [];
+        ventas = JSON.parse(localStorage.getItem('beta_ventas_' + suffix)) || [];
+        creditos = JSON.parse(localStorage.getItem('beta_creditos_' + suffix)) || [];
+        cierres = JSON.parse(localStorage.getItem('beta_cierres_' + suffix)) || [];
+        proveedores = JSON.parse(localStorage.getItem('beta_proveedores_' + suffix)) || [];
+        facturas = JSON.parse(localStorage.getItem('beta_facturas_' + suffix)) || [];
+        clientes = JSON.parse(localStorage.getItem('beta_clientes_' + suffix)) || [];
+        gastosOperativos = JSON.parse(localStorage.getItem('beta_gastos_operativos_' + suffix)) || [];
+        tasaDolar = parseFloat(localStorage.getItem('beta_tasa_' + suffix)) || 36.50;
+        ivaPorcentaje = parseFloat(localStorage.getItem('beta_iva_' + suffix)) || 16;
+        stockMinimoGlobal = parseFloat(localStorage.getItem('beta_stock_min_global_' + suffix)) || 5;
+
+        const fechaEl = document.getElementById('fechaActual');
+        if(fechaEl) fechaEl.textContent = diaActual;
+        
+        conectarFirebase();
+        render();
+    }
 
         configMaestra.idActual = clienteId;
         
@@ -1251,7 +1302,7 @@
         firebase.auth().signInAnonymously().then(() => {
             firebaseConnected = true;
             db = firebase.database();
-            iniciarFirebase();
+            if(clienteId !== 'admin_master') iniciarFirebase();
         });
     }
 
