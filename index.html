@@ -833,6 +833,23 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
 
 <script>
+
+    // --- SISTEMA DE DEPURACIÓN GLOBAL ---
+    window.onerror = function(message, source, lineno, colno, error) {
+        const errorMsg = `❌ ERROR CRÍTICO:\n\nMensaje: ${message}\nArchivo: ${source}\nLínea: ${lineno}\nColumna: ${colno}\n\nLa aplicación se ha detenido para evitar daños en los datos.`;
+        console.error(errorMsg, error);
+        alert(errorMsg);
+        return false;
+    };
+
+    window.onunhandledrejection = function(event) {
+        const errorMsg = `⚠️ PROMESA FALLIDA:\n\nMotivo: ${event.reason}`;
+        console.error(errorMsg);
+        alert(errorMsg);
+    };
+
+    console.log("🚀 Sistema de depuración activo.");
+
     // Esperar a que las librerías estén cargadas
     let libreriasListas = false;
     let intentosVerificacion = 0;
@@ -846,7 +863,7 @@
             libreriasListas = true;
             console.log('✓ Librerías cargadas correctamente');
             aplicarTraducciones();
-            init();
+            // init(); (Llamada movida a DOMContentLoaded)
         } else if(intentosVerificacion < maxIntentos && navigator.onLine) {
             // Si hay internet, esperamos un poco a que carguen los CDNs
             intentosVerificacion++;
@@ -856,7 +873,7 @@
             console.warn('🚀 Arranque instantáneo: Iniciando en modo local/offline');
             libreriasListas = scannerCargado; 
             if(firebaseCargado) aplicarTraducciones();
-            init();
+            // init(); (Llamada movida a DOMContentLoaded)
         }
     }
     
@@ -982,7 +999,19 @@
         hideTabReportes: false
     };
 
-                function init() {
+                
+    // Envolver el inicio para asegurar que el DOM esté listo
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log("📂 DOM cargado, iniciando aplicación...");
+        try {
+            // init(); (Llamada movida a DOMContentLoaded)
+        } catch (e) {
+            alert("❌ Fallo en el arranque (init): " + e.message);
+            console.error(e);
+        }
+    });
+
+    function init() {
         const urlParams = new URLSearchParams(window.location.search);
         const clienteId = urlParams.get('id');
 
@@ -1300,6 +1329,9 @@
         } else {
             console.log('💾 Cambios guardados localmente (Modo Offline)');
         }
+    }
+
+    } catch(e) { console.error("Error en render:", e); } 
     }
 
     function switchTab(tab) {
@@ -1924,6 +1956,7 @@
     }
 
     function render() {
+        try {
         // --- ACTUALIZAR NOMBRE DEL NEGOCIO ---
         const nombreN = configMaestra.nombreNegocio || 'Control de Víveres - Pro Contable v2';
         const h2Header = document.querySelector('.header-info h2');
