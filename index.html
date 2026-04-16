@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" id="dynamic-apple-icon" href="icono-basico.png">
     <link rel="manifest" id="dynamic-manifest" href="manifest.json">
     
-    <title>Control de Víveres - Pro Contable v2</title>
+    <title>Control de Víveres - Inverteca Core</title>
     <style>
         :root {
             --primary: #27ae60;
@@ -981,143 +981,71 @@
         hideTabReportes: false
     };
 
-    function init() {
-        // --- DETECTAR CLIENTE POR URL (?id=) ---
+        function init() {
         const urlParams = new URLSearchParams(window.location.search);
         const clienteId = urlParams.get('id');
 
         if (!clienteId) {
-            document.body.innerHTML = `
-                <div style="padding:50px; text-align:center; font-family:sans-serif; background:#f4f7f6; height:100vh;">
-                    <h1 style="color:#27ae60;">📦 Inverteca-Core</h1>
-                    <p>Bienvenido a la plataforma de gestión multi-cliente.</p>
-                    <div style="background:white; padding:20px; border-radius:10px; display:inline-block; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
-                        <p>⚠️ <b>Error:</b> No se ha especificado un ID de cliente.</p>
-                        <p>Por favor, use el enlace proporcionado por su administrador.</p>
-                    </div>
-                </div>`;
+            document.body.innerHTML = `<div style="padding:50px; text-align:center; font-family:sans-serif; background:#f4f7f6; height:100vh;">
+                <h1 style="color:#27ae60;">📦 Inverteca-Core</h1>
+                <p>Bienvenido. Por favor, use el enlace proporcionado por su administrador.</p>
+            </div>`;
             return;
         }
 
-        // --- LÓGICA DE ADMINISTRADOR MAESTRO ---
+        configMaestra.idActual = clienteId;
         if (clienteId === 'admin_master') {
             configMaestra.pathCliente = 'admin_master/';
-            configMaestra.idActual = 'admin_master';
             configMaestra.version = 'PREMIUM';
-            configMaestra.nombreNegocio = "ADMINISTRADOR MAESTRO";
-            document.title = "ADMIN - Inverteca Core";
-            
-            // Mostrar el panel de superusuario
+            configMaestra.nombreNegocio = 'ADMINISTRADOR MAESTRO';
             document.getElementById('tab-admin-container').style.display = 'flex';
             switchTab('admin');
-            
-            conectarFirebase();
-            render();
-            return;
+        } else {
+            configMaestra.pathCliente = 'clientes/' + clienteId + '/';
         }
 
-        // Configurar el path del cliente dinámicamente
-        configMaestra.pathCliente = 'clientes/' + clienteId + '/';
-        configMaestra.idActual = clienteId;
+        const suffix = clienteId === 'admin_master' ? 'admin' : clienteId;
+        items = JSON.parse(localStorage.getItem('beta_items_' + suffix)) || [];
+        ventas = JSON.parse(localStorage.getItem('beta_ventas_' + suffix)) || [];
+        creditos = JSON.parse(localStorage.getItem('beta_creditos_' + suffix)) || [];
+        cierres = JSON.parse(localStorage.getItem('beta_cierres_' + suffix)) || [];
+        proveedores = JSON.parse(localStorage.getItem('beta_proveedores_' + suffix)) || [];
+        facturas = JSON.parse(localStorage.getItem('beta_facturas_' + suffix)) || [];
+        clientes = JSON.parse(localStorage.getItem('beta_clientes_' + suffix)) || [];
+        gastosOperativos = JSON.parse(localStorage.getItem('beta_gastos_operativos_' + suffix)) || [];
+        tasaDolar = parseFloat(localStorage.getItem('beta_tasa_' + suffix)) || 36.50;
+        ivaPorcentaje = parseFloat(localStorage.getItem('beta_iva_' + suffix)) || 16;
+        stockMinimoGlobal = parseFloat(localStorage.getItem('beta_stock_min_global_' + suffix)) || 5;
 
-        // --- CONFIGURAR MANIFIESTO DINÁMICO ---
-        const nombreApp = configMaestra.nombreNegocio || "Control Víveres";
-        const iconoApp = configMaestra.iconoUrl || "iconpremiun.png";
-        
-        document.getElementById('dynamic-favicon').href = iconoApp;
-        document.getElementById('dynamic-apple-icon').href = iconoApp;
-        document.title = nombreApp + " - Inverteca Core";
-
-        const manifest = {
-            "name": nombreApp,
-            "short_name": nombreApp,
-            "start_url": window.location.href,
-            "display": "standalone",
-            "background_color": "#f4f7f6",
-            "theme_color": "#27ae60",
-            "icons": [{ "src": iconoApp, "sizes": "192x192", "type": "image/png", "purpose": "any maskable" }, { "src": iconoApp, "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }]
-        };
-        const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-        document.querySelector('#dynamic-manifest').setAttribute('href', URL.createObjectURL(blob));
-
-        // Cargar configuración local previa si existe para este cliente
-        const configGuardada = JSON.parse(localStorage.getItem('beta_dev_config_' + clienteId));
-        if (configGuardada) {
-            configMaestra = { ...configMaestra, ...configGuardada };
-        }
-        if (urlParams.has('db') && urlParams.has('key')) {
-            configMaestra.dbUrl = urlParams.get('db');
-            configMaestra.apiKey = urlParams.get('key');
-            configMaestra.pathCliente = urlParams.get('path') || configMaestra.pathCliente;
-            configMaestra.version = urlParams.get('ver') || configMaestra.version;
-            
-            if(configMaestra.dbUrl.includes("firebaseio.com")) {
-                configMaestra.projectId = configMaestra.dbUrl.split('https://')[1].split('.firebaseio')[0].split('-default-rtdb')[0];
-            }
-            
-            localStorage.setItem('beta_dev_config', JSON.stringify(configMaestra));
-            console.log("✅ Configuración sincronizada por URL.");
-            
-            // Limpiar la URL para que no se vea la configuración
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-
-        items = JSON.parse(localStorage.getItem('beta_items')) || [];
-        ventas = JSON.parse(localStorage.getItem('beta_ventas')) || [];
-        creditos = JSON.parse(localStorage.getItem('beta_creditos')) || [];
-        cierres = JSON.parse(localStorage.getItem('beta_cierres')) || [];
-        proveedores = JSON.parse(localStorage.getItem('beta_proveedores')) || [];
-        facturas = JSON.parse(localStorage.getItem('beta_facturas')) || [];
-        clientes = JSON.parse(localStorage.getItem('beta_clientes')) || [];
-        gastosOperativos = JSON.parse(localStorage.getItem('beta_gastos_operativos')) || [];
-        tasaDolar = parseFloat(localStorage.getItem('beta_tasa')) || 36.50;
-        ivaPorcentaje = parseFloat(localStorage.getItem('beta_iva')) || 16;
-        stockMinimoGlobal = parseFloat(localStorage.getItem('beta_stock_min_global')) || 5;
-        
-        document.getElementById('tasa').value = tasaDolar;
-        document.getElementById('ivaPorcentaje').value = ivaPorcentaje;
-        document.getElementById('stockMinimoGlobal').value = stockMinimoGlobal;
-        document.getElementById('stockMinimo').value = stockMinimoGlobal;
+        document.getElementById('displayId').value = clienteId;
         document.getElementById('fechaActual').textContent = diaActual;
         
         conectarFirebase();
         render();
     }
 
-    // ============================================================
-    // 🛠️ CONFIGURACIÓN DE ENTREGA (HARDCODED PARA EL CLIENTE)
-    // ============================================================
-    // Modifica estos valores antes de enviar el archivo al cliente.
-    const CONFIG_ENTREGA = {
-        dbUrl: 'https://viveres-pruebas-default-rtdb.firebaseio.com',
-        apiKey: 'AIzaSyB_I1xI7BS1ArpvkAOXiOYJ5ezZQiNKL7E',
-        pathCliente: 'viveres_beta/',
+    const firebaseConfig = {
+        apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Z",
+        authDomain: "inverteca-core.firebaseapp.com",
+        databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
+        projectId: "inverteca-core",
+        storageBucket: "inverteca-core.firebaseapp.com",
+        messagingSenderId: "647568711575",
+        appId: "1:647568711575:web:d09efc86829"
+    };
+
+    let configMaestra = {
         version: 'BASICO',
         limiteDispositivos: 2,
+        pathCliente: '',
+        idActual: '',
         claveMaestra: 'admin123',
-        nombreNegocio: '',
+        nombreNegocio: 'Inverteca Core',
         rifNegocio: '',
         direccionNegocio: '',
         telefonoNegocio: '',
         ultimaFactura: 0,
         iconoUrl: ''
-    };
-    // ============================================================
-
-    // --- CONFIGURACIÓN MAESTRA Y LICENCIAMIENTO ---
-    let configMaestra = JSON.parse(localStorage.getItem('beta_dev_config')) || {
-        version: CONFIG_ENTREGA.version,
-        limiteDispositivos: CONFIG_ENTREGA.limiteDispositivos,
-        pathCliente: CONFIG_ENTREGA.pathCliente,
-        dbUrl: CONFIG_ENTREGA.dbUrl,
-        apiKey: CONFIG_ENTREGA.apiKey,
-        projectId: CONFIG_ENTREGA.dbUrl.includes("firebaseio.com") ? CONFIG_ENTREGA.dbUrl.split('https://')[1].split('.firebaseio')[0].split('-default-rtdb')[0] : '',
-        claveMaestra: CONFIG_ENTREGA.claveMaestra,
-        nombreNegocio: CONFIG_ENTREGA.nombreNegocio,
-        rifNegocio: CONFIG_ENTREGA.rifNegocio,
-        direccionNegocio: CONFIG_ENTREGA.direccionNegocio,
-        telefonoNegocio: CONFIG_ENTREGA.telefonoNegocio,
-        ultimaFactura: CONFIG_ENTREGA.ultimaFactura
     };
 
     let deviceId = localStorage.getItem('beta_device_id') || ('dev_' + Math.random().toString(36).substr(2, 9));
@@ -1251,76 +1179,7 @@
         }
     }
 
-    function generarArchivoCliente() {
-        // 1. Obtener los datos actuales del panel
-        const version = document.getElementById('devVersion').value;
-        const limite = document.getElementById('devLimiteDispositivos').value;
-        const path = document.getElementById('devPathCliente').value.trim();
-        const dbUrl = document.getElementById('devDbUrl').value.trim();
-        const apiKey = document.getElementById('devApiKey').value.trim();
-        const claveM = document.getElementById('devClaveMaestra').value.trim();
-        
-        const nombreN = document.getElementById('devNombreNegocio').value.trim();
-        const rifN = document.getElementById('devRifNegocio').value.trim();
-        const dirN = document.getElementById('devDireccionNegocio').value.trim();
-        const telN = document.getElementById('devTelefonoNegocio').value.trim();
-        const ultF = document.getElementById('devUltimaFactura').value || 0;
-        const iconoU = document.getElementById('devIconoUrl').value.trim();
-
-        if(!dbUrl || !apiKey || !path) {
-            alert("⚠️ Por favor, completa la URL de Firebase, la API Key y el Path del Cliente antes de generar.");
-            return;
-        }
-
-        // 2. Obtener el código fuente de la página actual usando el DOM
-        // Usamos outerHTML del documento completo para evitar problemas de seguridad con fetch local
-        let htmlContent = document.documentElement.outerHTML;
-        htmlContent = "<!DOCTYPE html>\n<html lang=\"es\">\n" + htmlContent + "\n</html>";
-
-        // 3. Inyectar la configuración en el bloque CONFIG_ENTREGA usando Regex
-        const regexConfig = /const CONFIG_ENTREGA = \{[\s\S]*?\};/;
-        const nuevaConfig = `const CONFIG_ENTREGA = {
-        dbUrl: '${dbUrl}',
-        apiKey: '${apiKey}',
-        pathCliente: '${path}',
-        version: '${version}',
-        limiteDispositivos: ${limite},
-        claveMaestra: '${claveM}',
-        nombreNegocio: '${nombreN}',
-        rifNegocio: '${rifN}',
-        direccionNegocio: '${dirN}',
-        telefonoNegocio: '${telN}',
-        ultimaFactura: ${ultF},
-        iconoUrl: '${iconoU}'
-    };`;
-
-        let finalHtml = htmlContent.replace(regexConfig, nuevaConfig);
-
-        // 4. Asegurar que el modal esté cerrado en el código generado
-        // Limpiamos cualquier rastro de 'active' en el modal maestro
-        finalHtml = finalHtml.replace(/id="modalMaestro" class="modal active"/g, 'id="modalMaestro" class="modal"');
-        
-        // 5. Limpiar valores temporales del DOM que se inyectaron en el outerHTML
-        // Esto evita que el archivo generado lleve los valores que escribiste en los inputs visualmente
-        const regexInputs = /value="[^"]*"/g;
-        // No limpiamos todos los values porque borraríamos botones, pero sí los de los inputs de texto
-        // Para ser más seguros, simplemente dejamos que el script init() sobrescriba todo al arrancar
-
-        // 6. Crear el archivo y descargarlo
-        const blob = new Blob([finalHtml], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        const nombreArchivo = `ControlViveres_${path.replace(/[^a-z0-9]/gi, '_')}.html`;
-        
-        a.href = url;
-        a.download = nombreArchivo;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
-        alert(`✅ ¡Listo! Se ha descargado el archivo: ${nombreArchivo}\n\nYa puedes enviarlo por WhatsApp a tu cliente.`);
-    }
+    function generarArchivoCliente() { alert('Sistema centralizado activo.'); }
 
     function reinicioMaestroSistema() {
         if(confirm("⚠️ ATENCIÓN: Se borrarán TODOS los datos de este cliente en la nube y local. ¿Continuar?")) {
@@ -1346,172 +1205,81 @@
         appId: "1:647568711575:web:d09efc86829"
     };
 
-    function conectarFirebase() {
-        if(typeof firebase === "undefined" || !navigator.onLine) { if(typeof render === "function") render(); return; }
-        
-        // Si ya hay una app de firebase, no reiniciamos a menos que sea necesario
-        if (firebase.apps.length) return;
-
-        try {
-            autenticarYConectar(firebaseConfig);
-        } catch(e) { console.error("Error al conectar Firebase:", e); }
-    }
-
-    function autenticarYConectar(config) {
-        if(!firebase.apps.length) firebase.initializeApp(config);
-        
-        console.log("🔐 Iniciando autenticación anónima...");
-        firebase.auth().signInAnonymously()
-            .then(() => {
-                console.log("✅ Autenticación exitosa (Identidad Invisible)");
-                iniciarFirebase();
-            })
-            .catch((error) => {
-                console.error("❌ Error de autenticación:", error.code, error.message);
-                // Si falla la autenticación (ej: sin internet), igual iniciamos Firebase 
-                // para que funcione en modo local/offline con los datos guardados.
-                iniciarFirebase();
-            });
+        function conectarFirebase() {
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        firebase.auth().signInAnonymously().then(() => {
+            firebaseConnected = true;
+            db = firebase.database();
+            iniciarFirebase();
+        });
     }
 
     function iniciarFirebase() {
-        db = firebase.database();
         const root = configMaestra.pathCliente;
-
-        // Excepción para el Administrador Maestro
         if (configMaestra.idActual === 'admin_master') {
             document.getElementById('connectionStatus').textContent = '🟢 MODO ADMIN';
             document.getElementById('connectionStatus').className = 'connection-status online';
             return;
         }
 
-        // --- 1. ESCUCHAR CONFIGURACIÓN DEL CLIENTE (SUSPENSIÓN Y PLANES) ---
         db.ref(root + 'config').on('value', snap => {
             const config = snap.val();
             if (config) {
-                // Control de Suspensión
                 if (config.estado_servicio === 'suspendido') {
-                    document.body.innerHTML = `
-                        <div style="padding:50px; text-align:center; font-family:sans-serif; background:#f4f7f6; height:100vh;">
-                            <h1 style="color:red;">🚫 Servicio Suspendido</h1>
-                            <p>Su acceso a la plataforma ha sido temporalmente inhabilitado.</p>
-                            <div style="background:white; padding:20px; border-radius:10px; display:inline-block; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
-                                <p>Por favor, contacte al administrador para regularizar su situación.</p>
-                                <p><b>Soporte:</b> inverteca-core@soporte.com</p>
-                            </div>
-                        </div>`;
+                    document.body.innerHTML = '<div style="padding:50px; text-align:center;"><h1>🚫 Servicio Suspendido</h1><p>Contacte al administrador.</p></div>';
                     return;
                 }
-
-                // Control de Planes (1: Básico, 2: Pro, 3: Premium)
                 const nivel = parseInt(config.nivel_plan) || 1;
                 configMaestra.version = nivel === 3 ? 'PREMIUM' : (nivel === 2 ? 'PRO' : 'BASICO');
                 configMaestra.nombreNegocio = config.nombre || configMaestra.nombreNegocio;
-                configMaestra.rifNegocio = config.rif || configMaestra.rifNegocio;
-                configMaestra.direccionNegocio = config.direccion || configMaestra.direccionNegocio;
-                configMaestra.telefonoNegocio = config.telefono || configMaestra.telefonoNegocio;
-                
-                // Actualizar UI según el plan
-                document.title = configMaestra.nombreNegocio + " - Inverteca Core";
-                
-                // --- ACTUALIZAR ICONOS Y MANIFIESTO SEGÚN EL PLAN ---
-                let iconoPlan = 'icono-basico.png';
-                if (configMaestra.version === 'PRO') iconoPlan = 'icono-pro.png';
-                if (configMaestra.version === 'PREMIUM') iconoPlan = 'icono-premium.png';
-                
-                // Si el cliente tiene un icono personalizado en configMaestra, ese manda
-                const iconoFinal = configMaestra.iconoUrl || iconoPlan;
-                
-                document.getElementById('dynamic-favicon').href = iconoFinal;
-                document.getElementById('dynamic-apple-icon').href = iconoFinal;
-                
-                // Re-generar manifiesto dinámico para reflejar el icono del plan
-                const manifest = {
-                    "name": configMaestra.nombreNegocio || "Inverteca Core",
-                    "short_name": configMaestra.nombreNegocio || "Inverteca",
-                    "start_url": window.location.href,
-                    "display": "standalone",
-                    "background_color": "#ffffff",
-                    "theme_color": "#2ecc71",
-                    "icons": [
-                        { "src": iconoFinal, "sizes": "192x192", "type": "image/png" },
-                        { "src": iconoFinal, "sizes": "512x512", "type": "image/png" }
-                    ]
-                };
-                const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-                document.querySelector('#dynamic-manifest').setAttribute('href', URL.createObjectURL(blob));
-
                 render();
             }
         });
 
-        // --- 2. REGISTRO DE DISPOSITIVO ---
-        db.ref(root + 'dispositivos/' + deviceId).set({ 
-            ultimaConexion: firebase.database.ServerValue.TIMESTAMP, 
-            nombre: navigator.userAgent.substring(0, 50) 
-        });
-
-        let primeraCargaCompleta = false;
-
-        db.ref('.info/connected').on('value', snap => {
-            firebaseConnected = snap.val() === true;
-            document.getElementById('connectionStatus').textContent = firebaseConnected ? '🟢 Online (' + configMaestra.version + ')' : '🔴 Local';
-            document.getElementById('connectionStatus').className = 'connection-status ' + (firebaseConnected ? 'online' : 'offline');
-            if(firebaseConnected && primeraCargaCompleta) sync(); 
-        });
-
-        // --- 3. ESCUCHAR DATOS DEL CLIENTE (/data) ---
         db.ref(root + 'data').on('value', snap => {
             const data = snap.val();
-            if(data) {
-                console.log("📥 Datos recibidos de la nube...");
-                items = data.items || []; 
-                ventas = data.ventas || []; 
-                creditos = data.creditos || [];
-                cierres = data.cierres || []; 
-                proveedores = data.proveedores || []; 
-                facturas = data.facturas || [];
-                clientes = data.clientes || []; 
-                gastosOperativos = data.gastosOperativos || [];
-                tasaDolar = data.tasa || 36.50; 
-                ivaPorcentaje = data.iva || 16; 
-                stockMinimoGlobal = data.stockMinGlobal || 5;
-                
-                // Persistencia local
-                const storageKey = 'beta_data_' + configMaestra.idActual;
-                localStorage.setItem(storageKey, JSON.stringify({
-                    items, ventas, creditos, cierres, proveedores, facturas, clientes, gastosOperativos,
-                    tasa: tasaDolar, iva: ivaPorcentaje, stockMinGlobal: stockMinimoGlobal
-                }));
-                
-                primeraCargaCompleta = true;
+            if (data) {
+                items = data.items || [];
+                tasaDolar = data.tasa || tasaDolar;
                 render();
-            } else {
-                primeraCargaCompleta = true;
-                console.log("☁️ La nube está vacía. Listo para sincronizar.");
+            }
+        });
+
+        db.ref(root + 'logs').on('value', snap => {
+            const logs = snap.val();
+            if (logs) {
+                ventas = logs.ventas || [];
+                creditos = logs.creditos || [];
+                cierres = logs.cierres || [];
+                proveedores = logs.proveedores || [];
+                facturas = logs.facturas || [];
+                clientes = logs.clientes || [];
+                gastosOperativos = logs.gastosOperativos || [];
+                render();
             }
         });
     }
 
     function sync() {
-        localStorage.setItem('beta_items', JSON.stringify(items));
-        localStorage.setItem('beta_ventas', JSON.stringify(ventas));
-        localStorage.setItem('beta_creditos', JSON.stringify(creditos));
-        localStorage.setItem('beta_cierres', JSON.stringify(cierres));
-        localStorage.setItem('beta_proveedores', JSON.stringify(proveedores));
-        localStorage.setItem('beta_facturas', JSON.stringify(facturas));
-        localStorage.setItem('beta_clientes', JSON.stringify(clientes));
-        localStorage.setItem('beta_gastos_operativos', JSON.stringify(gastosOperativos));
-        localStorage.setItem('beta_tasa', tasaDolar);
-        localStorage.setItem('beta_iva', ivaPorcentaje);
-        localStorage.setItem('beta_stock_min_global', stockMinimoGlobal);
+        const suffix = configMaestra.idActual === 'admin_master' ? 'admin' : configMaestra.idActual;
+        localStorage.setItem('beta_items_' + suffix, JSON.stringify(items));
+        localStorage.setItem('beta_ventas_' + suffix, JSON.stringify(ventas));
+        localStorage.setItem('beta_creditos_' + suffix, JSON.stringify(creditos));
+        localStorage.setItem('beta_cierres_' + suffix, JSON.stringify(cierres));
+        localStorage.setItem('beta_proveedores_' + suffix, JSON.stringify(proveedores));
+        localStorage.setItem('beta_facturas_' + suffix, JSON.stringify(facturas));
+        localStorage.setItem('beta_clientes_' + suffix, JSON.stringify(clientes));
+        localStorage.setItem('beta_gastos_operativos_' + suffix, JSON.stringify(gastosOperativos));
+        localStorage.setItem('beta_tasa_' + suffix, tasaDolar);
+        localStorage.setItem('beta_iva_' + suffix, ivaPorcentaje);
+        localStorage.setItem('beta_stock_min_global_' + suffix, stockMinimoGlobal);
         
         if(firebaseConnected && db && navigator.onLine) {
-            console.log('☁️ Subiendo cambios a Firebase...');
-            db.ref(configMaestra.pathCliente + 'data').set({ 
-                items, ventas, creditos, cierres, proveedores, facturas, clientes, gastosOperativos,
-                tasa: tasaDolar, iva: ivaPorcentaje, stockMinGlobal: stockMinimoGlobal 
-            }).then(() => {
+            const root = configMaestra.pathCliente;
+            db.ref(root + 'data').set({ items, tasa: tasaDolar, iva: ivaPorcentaje, stockMinGlobal: stockMinimoGlobal });
+            db.ref(root + 'logs').set({ ventas, creditos, cierres, proveedores, facturas, clientes, gastosOperativos });
+        }
+    }).then(() => {
                 console.log('✅ Sincronización exitosa');
             }).catch(err => {
                 console.error('❌ Error al sincronizar:', err);
