@@ -825,43 +825,26 @@
         </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-app.js">
+    document.addEventListener("DOMContentLoaded", init);
+</script>
 <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-auth.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
 
 <script>
-
-    // --- MOTOR MULTI-TENANT INVERTECA-CORE (RECONSTRUCCIÓN TOTAL) ---
-    const urlParams = new URLSearchParams(window.location.search);
-    const clienteId = urlParams.get('id');
-    console.log("🆔 ID detectado:", clienteId);
-
-    // Sistema de Depuración Global
-    window.onerror = function(m, s, l, c, e) {
-        alert(`❌ ERROR: ${m}\nLínea: ${l}`);
-        return false;
+    const firebaseConfig = {
+        apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Z",
+        authDomain: "inverteca-core.firebaseapp.com",
+        databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
+        projectId: "inverteca-core",
+        storageBucket: "inverteca-core.firebaseapp.com",
+        messagingSenderId: "647568711575",
+        appId: "1:647568711575:web:d09efc86829"
     };
-
-    if (clienteId === 'admin_master') {
-        window.addEventListener('load', () => {
-            const adminContainer = document.getElementById('tab-admin-container');
-            if(adminContainer) adminContainer.style.display = 'flex';
-            const statusEl = document.getElementById('connectionStatus');
-            if(statusEl) {
-                statusEl.textContent = '🟢 MODO ADMIN';
-                statusEl.className = 'connection-status online';
-            }
-            setTimeout(() => switchTab('admin'), 200);
-        });
-    }
-
-    // Envolver el inicio para asegurar que el DOM esté listo
-    document.addEventListener('DOMContentLoaded', () => {
-        try { // init movido } catch (e) { console.error("Error en init:", e); }
-    });
-
+    let configMaestra = { version: 'BASICO', idActual: '', pathCliente: '', nombreNegocio: 'Inverteca Core' };
+    
     // Esperar a que las librerías estén cargadas
     let libreriasListas = false;
     let intentosVerificacion = 0;
@@ -875,7 +858,7 @@
             libreriasListas = true;
             console.log('✓ Librerías cargadas correctamente');
             aplicarTraducciones();
-            // init movido
+            
         } else if(intentosVerificacion < maxIntentos && navigator.onLine) {
             // Si hay internet, esperamos un poco a que carguen los CDNs
             intentosVerificacion++;
@@ -885,7 +868,7 @@
             console.warn('🚀 Arranque instantáneo: Iniciando en modo local/offline');
             libreriasListas = scannerCargado; 
             if(firebaseCargado) aplicarTraducciones();
-            // init movido
+            
         }
     }
     
@@ -1012,11 +995,12 @@
     };
 
         function init() {
+        console.log("🚀 Inverteca-Core Iniciado");
+        const urlParams = new URLSearchParams(window.location.search);
+        const clienteId = urlParams.get('id');
+
         if (!clienteId) {
-            document.body.innerHTML = `<div style="padding:50px; text-align:center; font-family:sans-serif; background:#f4f7f6; height:100vh;">
-                <h1 style="color:#27ae60;">📦 Inverteca-Core</h1>
-                <p>Bienvenido. Por favor, use el enlace proporcionado por su administrador.</p>
-            </div>`;
+            document.body.innerHTML = `<div style="padding:50px; text-align:center; font-family:sans-serif; background:#f4f7f6; height:100vh;"><h1>📦 Inverteca-Core</h1><p>Por favor, use el enlace de su administrador.</p></div>`;
             return;
         }
 
@@ -1026,154 +1010,26 @@
             configMaestra.pathCliente = 'admin_master/';
             configMaestra.version = 'PREMIUM';
             configMaestra.nombreNegocio = 'ADMINISTRADOR MAESTRO';
+            document.getElementById('tab-admin-container').style.display = 'flex';
             conectarFirebase();
             render();
+            setTimeout(() => switchTab('admin'), 150);
             return;
         }
 
         configMaestra.pathCliente = 'clientes/' + clienteId + '/';
         const suffix = clienteId;
-        
-        // Cargar datos locales (Caché)
         items = JSON.parse(localStorage.getItem('beta_items_' + suffix)) || [];
         ventas = JSON.parse(localStorage.getItem('beta_ventas_' + suffix)) || [];
         creditos = JSON.parse(localStorage.getItem('beta_creditos_' + suffix)) || [];
-        cierres = JSON.parse(localStorage.getItem('beta_cierres_' + suffix)) || [];
-        proveedores = JSON.parse(localStorage.getItem('beta_proveedores_' + suffix)) || [];
-        facturas = JSON.parse(localStorage.getItem('beta_facturas_' + suffix)) || [];
-        clientes = JSON.parse(localStorage.getItem('beta_clientes_' + suffix)) || [];
-        gastosOperativos = JSON.parse(localStorage.getItem('beta_gastos_operativos_' + suffix)) || [];
         tasaDolar = parseFloat(localStorage.getItem('beta_tasa_' + suffix)) || 36.50;
-        ivaPorcentaje = parseFloat(localStorage.getItem('beta_iva_' + suffix)) || 16;
-        stockMinimoGlobal = parseFloat(localStorage.getItem('beta_stock_min_global_' + suffix)) || 5;
-
+        
         const fechaEl = document.getElementById('fechaActual');
         if(fechaEl) fechaEl.textContent = diaActual;
         
         conectarFirebase();
         render();
     }
-
-        // --- LÓGICA DE ADMINISTRADOR MAESTRO ---
-        if (clienteId === 'admin_master') {
-            configMaestra.pathCliente = 'admin_master/';
-            configMaestra.idActual = 'admin_master';
-            configMaestra.version = 'PREMIUM';
-            configMaestra.nombreNegocio = "ADMINISTRADOR MAESTRO";
-            document.title = "ADMIN - Inverteca Core";
-            
-            // Mostrar el panel de superusuario
-            document.getElementById('tab-admin-container').style.display = 'flex';
-            switchTab('admin');
-            
-            conectarFirebase();
-            render();
-            return;
-        }
-
-        // Configurar el path del cliente dinámicamente
-        configMaestra.pathCliente = 'clientes/' + clienteId + '/';
-        configMaestra.idActual = clienteId;
-
-        // --- CONFIGURAR MANIFIESTO DINÁMICO ---
-        const nombreApp = configMaestra.nombreNegocio || "Control Víveres";
-        const iconoApp = configMaestra.iconoUrl || "iconpremiun.png";
-        
-        document.getElementById('dynamic-favicon').href = iconoApp;
-        document.getElementById('dynamic-apple-icon').href = iconoApp;
-        document.title = nombreApp + " - Inverteca Core";
-
-        const manifest = {
-            "name": nombreApp,
-            "short_name": nombreApp,
-            "start_url": window.location.href,
-            "display": "standalone",
-            "background_color": "#f4f7f6",
-            "theme_color": "#27ae60",
-            "icons": [{ "src": iconoApp, "sizes": "192x192", "type": "image/png", "purpose": "any maskable" }, { "src": iconoApp, "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }]
-        };
-        const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-        document.querySelector('#dynamic-manifest').setAttribute('href', URL.createObjectURL(blob));
-
-        // Cargar configuración local previa si existe para este cliente
-        const configGuardada = JSON.parse(localStorage.getItem('beta_dev_config_' + clienteId));
-        if (configGuardada) {
-            configMaestra = { ...configMaestra, ...configGuardada };
-        }
-        if (urlParams.has('db') && urlParams.has('key')) {
-            configMaestra.dbUrl = urlParams.get('db');
-            configMaestra.apiKey = urlParams.get('key');
-            configMaestra.pathCliente = urlParams.get('path') || configMaestra.pathCliente;
-            configMaestra.version = urlParams.get('ver') || configMaestra.version;
-            
-            if(configMaestra.dbUrl.includes("firebaseio.com")) {
-                configMaestra.projectId = configMaestra.dbUrl.split('https://')[1].split('.firebaseio')[0].split('-default-rtdb')[0];
-            }
-            
-            localStorage.setItem('beta_dev_config', JSON.stringify(configMaestra));
-            console.log("✅ Configuración sincronizada por URL.");
-            
-            // Limpiar la URL para que no se vea la configuración
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-
-        items = JSON.parse(localStorage.getItem('beta_items')) || [];
-        ventas = JSON.parse(localStorage.getItem('beta_ventas')) || [];
-        creditos = JSON.parse(localStorage.getItem('beta_creditos')) || [];
-        cierres = JSON.parse(localStorage.getItem('beta_cierres')) || [];
-        proveedores = JSON.parse(localStorage.getItem('beta_proveedores')) || [];
-        facturas = JSON.parse(localStorage.getItem('beta_facturas')) || [];
-        clientes = JSON.parse(localStorage.getItem('beta_clientes')) || [];
-        gastosOperativos = JSON.parse(localStorage.getItem('beta_gastos_operativos')) || [];
-        tasaDolar = parseFloat(localStorage.getItem('beta_tasa')) || 36.50;
-        ivaPorcentaje = parseFloat(localStorage.getItem('beta_iva')) || 16;
-        stockMinimoGlobal = parseFloat(localStorage.getItem('beta_stock_min_global')) || 5;
-        
-        document.getElementById('tasa').value = tasaDolar;
-        document.getElementById('ivaPorcentaje').value = ivaPorcentaje;
-        document.getElementById('stockMinimoGlobal').value = stockMinimoGlobal;
-        document.getElementById('stockMinimo').value = stockMinimoGlobal;
-        document.getElementById('fechaActual').textContent = diaActual;
-        
-        conectarFirebase();
-        render();
-    }
-
-    // ============================================================
-    // 🛠️ CONFIGURACIÓN DE ENTREGA (HARDCODED PARA EL CLIENTE)
-    // ============================================================
-    // Modifica estos valores antes de enviar el archivo al cliente.
-    const CONFIG_ENTREGA = {
-        dbUrl: 'https://viveres-pruebas-default-rtdb.firebaseio.com',
-        apiKey: 'AIzaSyB_I1xI7BS1ArpvkAOXiOYJ5ezZQiNKL7E',
-        pathCliente: 'viveres_beta/',
-        version: 'BASICO',
-        limiteDispositivos: 2,
-        claveMaestra: 'admin123',
-        nombreNegocio: '',
-        rifNegocio: '',
-        direccionNegocio: '',
-        telefonoNegocio: '',
-        ultimaFactura: 0,
-        iconoUrl: ''
-    };
-    // ============================================================
-
-    // --- CONFIGURACIÓN MAESTRA Y LICENCIAMIENTO ---
-    let configMaestra = JSON.parse(localStorage.getItem('beta_dev_config')) || {
-        version: CONFIG_ENTREGA.version,
-        limiteDispositivos: CONFIG_ENTREGA.limiteDispositivos,
-        pathCliente: CONFIG_ENTREGA.pathCliente,
-        dbUrl: CONFIG_ENTREGA.dbUrl,
-        apiKey: CONFIG_ENTREGA.apiKey,
-        projectId: CONFIG_ENTREGA.dbUrl.includes("firebaseio.com") ? CONFIG_ENTREGA.dbUrl.split('https://')[1].split('.firebaseio')[0].split('-default-rtdb')[0] : '',
-        claveMaestra: CONFIG_ENTREGA.claveMaestra,
-        nombreNegocio: CONFIG_ENTREGA.nombreNegocio,
-        rifNegocio: CONFIG_ENTREGA.rifNegocio,
-        direccionNegocio: CONFIG_ENTREGA.direccionNegocio,
-        telefonoNegocio: CONFIG_ENTREGA.telefonoNegocio,
-        ultimaFactura: CONFIG_ENTREGA.ultimaFactura
-    };
 
     let deviceId = localStorage.getItem('beta_device_id') || ('dev_' + Math.random().toString(36).substr(2, 9));
     localStorage.setItem('beta_device_id', deviceId);
@@ -1334,20 +1190,7 @@
 
         // 3. Inyectar la configuración en el bloque CONFIG_ENTREGA usando Regex
         const regexConfig = /const CONFIG_ENTREGA = \{[\s\S]*?\};/;
-        const nuevaConfig = `const CONFIG_ENTREGA = {
-        dbUrl: '${dbUrl}',
-        apiKey: '${apiKey}',
-        pathCliente: '${path}',
-        version: '${version}',
-        limiteDispositivos: ${limite},
-        claveMaestra: '${claveM}',
-        nombreNegocio: '${nombreN}',
-        rifNegocio: '${rifN}',
-        direccionNegocio: '${dirN}',
-        telefonoNegocio: '${telN}',
-        ultimaFactura: ${ultF},
-        iconoUrl: '${iconoU}'
-    };`;
+        const nuevaConfig = ``;
 
         let finalHtml = htmlContent.replace(regexConfig, nuevaConfig);
 
@@ -1391,7 +1234,7 @@
     }
 
     // --- CONFIGURACIÓN MAESTRA DE FIREBASE (INVERTECA-CORE) ---
-        const firebaseConfig = {
+    const firebaseConfig = {
         apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Z",
         authDomain: "inverteca-core.firebaseapp.com",
         databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
@@ -1406,8 +1249,12 @@
         firebase.auth().signInAnonymously().then(() => {
             firebaseConnected = true;
             db = firebase.database();
-            if(clienteId !== 'admin_master') iniciarFirebase();
-        }).catch(e => console.error("Error Auth:", e));
+            if(configMaestra.idActual !== 'admin_master') iniciarFirebase();
+            else {
+                const statusEl = document.getElementById('connectionStatus');
+                if(statusEl) { statusEl.textContent = '🟢 MODO ADMIN'; statusEl.className = 'connection-status online'; }
+            }
+        }).catch(e => console.error("Error Firebase:", e));
     }
         
         // Si ya hay una app de firebase, no reiniciamos a menos que sea necesario
@@ -3354,13 +3201,12 @@
     // init() es llamado por verificarLibrerias() una vez que Firebase y html5-qrcode están cargados
 
     // --- REGISTRO DE SERVICE WORKER PARA PWA ---
-        if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('🚀 SW registrado'))
-                .catch(err => console.error('❌ SW error', err));
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('🚀 Service Worker registrado:', reg.scope))
+                .catch(err => console.error('❌ Error al registrar Service Worker:', err));
         });
-    });
     }
 </script>
 </body>
