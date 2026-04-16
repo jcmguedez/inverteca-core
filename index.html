@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inverteca Core - Bloque 1</title>
+    <title>Inverteca Core - Bloque 1 (Corregido)</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -14,13 +14,13 @@
         .status-dot { width: 15px; height: 15px; border-radius: 50%; display: inline-block; background: #e74c3c; margin-right: 8px; }
         .online { background: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
         .info { margin-top: 20px; font-size: 0.9rem; color: #666; }
-        #debug-log { margin-top: 20px; font-family: monospace; font-size: 0.8rem; background: #000; color: #0f0; padding: 10px; border-radius: 5px; width: 100%; text-align: left; height: 100px; overflow-y: auto; }
+        #debug-log { margin-top: 20px; font-family: monospace; font-size: 0.8rem; background: #000; color: #0f0; padding: 10px; border-radius: 5px; width: 100%; text-align: left; height: 150px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h1 id="business-name">Cargando...</h1>
+        <h1 id="business-name">Conectando...</h1>
         <div>
             <span id="dot" class="status-dot"></span>
             <span id="status-text">Desconectado</span>
@@ -39,24 +39,25 @@
             console.log(msg);
         }
 
+        // CONFIGURACIÓN REAL Y COMPLETA
         const firebaseConfig = {
-            apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Z",
+            apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Zdp-7lwUSFc",
             authDomain: "inverteca-core.firebaseapp.com",
             databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
             projectId: "inverteca-core",
-            storageBucket: "inverteca-core.firebaseapp.com",
+            storageBucket: "inverteca-core.firebasestorage.app",
             messagingSenderId: "647568711575",
-            appId: "1:647568711575:web:d09efc86829"
+            appId: "1:647568711575:web:d09efc868294c96b0aeed2"
         };
 
         // 1. Detección de ID
         const urlParams = new URLSearchParams(window.location.search);
         let clienteId = urlParams.get('id');
 
-        // INYECCIÓN TEMPORAL PARA PRUEBAS (Si no hay ID en URL, usa este)
+        // INYECCIÓN TEMPORAL PARA PRUEBAS
         if (!clienteId) {
             clienteId = "c001angeles"; 
-            log("⚠️ Usando ID inyectado temporalmente: " + clienteId);
+            log("⚠️ Usando ID temporal: " + clienteId);
         }
 
         document.getElementById('detected-id').textContent = clienteId;
@@ -64,12 +65,17 @@
         // 2. Inicializar Firebase
         try {
             firebase.initializeApp(firebaseConfig);
-            log("🔥 Firebase Inicializado.");
+            log("🔥 Firebase Inicializado con Llave Correcta.");
             
             firebase.auth().signInAnonymously().then(() => {
                 log("🔐 Autenticación Anónima OK.");
                 conectarADatos(clienteId);
-            }).catch(err => log("❌ Error Auth: " + err.message));
+            }).catch(err => {
+                log("❌ Error Auth: " + err.message);
+                if(err.code === "auth/operation-not-allowed") {
+                    log("💡 TIP: Debes activar 'Anonymous' en la pestaña Auth de Firebase.");
+                }
+            });
 
         } catch (err) {
             log("❌ Error Init: " + err.message);
@@ -90,11 +96,13 @@
                     document.getElementById('status-text').textContent = "CONECTADO";
                     alert("¡ESTOY CONECTADO! - " + (config.nombre_negocio || id));
                 } else {
-                    log("❓ No hay datos en esta ruta.");
-                    document.getElementById('business-name').textContent = "ID no encontrado";
+                    log("❓ No hay datos en: " + path);
+                    document.getElementById('business-name').textContent = "ID no configurado";
+                    log("💡 TIP: Asegúrate de haber creado este ID en el Panel de Superusuario.");
                 }
             }, err => {
                 log("❌ Error DB: " + err.message);
+                log("💡 TIP: Revisa las Reglas de Realtime Database.");
             });
         }
     </script>
