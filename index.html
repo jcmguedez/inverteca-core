@@ -1015,31 +1015,55 @@
             }
         }
 
-        function startCamera() {
+        async function startCamera() {
             const qrReader = document.getElementById('qr-reader-inventario');
             const statusEl = document.getElementById('qr-status-inventario');
             
             qrReader.style.display = 'block';
-            statusEl.textContent = 'Inicializando cámara...';
+            statusEl.textContent = 'Solicitando permisos de cámara...';
             
-            qrScanner = new Html5Qrcode("qr-reader-inventario");
-            
-            qrScanner.start(
-                { facingMode: "environment" },
-                {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 }
-                },
-                onScanSuccess,
-                onScanFailure
-            ).then(() => {
+            try {
+                // Forzar solicitud de permisos antes de iniciar
+                await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                
+                qrScanner = new Html5Qrcode("qr-reader-inventario");
+                
+                const config = {
+                    fps: 15,
+                    qrbox: { width: 250, height: 250 },
+                    aspectRatio: 1.0
+                };
+
+                // Intentar iniciar con la cámara trasera específicamente
+                await qrScanner.start(
+                    { facingMode: "environment" },
+                    config,
+                    onScanSuccess,
+                    onScanFailure
+                );
+
                 cameraActive = true;
-                statusEl.textContent = 'Cámara activa - Escanea un código de barras';
-                document.querySelector('.btn-camera').textContent = '❌ CERRAR CÁMARA';
-            }).catch(err => {
-                statusEl.textContent = 'Error: ' + err.message;
-                log("❌ Error de cámara: " + err.message);
-            });
+                statusEl.textContent = '✅ Cámara activa';
+                document.querySelector('.btn-camera').textContent = '❌ CERRAR';
+                log("📷 Cámara iniciada correctamente.");
+            } catch (err) {
+                cameraActive = false;
+                qrReader.style.display = 'none';
+                statusEl.innerHTML = `<span style="color:red">❌ Error: ${err.message}</span><br><small>Asegúrate de dar permisos de cámara en tu navegador.</small>`;
+                log("❌ Error de cámara: " + err.name + " - " + err.message);
+                
+                // Intento alternativo si falla el facingMode
+                if (err.name === "OverconstrainedError" || err.name === "NotFoundError") {
+                    log("🔄 Reintentando con cámara por defecto...");
+                    try {
+                        await qrScanner.start({ }, config, onScanSuccess, onScanFailure);
+                        cameraActive = true;
+                        statusEl.textContent = '✅ Cámara activa (Modo compatible)';
+                    } catch (e2) {
+                        log("❌ Fallo total de cámara.");
+                    }
+                }
+            }
         }
 
         function stopCamera() {
