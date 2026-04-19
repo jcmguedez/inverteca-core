@@ -459,6 +459,167 @@
         .debug-visible #debug-log {
             display: block;
         }
+        
+        .carrito-container {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .carrito-vacio {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+            font-size: 0.95rem;
+        }
+        
+        .carrito-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .carrito-item-info {
+            flex: 1;
+        }
+        
+        .carrito-item-nombre {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+        
+        .carrito-item-precio {
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 3px;
+        }
+        
+        .carrito-item-cantidad {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-qty {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            background: #eee;
+            color: #333;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-qty:active {
+            transform: scale(0.95);
+        }
+        
+        .qty-display {
+            min-width: 30px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .btn-remove-item {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        
+        .totales-section {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+        }
+        
+        .totales-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .totales-row.total-final {
+            border-top: 2px solid rgba(255,255,255,0.3);
+            padding-top: 10px;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        
+        .totales-usd {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .btn-venta-contado {
+            background: var(--secondary);
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .btn-dar-credito {
+            background: var(--info);
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .btn-limpiar-carrito {
+            background: var(--danger);
+            width: 100%;
+            padding: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .historial-container {
+            margin-top: 20px;
+        }
+        
+        .historial-item {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--secondary);
+            font-size: 0.85rem;
+        }
+        
+        .historial-item-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .historial-item-detalle {
+            color: #666;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
@@ -573,7 +734,44 @@
         </div>
 
         <!-- TABS PROXIMAMENTE -->
-        <div id="venta" class="tab-content"><div style="text-align: center; padding: 40px; color: #999;">Módulo de Ventas (Próximamente)</div></div>
+        <div id="venta" class="tab-content">
+            <div class="input-row">
+                <div class="input-group" style="flex: 1;">
+                    <input type="text" id="buscarProducto" class="search-input" placeholder="Buscar por nombre..." oninput="filtrarProductos()">
+                </div>
+                <button class="btn-camera" onclick="toggleCameraVentas()" style="flex: 0 1 auto; margin-bottom: 0;">ESCANEAR</button>
+            </div>
+            <div class="input-group">
+                <label>Código de Barras (Escáner)</label>
+                <input type="text" id="codigoBarrasVentas" placeholder="Escanear o escribir código..." onchange="buscarPorSKU()">
+            </div>
+            <div id="qr-reader-ventas" style="display: none;"></div>
+            <div class="qr-reader-status" id="qr-status-ventas"></div>
+            <div class="switch-container">
+                <span style="font-size: 0.9rem; font-weight: bold;">Incluir IVA en Ticket</span>
+                <label class="switch">
+                    <input type="checkbox" id="incluirIVAVentas" checked onchange="recalcularTotales()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div id="listaProductosVentas" style="margin-bottom: 15px; max-height: 200px; overflow-y: auto;"></div>
+            <h2>Carrito</h2>
+            <div id="carritoVentas" class="carrito-container">
+                <div class="carrito-vacio">Carrito vacío</div>
+            </div>
+            <div class="totales-section">
+                <div class="totales-row"><span>Subtotal Gravable:</span><span id="subtotalGravable">Bs. 0,00</span></div>
+                <div class="totales-row"><span>Subtotal Exento:</span><span id="subtotalExento">Bs. 0,00</span></div>
+                <div class="totales-row"><span>IVA (16%):</span><span id="ivaTotal">Bs. 0,00</span></div>
+                <div class="totales-row total-final"><span>TOTAL FINAL</span><span id="totalFinal">Bs. 0,00</span></div>
+                <div class="totales-usd" id="totalFinalUSD">$ 0,00</div>
+            </div>
+            <button class="btn-venta-contado" onclick="finalizarVentaContado()">VENTA CONTADO</button>
+            <button class="btn-dar-credito" onclick="abrirModalCredito()">DAR CREDITO</button>
+            <button class="btn-limpiar-carrito" onclick="limpiarCarrito()">LIMPIAR CARRITO</button>
+            <h2>Ventas de Hoy</h2>
+            <div id="historialVentas" class="historial-container"></div>
+        </div>
         <div id="creditos" class="tab-content"><div style="text-align: center; padding: 40px; color: #999;">Módulo de Créditos (Próximamente)</div></div>
         <div id="reportes" class="tab-content"><div style="text-align: center; padding: 40px; color: #999;">Módulo de Reportes (Próximamente)</div></div>
     </div>
@@ -875,6 +1073,219 @@
         }
 
         function onScanErrorInventario(err) { /* Silencio */ }
+
+        // ==================== MÓDULO DE VENTAS ====================
+        let carrito = [];
+        let ventas = [];
+        let scannerVentas = null;
+        let cameraVentasActive = false;
+
+        function filtrarProductos() {
+            const filtro = document.getElementById('buscarProducto').value.toLowerCase();
+            const lista = document.getElementById('listaProductosVentas');
+            lista.innerHTML = '';
+            
+            items.filter(i => i.nombre.toLowerCase().includes(filtro))
+                .forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'item';
+                    div.style.cursor = 'pointer';
+                    div.innerHTML = `
+                        <div class="item-header">
+                            <span class="item-name">${item.nombre}</span>
+                            <span class="item-quantity">${item.cantidad}</span>
+                        </div>
+                        <div class="item-prices">
+                            <div class="item-price-bs">Bs. ${item.precioVenta.toFixed(2)}</div>
+                            <div class="item-price-usd">$ ${item.precioVentaUSD.toFixed(2)}</div>
+                        </div>
+                    `;
+                    div.onclick = () => agregarAlCarrito(item);
+                    lista.appendChild(div);
+                });
+        }
+
+        function buscarPorSKU() {
+            const sku = document.getElementById('codigoBarrasVentas').value.trim();
+            if (!sku) return;
+            const item = items.find(i => i.sku === sku);
+            if (item) {
+                agregarAlCarrito(item);
+                document.getElementById('codigoBarrasVentas').value = '';
+            } else {
+                alert('Producto no encontrado');
+            }
+        }
+
+        function agregarAlCarrito(item) {
+            const existente = carrito.find(c => c.id === item.id);
+            if (existente) {
+                existente.cantidad += 1;
+            } else {
+                carrito.push({ ...item, cantidad: 1 });
+            }
+            recalcularTotales();
+            renderCarrito();
+        }
+
+        function renderCarrito() {
+            const carritoDiv = document.getElementById('carritoVentas');
+            if (carrito.length === 0) {
+                carritoDiv.innerHTML = '<div class="carrito-vacio">Carrito vacío</div>';
+                return;
+            }
+            carritoDiv.innerHTML = carrito.map((item, idx) => `
+                <div class="carrito-item">
+                    <div class="carrito-item-info">
+                        <div class="carrito-item-nombre">${item.nombre}</div>
+                        <div class="carrito-item-precio">Bs. ${item.precioVenta.toFixed(2)} x ${item.cantidad}</div>
+                    </div>
+                    <div class="carrito-item-cantidad">
+                        <button class="btn-qty" onclick="modificarCantidad(${idx}, -1)">−</button>
+                        <span class="qty-display">${item.cantidad}</span>
+                        <button class="btn-qty" onclick="modificarCantidad(${idx}, 1)">+</button>
+                        <button class="btn-remove-item" onclick="removerDelCarrito(${idx})">✕</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function modificarCantidad(idx, delta) {
+            carrito[idx].cantidad += delta;
+            if (carrito[idx].cantidad <= 0) removerDelCarrito(idx);
+            else {
+                recalcularTotales();
+                renderCarrito();
+            }
+        }
+
+        function removerDelCarrito(idx) {
+            carrito.splice(idx, 1);
+            recalcularTotales();
+            renderCarrito();
+        }
+
+        function recalcularTotales() {
+            let subtotalGravable = 0, subtotalExento = 0, ivaTotal = 0;
+            const incluirIVA = document.getElementById('incluirIVAVentas').checked;
+            
+            carrito.forEach(item => {
+                const subtotal = item.precioVenta * item.cantidad;
+                if (item.exentoIVA) {
+                    subtotalExento += subtotal;
+                } else {
+                    subtotalGravable += subtotal;
+                    if (incluirIVA) ivaTotal += subtotal * (item.iva / 100);
+                }
+            });
+            
+            const totalFinal = subtotalGravable + subtotalExento + ivaTotal;
+            const totalFinalUSD = totalFinal / tasaDolar;
+            
+            document.getElementById('subtotalGravable').textContent = 'Bs. ' + subtotalGravable.toFixed(2);
+            document.getElementById('subtotalExento').textContent = 'Bs. ' + subtotalExento.toFixed(2);
+            document.getElementById('ivaTotal').textContent = 'Bs. ' + ivaTotal.toFixed(2);
+            document.getElementById('totalFinal').textContent = 'Bs. ' + totalFinal.toFixed(2);
+            document.getElementById('totalFinalUSD').textContent = '$ ' + totalFinalUSD.toFixed(2);
+        }
+
+        function limpiarCarrito() {
+            if (confirm('¿Vaciar carrito?')) {
+                carrito = [];
+                renderCarrito();
+                recalcularTotales();
+            }
+        }
+
+        function finalizarVentaContado() {
+            if (carrito.length === 0) return alert('Carrito vacío');
+            const venta = {
+                id: Date.now().toString(),
+                fecha: new Date().toLocaleString('es-VE'),
+                items: carrito,
+                total: parseFloat(document.getElementById('totalFinal').textContent.replace('Bs. ', '')),
+                tipo: 'CONTADO'
+            };
+            ventas.push(venta);
+            db.ref(configMaestra.pathCliente + 'logs/ventas').push(venta);
+            log('✅ Venta registrada');
+            carrito = [];
+            renderCarrito();
+            recalcularTotales();
+            renderHistorial();
+        }
+
+        function abrirModalCredito() {
+            if (carrito.length === 0) return alert('Carrito vacío');
+            alert('Modal de crédito (Próximamente)');
+        }
+
+        function renderHistorial() {
+            const historialDiv = document.getElementById('historialVentas');
+            if (ventas.length === 0) {
+                historialDiv.innerHTML = '<p style="text-align:center; color:#999;">Sin ventas hoy</p>';
+                return;
+            }
+            historialDiv.innerHTML = ventas.map(v => `
+                <div class="historial-item">
+                    <div class="historial-item-header">
+                        <span>${v.fecha}</span>
+                        <span>Bs. ${v.total.toFixed(2)}</span>
+                    </div>
+                    <div class="historial-item-detalle">${v.items.length} artículos - ${v.tipo}</div>
+                </div>
+            `).join('');
+        }
+
+        function toggleCameraVentas() {
+            if(!libreriasListas) return alert('Cargando librerías...');
+            if(cameraVentasActive) closeCameraVentas();
+            else openCameraVentas();
+        }
+
+        function openCameraVentas() {
+            const readerDiv = document.getElementById('qr-reader-ventas');
+            const statusDiv = document.getElementById('qr-status-ventas');
+            readerDiv.style.display = 'block';
+            readerDiv.innerHTML = '';
+            statusDiv.textContent = 'Inicializando cámara...';
+            
+            if(scannerVentas) {
+                try { scannerVentas.clear(); } catch(e) {}
+                scannerVentas = null;
+            }
+            
+            try {
+                scannerVentas = new Html5QrcodeScanner(
+                    "qr-reader-ventas",
+                    { fps: 10, qrbox: { width: 250, height: 250 }, rememberLastUsedCamera: true, showTorchButtonIfSupported: true, aspectRatio: 1.0, formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE, Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39, Html5QrcodeSupportedFormats.EAN_13] },
+                    false
+                );
+                scannerVentas.render(onScanSuccessVentas, onScanErrorVentas);
+                cameraVentasActive = true;
+                statusDiv.textContent = '✓ Cámara activa';
+            } catch(err) {
+                statusDiv.textContent = 'Error: ' + err.message;
+            }
+        }
+
+        function closeCameraVentas() {
+            if(scannerVentas) {
+                scannerVentas.clear().then(() => {
+                    document.getElementById('qr-reader-ventas').style.display = 'none';
+                    document.getElementById('qr-status-ventas').textContent = '';
+                    cameraVentasActive = false;
+                });
+            }
+        }
+
+        function onScanSuccessVentas(decodedText) {
+            document.getElementById('codigoBarrasVentas').value = decodedText;
+            buscarPorSKU();
+            closeCameraVentas();
+        }
+
+        function onScanErrorVentas(err) { /* Silencio */ }
 
         verificarLibrerias();
     </script>
