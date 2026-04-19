@@ -621,6 +621,24 @@
             font-size: 0.8rem;
         }
         
+        .btn-anular {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-anular:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+        
         .modal {
             display: none;
             position: fixed;
@@ -1002,6 +1020,72 @@
         </div>
     </div>
 
+
+    <!-- MODAL: SELECCIONAR O REGISTRAR CLIENTE -->
+    <div id="modalClienteCredito" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>👤</span>
+                <span>Seleccionar Cliente</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-input-group">
+                    <label>Buscar o crear cliente:</label>
+                    <input type="text" id="inputBuscaCliente" placeholder="Nombre del cliente..." oninput="filtrarClientes()">
+                    <div id="listaClientesFiltrada" style="margin-top: 10px; max-height: 200px; overflow-y: auto;"></div>
+                </div>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                    <div style="font-weight: bold; margin-bottom: 10px;">O registrar nuevo cliente:</div>
+                    <div class="modal-input-group">
+                        <label>Nombre Completo:</label>
+                        <input type="text" id="nuevoClienteNombre" placeholder="Ej: Juan Martinez">
+                    </div>
+                    <div class="modal-input-group">
+                        <label>Cédula:</label>
+                        <input type="text" id="nuevoClienteCedula" placeholder="Ej: 1234567">
+                    </div>
+                    <div class="modal-input-group">
+                        <label>Teléfono:</label>
+                        <input type="text" id="nuevoClienteTelefono" placeholder="Ej: 04141234567">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="confirmarClienteCredito()">CONTINUAR</button>
+                <button class="modal-btn modal-btn-danger" onclick="cerrarModalClienteCredito()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: RESUMEN DE CRÉDITO -->
+    <div id="modalResumenCredito" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>📋</span>
+                <span>Resumen de Crédito</span>
+            </div>
+            <div class="modal-body">
+                <div style="background: #f0f8ff; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                    <div style="font-size: 0.9rem; color: #666;">Cliente:</div>
+                    <div style="font-size: 1.2rem; font-weight: bold;" id="resumenClienteNombre">-</div>
+                </div>
+                <div style="background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
+                    <div style="font-size: 0.85rem; opacity: 0.9;">Total a Crédito:</div>
+                    <div style="font-size: 1.5rem; font-weight: bold;" id="resumenCreditoTotal">Bs. 0,00</div>
+                    <div style="font-size: 0.85rem; opacity: 0.9;" id="resumenCreditoTotalUSD">$ 0,00</div>
+                </div>
+                <div style="background: #fff3cd; padding: 12px; border-radius: 10px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+                    <div style="font-size: 0.85rem; color: #856404;">Historial de compras a crédito:</div>
+                    <div id="historialCreditoCliente" style="margin-top: 10px; font-size: 0.8rem;"></div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="finalizarCredito()">CONFIRMAR CRÉDITO</button>
+                <button class="modal-btn modal-btn-danger" onclick="cerrarModalResumenCredito()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
     <div id="debug-log"></div>
 
     <script>
@@ -1305,6 +1389,11 @@
         let ventas = [];
         let scannerVentas = null;
         let cameraVentasActive = false;
+        
+        // ==================== MÓDULO DE CRÉDITOS ====================
+        let clientes = [];
+        let clienteActualCredito = null;
+        let creditosActivos = [];
 
         function filtrarProductos() {
             const filtro = document.getElementById('buscarProducto').value.toLowerCase();
@@ -1447,15 +1536,25 @@
                 historialDiv.innerHTML = '<p style="text-align:center; color:#999;">Sin ventas hoy</p>';
                 return;
             }
-            historialDiv.innerHTML = ventas.map(v => `
-                <div class="historial-item">
-                    <div class="historial-item-header">
-                        <span>${v.fecha}</span>
-                        <span>Bs. ${v.total.toFixed(2)}</span>
+            historialDiv.innerHTML = ventas.map(v => {
+                const nombreProductos = v.items.map(i => i.nombre).join(', ');
+                const ganancia = v.ganancia || 0;
+                const estado = v.estado === 'anulada' ? ' (ANULADA)' : '';
+                const btnAnular = v.estado === 'completada' ? `<button class="btn-anular" onclick="anularVenta('${v.id}')">ANULAR VENTA</button>` : '';
+                return `
+                    <div class="historial-item" style="${v.estado === 'anulada' ? 'opacity: 0.5;' : ''}">
+                        <div class="historial-item-header">
+                            <span>${v.fecha}${estado}</span>
+                            <span>${nombreProductos}</span>
+                        </div>
+                        <div class="historial-item-detalle">
+                            <div>Total: Bs. ${v.totalBs.toFixed(2)} ($ ${v.totalUSD.toFixed(2)})</div>
+                            <div style="color: #27ae60; font-weight: bold;">Ganancia: Bs. ${ganancia.toFixed(2)}</div>
+                            ${btnAnular}
+                        </div>
                     </div>
-                    <div class="historial-item-detalle">${v.items.length} artículos - ${v.tipo}</div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function toggleCameraVentas() {
@@ -1586,6 +1685,25 @@
             }
         }
 
+        function calcularGanancia(items) {
+            return items.reduce((total, item) => {
+                const costoBs = item.costo * item.cantidad;
+                const ventaBs = item.precioVenta * item.cantidad;
+                return total + (ventaBs - costoBs);
+            }, 0);
+        }
+
+        function descontarDelInventario(itemsVendidos) {
+            itemsVendidos.forEach(itemVendido => {
+                const idx = items.findIndex(i => i.id === itemVendido.id);
+                if (idx !== -1) {
+                    items[idx].cantidad -= itemVendido.cantidad;
+                    if (items[idx].cantidad < 0) items[idx].cantidad = 0;
+                }
+            });
+            render();
+        }
+
         function finalizarPago() {
             const totalBs = parseFloat(document.getElementById('modalPagoTotal').textContent.replace('Bs. ', ''));
             const pagoDolares = parseFloat(document.getElementById('pagoDolares').value) || 0;
@@ -1597,20 +1715,27 @@
                 return alert('Pago insuficiente');
             }
             
+            const vuelto = pagoTotalBs - totalBs;
             const venta = {
                 id: Date.now().toString(),
                 fecha: new Date().toLocaleString('es-VE'),
-                items: carrito,
+                items: JSON.parse(JSON.stringify(carrito)),
                 totalBs: totalBs,
                 totalUSD: totalBs / tasaDolar,
+                ganancia: calcularGanancia(carrito),
                 pago: {
                     dolares: pagoDolares,
                     bolivaresBs: pagoBolivaresBs,
-                    bolivaresMobil: pagoBolivaresMobil
+                    bolivaresMobil: pagoBolivaresMobil,
+                    totalPagado: pagoTotalBs,
+                    vuelto: vuelto
                 },
-                tipo: 'CONTADO'
+                tipo: 'CONTADO',
+                estado: 'completada'
             };
+            
             ventas.push(venta);
+            descontarDelInventario(carrito);
             db.ref(configMaestra.pathCliente + 'logs/ventas').push(venta);
             log('✅ Venta registrada');
             carrito = [];
@@ -1621,7 +1746,162 @@
             alert('✅ Venta finalizada');
         }
 
+        function anularVenta(ventaId) {
+            const ventaIdx = ventas.findIndex(v => v.id === ventaId);
+            if (ventaIdx === -1) return alert('Venta no encontrada');
+            if (!confirm('¿Estás seguro de que deseas anular esta venta?')) return;
+            
+            const venta = ventas[ventaIdx];
+            venta.estado = 'anulada';
+            venta.fechaAnulacion = new Date().toLocaleString('es-VE');
+            
+            venta.items.forEach(item => {
+                const itemIdx = items.findIndex(i => i.id === item.id);
+                if (itemIdx !== -1) {
+                    items[itemIdx].cantidad += item.cantidad;
+                }
+            });
+            
+            db.ref(configMaestra.pathCliente + 'logs/ventas').push(venta);
+            log('✅ Venta anulada y inventario restaurado');
+            render();
+            renderHistorial();
+        }
+
         verificarLibrerias();
     </script>
 </body>
 </html>
+
+        // ==================== FUNCIONES DEL MÓDULO DE CRÉDITOS ====================
+        function abrirModalCredito() {
+            if (carrito.length === 0) return alert('Carrito vacío');
+            document.getElementById('inputBuscaCliente').value = '';
+            document.getElementById('nuevoClienteNombre').value = '';
+            document.getElementById('nuevoClienteCedula').value = '';
+            document.getElementById('nuevoClienteTelefono').value = '';
+            document.getElementById('listaClientesFiltrada').innerHTML = '';
+            filtrarClientes();
+            document.getElementById('modalClienteCredito').classList.add('active');
+        }
+
+        function cerrarModalClienteCredito() {
+            document.getElementById('modalClienteCredito').classList.remove('active');
+        }
+
+        function cerrarModalResumenCredito() {
+            document.getElementById('modalResumenCredito').classList.remove('active');
+        }
+
+        function filtrarClientes() {
+            const filtro = document.getElementById('inputBuscaCliente').value.toLowerCase();
+            const lista = document.getElementById('listaClientesFiltrada');
+            lista.innerHTML = '';
+            
+            const clientesFiltrados = clientes.filter(c => c.nombre.toLowerCase().includes(filtro));
+            
+            if (clientesFiltrados.length === 0) {
+                lista.innerHTML = '<p style="color: #999; font-size: 0.85rem;">No hay clientes que coincidan</p>';
+                return;
+            }
+            
+            clientesFiltrados.forEach(cliente => {
+                const div = document.createElement('div');
+                div.style.cssText = 'padding: 10px; background: #f0f0f0; border-radius: 5px; margin-bottom: 5px; cursor: pointer; font-size: 0.85rem;';
+                div.innerHTML = `<strong>${cliente.nombre}</strong><br><small>${cliente.cedula}</small>`;
+                div.onclick = () => seleccionarCliente(cliente);
+                lista.appendChild(div);
+            });
+        }
+
+        function seleccionarCliente(cliente) {
+            clienteActualCredito = cliente;
+            document.getElementById('inputBuscaCliente').value = cliente.nombre;
+            document.getElementById('listaClientesFiltrada').innerHTML = '';
+        }
+
+        function confirmarClienteCredito() {
+            let cliente = clienteActualCredito;
+            
+            if (!cliente) {
+                const nombre = document.getElementById('nuevoClienteNombre').value.trim();
+                const cedula = document.getElementById('nuevoClienteCedula').value.trim();
+                const telefono = document.getElementById('nuevoClienteTelefono').value.trim();
+                
+                if (!nombre || !cedula) {
+                    return alert('Completa los datos del cliente');
+                }
+                
+                cliente = {
+                    id: Date.now().toString(),
+                    nombre: nombre,
+                    cedula: cedula,
+                    telefono: telefono,
+                    fechaRegistro: new Date().toLocaleString('es-VE'),
+                    deuda: 0,
+                    compras: []
+                };
+                
+                clientes.push(cliente);
+                db.ref(configMaestra.pathCliente + 'clientes_fiado').push(cliente);
+            }
+            
+            clienteActualCredito = cliente;
+            abrirModalResumenCredito();
+        }
+
+        function abrirModalResumenCredito() {
+            const totalBs = parseFloat(document.getElementById('totalFinal').textContent.replace('Bs. ', ''));
+            const totalUSD = totalBs / tasaDolar;
+            
+            document.getElementById('resumenClienteNombre').textContent = clienteActualCredito.nombre;
+            document.getElementById('resumenCreditoTotal').textContent = `Bs. ${totalBs.toFixed(2)}`;
+            document.getElementById('resumenCreditoTotalUSD').textContent = `$ ${totalUSD.toFixed(2)}`;
+            
+            const historialHTML = clienteActualCredito.compras.map(compra => 
+                `<div style="padding: 5px 0; border-bottom: 1px solid #ddd;">
+                    ${compra.fecha} - ${compra.items.map(i => i.nombre).join(', ')} 
+                    <strong>Bs. ${compra.totalBs.toFixed(2)}</strong>
+                </div>`
+            ).join('');
+            
+            document.getElementById('historialCreditoCliente').innerHTML = historialHTML || '<p style="color: #999;">Sin compras anteriores</p>';
+            document.getElementById('modalResumenCredito').classList.add('active');
+        }
+
+        function finalizarCredito() {
+            const totalBs = parseFloat(document.getElementById('totalFinal').textContent.replace('Bs. ', ''));
+            const totalUSD = totalBs / tasaDolar;
+            
+            const compra = {
+                id: Date.now().toString(),
+                fecha: new Date().toLocaleString('es-VE'),
+                items: JSON.parse(JSON.stringify(carrito)),
+                totalBs: totalBs,
+                totalUSD: totalUSD,
+                estado: 'pendiente'
+            };
+            
+            clienteActualCredito.compras.push(compra);
+            clienteActualCredito.deuda += totalBs;
+            
+            creditosActivos.push({
+                clienteId: clienteActualCredito.id,
+                cliente: clienteActualCredito.nombre,
+                compra: compra,
+                deudaBs: totalBs,
+                deudaUSD: totalUSD
+            });
+            
+            db.ref(configMaestra.pathCliente + 'clientes_fiado/' + clienteActualCredito.id).set(clienteActualCredito);
+            db.ref(configMaestra.pathCliente + 'logs/creditos').push(compra);
+            
+            log('✅ Crédito registrado');
+            carrito = [];
+            renderCarrito();
+            recalcularTotales();
+            cerrarModalResumenCredito();
+            cerrarModalClienteCredito();
+            alert('✅ Compra a crédito registrada');
+        }
+
