@@ -6,12 +6,12 @@
     <title>Inverteca Core - Módulo Stock</title>
     
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-auth.js"></script>
     
-    <!-- Html5-QRCode para lector de códigos de barras -->
-    <script src="https://unpkg.com/html5-qrcode@2.3.4/dist/html5-qrcode.min.js"></script>
+    <!-- Html5-QRCode para lector de códigos de barras (Versión exacta del operativo) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
     
     <style>
         :root {
@@ -175,10 +175,6 @@
             border-color: var(--primary);
         }
         
-        input::placeholder {
-            color: #999;
-        }
-        
         .camera-container {
             display: flex;
             gap: 10px;
@@ -211,10 +207,6 @@
             transform: scale(1.05);
         }
         
-        .btn-camera:active {
-            transform: scale(0.98);
-        }
-        
         .qr-reader {
             width: 100%;
             margin-top: 10px;
@@ -223,11 +215,20 @@
         }
         
         .qr-reader-status {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #666;
-            margin-top: 5px;
+            margin-top: 10px;
             text-align: center;
+            font-weight: bold;
         }
+        
+        /* Estilos para html5-qrcode del operativo */
+        .html5-qrcode-element { width: 100% !important; background: transparent !important; }
+        .html5-qrcode { width: 100% !important; background: transparent !important; }
+        .html5-qrcode video { width: 100% !important; height: auto !important; border-radius: 10px; }
+        .html5-qrcode__scan-region { border: 3px solid var(--primary) !important; border-radius: 10px !important; }
+        .html5-qrcode__camera-selection { margin: 10px 0 !important; background: transparent !important; }
+        .html5-qrcode__camera-selection select { width: 100% !important; padding: 10px !important; border: 2px solid var(--primary) !important; border-radius: 10px !important; }
         
         .costo-preview {
             color: var(--info);
@@ -316,29 +317,12 @@
             font-size: 0.95rem;
         }
         
-        .btn-add:hover {
-            background: #229954;
-            transform: scale(1.02);
-        }
-        
-        .btn-add:active {
-            transform: scale(0.98);
-        }
-        
         .btn-danger {
             background: var(--danger);
         }
         
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-        
         .btn-edit {
             background: var(--info);
-        }
-        
-        .btn-edit:hover {
-            background: #2980b9;
         }
         
         .list-container {
@@ -360,13 +344,8 @@
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 15px;
-            border-left: 4px solid var(--danger);
+            border-left: 4px solid var(--primary);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s;
-        }
-        
-        .item:hover {
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         
         .item-header {
@@ -383,7 +362,6 @@
             color: var(--text);
             font-size: 0.95rem;
             flex: 1;
-            min-width: 150px;
         }
         
         .item-unit {
@@ -402,7 +380,6 @@
             border-radius: 15px;
             font-size: 0.75rem;
             font-weight: 600;
-            font-family: 'Courier New', monospace;
         }
         
         .item-quantity {
@@ -446,10 +423,6 @@
             padding: 8px 12px;
             border-radius: 8px;
             font-size: 0.8rem;
-            flex: 0 1 auto;
-            display: flex;
-            align-items: center;
-            gap: 5px;
         }
         
         .total-section {
@@ -461,20 +434,10 @@
             margin-top: 20px;
         }
         
-        .total-label {
-            font-size: 0.8rem;
-            opacity: 0.9;
-        }
-        
         .total-amount {
             font-size: 1.8rem;
             font-weight: bold;
             margin: 10px 0;
-        }
-        
-        .total-usd {
-            font-size: 0.9rem;
-            opacity: 0.8;
         }
         
         #debug-log {
@@ -495,32 +458,6 @@
         
         .debug-visible #debug-log {
             display: block;
-        }
-        
-        .alert-message {
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            font-weight: 600;
-            text-align: center;
-        }
-        
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .alert-warning {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
         }
     </style>
 </head>
@@ -548,22 +485,17 @@
 
         <!-- TAB: STOCK -->
         <div id="stock" class="tab-content active">
-            <!-- Mensaje de alerta -->
-            <div id="alertContainer"></div>
-
-            <!-- Configuración Rápida -->
             <div class="input-row">
                 <div class="input-group">
                     <label>Tasa Dólar (BCV)</label>
-                    <input type="number" id="tasa" step="0.01" onchange="actualizarTasa()" placeholder="0.00">
+                    <input type="number" id="tasa" step="0.01" onchange="actualizarTasa()">
                 </div>
                 <div class="input-group">
                     <label>Alerta Stock</label>
-                    <input type="number" id="stockMinimo" value="2" onchange="render()" placeholder="2">
+                    <input type="number" id="stockMinimo" value="2" onchange="render()">
                 </div>
             </div>
 
-            <!-- Formulario de Carga de Producto -->
             <h2>➕ Cargar Producto</h2>
             <input type="hidden" id="editId">
             
@@ -572,7 +504,6 @@
                 <input type="text" id="nombre" placeholder="Nombre del producto">
             </div>
 
-            <!-- Código de Barras (SKU) -->
             <div class="input-group">
                 <label>Código de Barras (SKU)</label>
                 <div class="camera-container">
@@ -583,7 +514,6 @@
                 <div class="qr-reader-status" id="qr-status-inventario"></div>
             </div>
 
-            <!-- Costo y Beneficio -->
             <div class="input-row">
                 <div style="flex: 2;">
                     <label>Costo de Compra (por Unidad/Kg)</label>
@@ -598,11 +528,10 @@
                 </div>
                 <div style="flex: 1;">
                     <label>Beneficio %</label>
-                    <input type="number" id="beneficio" value="30" placeholder="30">
+                    <input type="number" id="beneficio" value="30">
                 </div>
             </div>
 
-            <!-- Unidad y Cantidad -->
             <div class="input-row">
                 <div>
                     <label>Unidad</label>
@@ -615,11 +544,10 @@
                 </div>
                 <div>
                     <label>Cantidad/Peso</label>
-                    <input type="number" id="cantidad" placeholder="Cant." value="1" step="0.001">
+                    <input type="number" id="cantidad" value="1" step="0.001">
                 </div>
             </div>
 
-            <!-- Exento de IVA -->
             <div class="switch-container">
                 <span style="font-size: 0.9rem; font-weight: bold;">Producto Exento de IVA</span>
                 <label class="switch">
@@ -628,48 +556,26 @@
                 </label>
             </div>
 
-            <!-- Botones -->
             <div class="btn-grid">
                 <button class="btn-add" id="btnGuardar" onclick="addItem()">CARGAR AL INVENTARIO</button>
                 <button class="btn-danger" id="btnCancelarEdit" onclick="limpiarForm()" style="display: none; grid-column: 1 / -1;">CANCELAR EDICIÓN</button>
             </div>
 
-            <!-- Inventario Actual -->
             <h2>📦 Inventario Actual</h2>
             <input type="text" id="filtroStock" class="search-input" placeholder="🔍 Buscar en Stock..." oninput="render()">
             <div id="lista" class="list-container"></div>
 
-            <!-- Total Inventario -->
             <div class="total-section">
-                <div class="total-label">VALOR TOTAL INVENTARIO</div>
+                <div style="font-size: 0.8rem; opacity: 0.9;">VALOR TOTAL INVENTARIO</div>
                 <div class="total-amount" id="totalDisplay">Bs. 0,00</div>
-                <div class="total-usd" id="totalDisplayUSD">$ 0,00</div>
+                <div id="totalDisplayUSD" style="font-size: 0.9rem; opacity: 0.8;">$ 0,00</div>
             </div>
         </div>
 
-        <!-- TAB: VENTA (Próximamente) -->
-        <div id="venta" class="tab-content">
-            <div style="text-align: center; padding: 40px; color: #999;">
-                <p>🛒 Módulo de Ventas</p>
-                <p style="font-size: 0.9rem;">Próximamente en Bloque 3</p>
-            </div>
-        </div>
-
-        <!-- TAB: CRÉDITOS (Próximamente) -->
-        <div id="creditos" class="tab-content">
-            <div style="text-align: center; padding: 40px; color: #999;">
-                <p>💳 Módulo de Créditos</p>
-                <p style="font-size: 0.9rem;">Próximamente en Bloque 3</p>
-            </div>
-        </div>
-
-        <!-- TAB: REPORTES (Próximamente) -->
-        <div id="reportes" class="tab-content">
-            <div style="text-align: center; padding: 40px; color: #999;">
-                <p>🏢 Módulo de Reportes</p>
-                <p style="font-size: 0.9rem;">Próximamente en Bloque 3</p>
-            </div>
-        </div>
+        <!-- TABS PROXIMAMENTE -->
+        <div id="venta" class="tab-content"><div style="text-align: center; padding: 40px; color: #999;">Módulo de Ventas (Próximamente)</div></div>
+        <div id="creditos" class="tab-content"><div style="text-align: center; padding: 40px; color: #999;">Módulo de Créditos (Próximamente)</div></div>
+        <div id="reportes" class="tab-content"><div style="text-align: center; padding: 40px; color: #999;">Módulo de Reportes (Próximamente)</div></div>
     </div>
 
     <div id="debug-log"></div>
@@ -679,18 +585,15 @@
         let items = [];
         let tasaDolar = 36.50;
         let ivaPercentaje = 16;
-        let monedaActual = "BS";
-        let currentTab = 'stock';
         let db = null;
-        let qrScanner = null;
-        let cameraActive = false;
+        let scannerInventario = null;
+        let cameraInventarioActive = false;
+        let libreriasListas = false;
         
         const configMaestra = {
             idActual: '',
             pathCliente: '',
-            nombreNegocio: 'Inverteca Core',
-            estadoServicio: 'activo',
-            nivelPlan: 'basico'
+            nombreNegocio: 'Inverteca Core'
         };
 
         // ==================== FUNCIONES UTILITARIAS ====================
@@ -707,42 +610,38 @@
             document.body.classList.toggle('debug-visible');
         }
 
-        function showAlert(message, type = 'success') {
-            const container = document.getElementById('alertContainer');
-            const alert = document.createElement('div');
-            alert.className = `alert-message alert-${type}`;
-            alert.textContent = message;
-            container.innerHTML = '';
-            container.appendChild(alert);
-            
-            setTimeout(() => {
-                alert.remove();
-            }, 3000);
-        }
-
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            
             const target = document.getElementById(tabId);
             if (target) target.classList.add('active');
-            
             const btn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
             if (btn) btn.classList.add('active');
-            currentTab = tabId;
         }
 
         // ==================== INICIALIZACIÓN ====================
-        window.onload = function() {
+        function verificarLibrerias() {
+            const firebaseCargado = typeof firebase !== 'undefined';
+            const scannerCargado = typeof Html5QrcodeScanner !== 'undefined';
+
+            if(firebaseCargado && scannerCargado) {
+                libreriasListas = true;
+                log('✓ Librerías cargadas correctamente');
+                init();
+            } else {
+                setTimeout(verificarLibrerias, 100);
+            }
+        }
+
+        function init() {
             const urlParams = new URLSearchParams(window.location.search);
             let clienteId = urlParams.get('id') || "c001angeles";
             
-            log("🚀 Iniciando cliente: " + clienteId);
             configMaestra.idActual = clienteId;
             configMaestra.pathCliente = 'clientes/' + clienteId + '/';
             
             inicializarFirebase();
-        };
+        }
 
         function inicializarFirebase() {
             const firebaseConfig = {
@@ -772,16 +671,11 @@
             db.ref(configMaestra.pathCliente + 'config').on('value', snap => {
                 const config = snap.val();
                 if (config) {
-                    log("✅ Configuración cargada.");
                     configMaestra.nombreNegocio = config.nombre_negocio || config.nombre || "Inverteca";
-                    configMaestra.estadoServicio = config.estado_servicio || "activo";
-                    configMaestra.nivelPlan = config.nivel_plan || "basico";
-                    
                     document.getElementById('nombreNegocioDisplay').textContent = configMaestra.nombreNegocio;
-                    document.getElementById('estadoServicio').textContent = configMaestra.estadoServicio.toUpperCase();
-                    
+                    document.getElementById('estadoServicio').textContent = (config.estado_servicio || "activo").toUpperCase();
                     const statusEl = document.getElementById('connectionStatus');
-                    statusEl.textContent = 'Online (' + configMaestra.nivelPlan.toUpperCase() + ')';
+                    statusEl.textContent = 'Online (' + (config.nivel_plan || "basico").toUpperCase() + ')';
                     statusEl.className = 'connection-status online';
                 }
             });
@@ -791,21 +685,11 @@
             db.ref(configMaestra.pathCliente + 'data').on('value', snap => {
                 const data = snap.val();
                 if (data) {
-                    log("📦 Datos sincronizados.");
-                    
-                    // Actualizar tasa y IVA desde Firebase
                     if (data.tasa_dolar) {
                         tasaDolar = data.tasa_dolar;
                         document.getElementById('tasa').value = tasaDolar;
                     }
-                    if (data.iva_porcentaje) {
-                        ivaPercentaje = data.iva_porcentaje;
-                    }
-                    if (data.moneda) {
-                        monedaActual = data.moneda;
-                    }
-                    
-                    // Actualizar items
+                    if (data.iva_porcentaje) ivaPercentaje = data.iva_porcentaje;
                     items = data.items || [];
                     render();
                 }
@@ -824,94 +708,52 @@
             const exentoIVA = document.getElementById('exentoIVA').checked;
             const editId = document.getElementById('editId').value;
 
-            if (!nombre) {
-                showAlert("Por favor ingresa el nombre del producto", "error");
-                return;
-            }
+            if (!nombre) return alert("Ingresa el nombre");
 
-            // Convertir costo a Bs si está en USD
-            let costoBs = costo;
-            if (monedaCosto === "USD") {
-                costoBs = costo * tasaDolar;
-            }
-
-            // Calcular precio de venta
+            let costoBs = monedaCosto === "USD" ? costo * tasaDolar : costo;
             const precioVenta = costoBs * (1 + beneficio / 100);
             const precioVentaUSD = precioVenta / tasaDolar;
 
             const nuevoItem = {
                 id: editId || Date.now().toString(),
-                nombre: nombre,
-                sku: sku,
-                costo: costoBs,
-                precioVenta: precioVenta,
-                precioVentaUSD: precioVentaUSD,
-                beneficio: beneficio,
-                cantidad: cantidad,
-                unidad: unidad,
-                exentoIVA: exentoIVA,
-                iva: exentoIVA ? 0 : ivaPercentaje,
-                fechaCreacion: new Date().toISOString()
+                nombre, sku, costo: costoBs, precioVenta, precioVentaUSD,
+                beneficio, cantidad, unidad, exentoIVA, iva: exentoIVA ? 0 : ivaPercentaje
             };
 
-            // Si es edición, reemplazar; si no, agregar
             if (editId) {
-                const index = items.findIndex(item => item.id === editId);
-                if (index !== -1) {
-                    items[index] = nuevoItem;
-                    log("✏️ Producto actualizado.");
-                }
+                const idx = items.findIndex(i => i.id === editId);
+                if (idx !== -1) items[idx] = nuevoItem;
             } else {
                 items.push(nuevoItem);
-                log("✅ Producto agregado.");
             }
 
-            // Guardar en Firebase
             db.ref(configMaestra.pathCliente + 'data/items').set(items)
                 .then(() => {
-                    log("✅ Datos guardados en Firebase.");
-                    showAlert(editId ? "Producto actualizado correctamente" : "Producto cargado correctamente", "success");
+                    log("✅ Guardado.");
                     limpiarForm();
-                })
-                .catch(e => {
-                    log("❌ Error al guardar: " + e.message);
-                    showAlert("Error al guardar el producto", "error");
                 });
         }
 
         function editItem(id) {
             const item = items.find(i => i.id === id);
             if (!item) return;
-
             document.getElementById('nombre').value = item.nombre;
             document.getElementById('codigoBarras').value = item.sku || '';
             document.getElementById('costo').value = item.costo;
-            document.getElementById('monedaCosto').value = 'BS';
             document.getElementById('beneficio').value = item.beneficio;
             document.getElementById('cantidad').value = item.cantidad;
             document.getElementById('unidad').value = item.unidad;
             document.getElementById('exentoIVA').checked = item.exentoIVA;
             document.getElementById('editId').value = id;
-
             document.getElementById('btnGuardar').textContent = '✏️ ACTUALIZAR PRODUCTO';
             document.getElementById('btnCancelarEdit').style.display = 'block';
-
             window.scrollTo(0, 0);
         }
 
         function deleteItem(id) {
-            if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
-                items = items.filter(item => item.id !== id);
-                db.ref(configMaestra.pathCliente + 'data/items').set(items)
-                    .then(() => {
-                        log("🗑️ Producto eliminado.");
-                        showAlert("Producto eliminado correctamente", "success");
-                        render();
-                    })
-                    .catch(e => {
-                        log("❌ Error al eliminar: " + e.message);
-                        showAlert("Error al eliminar el producto", "error");
-                    });
+            if (confirm('¿Eliminar?')) {
+                items = items.filter(i => i.id !== id);
+                db.ref(configMaestra.pathCliente + 'data/items').set(items).then(render);
             }
         }
 
@@ -919,178 +761,122 @@
             document.getElementById('nombre').value = '';
             document.getElementById('codigoBarras').value = '';
             document.getElementById('costo').value = '';
-            document.getElementById('monedaCosto').value = 'BS';
-            document.getElementById('beneficio').value = '30';
-            document.getElementById('cantidad').value = '1';
-            document.getElementById('unidad').value = 'UND';
-            document.getElementById('exentoIVA').checked = false;
             document.getElementById('editId').value = '';
             document.getElementById('btnGuardar').textContent = 'CARGAR AL INVENTARIO';
             document.getElementById('btnCancelarEdit').style.display = 'none';
-            document.getElementById('costoDual').textContent = 'Eqv: $ 0,00';
         }
 
         function actualizarTasa() {
-            const nuevaTasa = parseFloat(document.getElementById('tasa').value) || tasaDolar;
-            db.ref(configMaestra.pathCliente + 'data/tasa_dolar').set(nuevaTasa)
-                .then(() => {
-                    tasaDolar = nuevaTasa;
-                    log("✅ Tasa actualizada: " + nuevaTasa);
-                    calcularCostoDual();
-                    render();
-                })
-                .catch(e => log("❌ Error: " + e.message));
+            const nt = parseFloat(document.getElementById('tasa').value) || tasaDolar;
+            db.ref(configMaestra.pathCliente + 'data/tasa_dolar').set(nt).then(() => {
+                tasaDolar = nt;
+                render();
+            });
         }
 
         function calcularCostoDual() {
-            const costo = parseFloat(document.getElementById('costo').value) || 0;
-            const moneda = document.getElementById('monedaCosto').value;
-            
-            let equivalenciaUSD;
-            if (moneda === "BS") {
-                equivalenciaUSD = costo / tasaDolar;
-            } else {
-                equivalenciaUSD = costo;
-            }
-            
-            document.getElementById('costoDual').textContent = 'Eqv: $ ' + equivalenciaUSD.toFixed(2);
+            const c = parseFloat(document.getElementById('costo').value) || 0;
+            const m = document.getElementById('monedaCosto').value;
+            const eq = m === "BS" ? c / tasaDolar : c;
+            document.getElementById('costoDual').textContent = 'Eqv: $ ' + eq.toFixed(2);
         }
 
         function render() {
             const lista = document.getElementById('lista');
             const filtro = document.getElementById('filtroStock').value.toLowerCase();
-            
             if (!lista) return;
             lista.innerHTML = '';
-            
-            let total = 0;
-            let totalUSD = 0;
+            let total = 0, totalUSD = 0;
 
-            const itemsFiltrados = items.filter(item =>
-                item.nombre.toLowerCase().includes(filtro) ||
-                (item.sku && item.sku.includes(filtro))
-            );
-
-            itemsFiltrados.forEach((item) => {
-                const valorTotal = item.precioVenta * item.cantidad;
-                const valorTotalUSD = item.precioVentaUSD * item.cantidad;
-                total += valorTotal;
-                totalUSD += valorTotalUSD;
-
+            items.filter(i => i.nombre.toLowerCase().includes(filtro) || (i.sku && i.sku.includes(filtro)))
+            .forEach(item => {
+                total += (item.precioVenta * item.cantidad);
+                totalUSD += (item.precioVentaUSD * item.cantidad);
                 const div = document.createElement('div');
                 div.className = 'item';
                 div.innerHTML = `
                     <div class="item-header">
                         <span class="item-name">${item.nombre}</span>
-                        <span class="item-unit">UND</span>
+                        <span class="item-unit">${item.unidad}</span>
                         ${item.sku ? `<span class="item-sku">${item.sku}</span>` : ''}
-                        <span class="item-quantity">${Math.floor(item.cantidad)}</span>
+                        <span class="item-quantity">${item.cantidad}</span>
                     </div>
                     <div class="item-prices">
                         <div class="item-price-bs">Bs. ${item.precioVenta.toFixed(2)} /UND</div>
                         <div class="item-price-usd">$ ${item.precioVentaUSD.toFixed(2)} /UND</div>
                     </div>
                     <div class="item-actions">
-                        <button class="btn-edit" onclick="editItem('${item.id}')">✏️ Editar</button>
-                        <button class="btn-danger" onclick="deleteItem('${item.id}')">🗑️ Eliminar</button>
+                        <button class="btn-edit" onclick="editItem('${item.id}')">✏️</button>
+                        <button class="btn-danger" onclick="deleteItem('${item.id}')">🗑️</button>
                     </div>
                 `;
                 lista.appendChild(div);
             });
-
-            // Actualizar totales
-            const displayTotal = document.getElementById('totalDisplay');
-            const displayTotalUSD = document.getElementById('totalDisplayUSD');
-            
-            if (displayTotal) displayTotal.textContent = "Bs. " + total.toLocaleString('es-VE', { minimumFractionDigits: 2 });
-            if (displayTotalUSD) displayTotalUSD.textContent = "$ " + totalUSD.toLocaleString('es-VE', { minimumFractionDigits: 2 });
+            document.getElementById('totalDisplay').textContent = "Bs. " + total.toLocaleString('es-VE', { minimumFractionDigits: 2 });
+            document.getElementById('totalDisplayUSD').textContent = "$ " + totalUSD.toLocaleString('es-VE', { minimumFractionDigits: 2 });
         }
 
-        // ==================== LECTOR DE CÓDIGOS DE BARRAS ====================
+        // ==================== LÓGICA DEL ESCÁNER (COPIADA DEL OPERATIVO) ====================
         function toggleCameraInventario() {
-            if (cameraActive) {
-                stopCamera();
-            } else {
-                startCamera();
-            }
+            if(!libreriasListas) return alert('Cargando librerías...');
+            if(cameraInventarioActive) closeCameraInventario();
+            else openCameraInventario();
         }
 
-        async function startCamera() {
-            const qrReader = document.getElementById('qr-reader-inventario');
-            const statusEl = document.getElementById('qr-status-inventario');
+        function openCameraInventario() {
+            const readerDiv = document.getElementById('qr-reader-inventario');
+            const statusDiv = document.getElementById('qr-status-inventario');
+            readerDiv.style.display = 'block';
+            readerDiv.innerHTML = '';
+            statusDiv.textContent = 'Inicializando cámara...';
             
-            qrReader.style.display = 'block';
-            statusEl.textContent = 'Solicitando permisos de cámara...';
+            if(scannerInventario) {
+                try { scannerInventario.clear(); } catch(e) {}
+                scannerInventario = null;
+            }
             
             try {
-                // Forzar solicitud de permisos antes de iniciar
-                await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                
-                qrScanner = new Html5Qrcode("qr-reader-inventario");
-                
-                const config = {
-                    fps: 15,
-                    qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1.0
-                };
-
-                // Intentar iniciar con la cámara trasera específicamente
-                await qrScanner.start(
-                    { facingMode: "environment" },
-                    config,
-                    onScanSuccess,
-                    onScanFailure
+                scannerInventario = new Html5QrcodeScanner(
+                    "qr-reader-inventario",
+                    { 
+                        fps: 10, 
+                        qrbox: { width: 250, height: 250 }, 
+                        rememberLastUsedCamera: true, 
+                        showTorchButtonIfSupported: true,
+                        aspectRatio: 1.0,
+                        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE, Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39, Html5QrcodeSupportedFormats.EAN_13]
+                    },
+                    false
                 );
-
-                cameraActive = true;
-                statusEl.textContent = '✅ Cámara activa';
+                scannerInventario.render(onScanSuccessInventario, onScanErrorInventario);
+                cameraInventarioActive = true;
+                statusDiv.textContent = '✓ Cámara activa';
                 document.querySelector('.btn-camera').textContent = '❌ CERRAR';
-                log("📷 Cámara iniciada correctamente.");
-            } catch (err) {
-                cameraActive = false;
-                qrReader.style.display = 'none';
-                statusEl.innerHTML = `<span style="color:red">❌ Error: ${err.message}</span><br><small>Asegúrate de dar permisos de cámara en tu navegador.</small>`;
-                log("❌ Error de cámara: " + err.name + " - " + err.message);
-                
-                // Intento alternativo si falla el facingMode
-                if (err.name === "OverconstrainedError" || err.name === "NotFoundError") {
-                    log("🔄 Reintentando con cámara por defecto...");
-                    try {
-                        await qrScanner.start({ }, config, onScanSuccess, onScanFailure);
-                        cameraActive = true;
-                        statusEl.textContent = '✅ Cámara activa (Modo compatible)';
-                    } catch (e2) {
-                        log("❌ Fallo total de cámara.");
-                    }
-                }
+            } catch(err) {
+                statusDiv.textContent = 'Error: ' + err.message;
             }
         }
 
-        function stopCamera() {
-            if (qrScanner) {
-                qrScanner.stop().then(() => {
-                    cameraActive = false;
+        function closeCameraInventario() {
+            if(scannerInventario) {
+                scannerInventario.clear().then(() => {
                     document.getElementById('qr-reader-inventario').style.display = 'none';
                     document.getElementById('qr-status-inventario').textContent = '';
                     document.querySelector('.btn-camera').textContent = '📷 ESCANEAR';
-                }).catch(err => {
-                    log("❌ Error al cerrar cámara: " + err.message);
+                    cameraInventarioActive = false;
                 });
             }
         }
 
-        function onScanSuccess(decodedText, decodedResult) {
+        function onScanSuccessInventario(decodedText) {
             document.getElementById('codigoBarras').value = decodedText;
-            document.getElementById('qr-status-inventario').textContent = '✅ Código detectado: ' + decodedText;
-            log("✅ QR leído: " + decodedText);
-            
-            // Opcional: cerrar la cámara automáticamente
-            stopCamera();
+            log("✅ SKU: " + decodedText);
+            closeCameraInventario();
         }
 
-        function onScanFailure(error) {
-            // Silenciar errores de lectura fallida
-        }
+        function onScanErrorInventario(err) { /* Silencio */ }
+
+        verificarLibrerias();
     </script>
 </body>
 </html>
