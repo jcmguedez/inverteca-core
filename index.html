@@ -620,6 +620,164 @@
             color: #666;
             font-size: 0.8rem;
         }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 10px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--text);
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-input-group {
+            margin-bottom: 15px;
+        }
+        
+        .modal-input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+        }
+        
+        .modal-input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        .modal-input-group input:focus {
+            border-color: var(--primary);
+        }
+        
+        .modal-total {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 15px 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .modal-total-dual {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .modal-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .modal-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .modal-btn-primary {
+            background: var(--primary);
+            color: white;
+            grid-column: 1 / -1;
+        }
+        
+        .modal-btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .pago-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .pago-row > div {
+            flex: 1;
+        }
+        
+        .pago-row label {
+            font-size: 0.8rem;
+        }
+        
+        .pago-row input {
+            font-size: 0.9rem;
+            padding: 10px;
+        }
+        
+        .vuelto-section {
+            background: #f0f8ff;
+            border: 2px solid var(--info);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .vuelto-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .vuelto-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--info);
+            margin-bottom: 5px;
+        }
+        
+        .vuelto-dual {
+            font-size: 0.85rem;
+            color: #999;
+        }
     </style>
 </head>
 <body>
@@ -774,6 +932,74 @@
         </div>
         <div id="creditos" class="tab-content"><div style="text-align: center; padding: 40px; color: #999;">Módulo de Créditos (Próximamente)</div></div>
         <div id="reportes" class="tab-content"><div style="text-align: center; padding: 40px; color: #999;">Módulo de Reportes (Próximamente)</div></div>
+    </div>
+
+    <!-- MODAL: INGRESAR PESO -->
+    <div id="modalPeso" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>⚖️</span>
+                <span>Ingresar Peso</span>
+            </div>
+            <div class="modal-body">
+                <div style="font-size: 0.95rem; margin-bottom: 15px;" id="modalPesoProducto"></div>
+                <div class="modal-input-group">
+                    <label id="modalPesoLabel">Peso en Kilogramos (ej: 0.450):</label>
+                    <input type="number" id="inputPeso" placeholder="0.000" step="0.001" min="0" oninput="calcularTotalPeso()">
+                </div>
+                <div class="modal-total" id="modalPesoTotal">Total: Bs. 0,00</div>
+                <div class="modal-total-dual" id="modalPesoTotalUSD" style="text-align: center;">$ 0,00</div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="confirmarPeso()">ANADIR</button>
+                <button class="modal-btn modal-btn-danger" onclick="cerrarModalPeso()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PAGO Y VUELTO -->
+    <div id="modalPago" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>💳</span>
+                <span>Procesar Pago</span>
+            </div>
+            <div class="modal-body">
+                <div style="background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 0.85rem; opacity: 0.9;">Total a Cobrar:</div>
+                    <div style="font-size: 1.5rem; font-weight: bold;" id="modalPagoTotal">Bs. 0,00</div>
+                    <div style="font-size: 0.85rem; opacity: 0.9;" id="modalPagoTotalUSD">$ 0,00</div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <div style="font-weight: bold; margin-bottom: 10px; color: #555;">Como paga el cliente?</div>
+                    <div class="pago-row">
+                        <div>
+                            <label>Dolares en Efectivo ($)</label>
+                            <input type="number" id="pagoDolares" placeholder="0.00" step="0.01" min="0" oninput="calcularVuelto()">
+                        </div>
+                        <div>
+                            <label>Bs. en Efectivo</label>
+                            <input type="number" id="pagoBolivaresBs" placeholder="0.00" step="0.01" min="0" oninput="calcularVuelto()">
+                        </div>
+                    </div>
+                    <div class="pago-row">
+                        <div>
+                            <label>Bs. Pago Movil/Punto</label>
+                            <input type="number" id="pagoBolivaresMobil" placeholder="0.00" step="0.01" min="0" oninput="calcularVuelto()">
+                        </div>
+                    </div>
+                </div>
+                <div class="vuelto-section" id="vueltoSection" style="display: none;">
+                    <div class="vuelto-label">VUELTO A DAR:</div>
+                    <div class="vuelto-amount" id="vueltoMonto">Bs. 0,00</div>
+                    <div class="vuelto-dual" id="vueltoDual">$ 0,00</div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="finalizarPago()">CONFIRMAR PAGO</button>
+                <button class="modal-btn modal-btn-danger" onclick="cerrarModalPago()">CANCELAR</button>
+            </div>
+        </div>
     </div>
 
     <div id="debug-log"></div>
@@ -1118,14 +1344,18 @@
         }
 
         function agregarAlCarrito(item) {
-            const existente = carrito.find(c => c.id === item.id);
-            if (existente) {
-                existente.cantidad += 1;
+            if (item.unidad === 'KG') {
+                abrirModalPeso(item);
             } else {
-                carrito.push({ ...item, cantidad: 1 });
+                const existente = carrito.find(c => c.id === item.id);
+                if (existente) {
+                    existente.cantidad += 1;
+                } else {
+                    carrito.push({ ...item, cantidad: 1 });
+                }
+                recalcularTotales();
+                renderCarrito();
             }
-            recalcularTotales();
-            renderCarrito();
         }
 
         function renderCarrito() {
@@ -1134,20 +1364,24 @@
                 carritoDiv.innerHTML = '<div class="carrito-vacio">Carrito vacío</div>';
                 return;
             }
-            carritoDiv.innerHTML = carrito.map((item, idx) => `
-                <div class="carrito-item">
-                    <div class="carrito-item-info">
-                        <div class="carrito-item-nombre">${item.nombre}</div>
-                        <div class="carrito-item-precio">Bs. ${item.precioVenta.toFixed(2)} x ${item.cantidad}</div>
+            carritoDiv.innerHTML = carrito.map((item, idx) => {
+                const subtotalBs = item.precioVenta * item.cantidad;
+                const subtotalUSD = subtotalBs / tasaDolar;
+                return `
+                    <div class="carrito-item">
+                        <div class="carrito-item-info">
+                            <div class="carrito-item-nombre">${item.nombre}</div>
+                            <div class="carrito-item-precio">Bs. ${subtotalBs.toFixed(2)} / $ ${subtotalUSD.toFixed(2)}</div>
+                        </div>
+                        <div class="carrito-item-cantidad">
+                            <button class="btn-qty" onclick="modificarCantidad(${idx}, -1)">−</button>
+                            <span class="qty-display">${item.cantidad}</span>
+                            <button class="btn-qty" onclick="modificarCantidad(${idx}, 1)">+</button>
+                            <button class="btn-remove-item" onclick="removerDelCarrito(${idx})">✕</button>
+                        </div>
                     </div>
-                    <div class="carrito-item-cantidad">
-                        <button class="btn-qty" onclick="modificarCantidad(${idx}, -1)">−</button>
-                        <span class="qty-display">${item.cantidad}</span>
-                        <button class="btn-qty" onclick="modificarCantidad(${idx}, 1)">+</button>
-                        <button class="btn-remove-item" onclick="removerDelCarrito(${idx})">✕</button>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function modificarCantidad(idx, delta) {
@@ -1199,20 +1433,7 @@
 
         function finalizarVentaContado() {
             if (carrito.length === 0) return alert('Carrito vacío');
-            const venta = {
-                id: Date.now().toString(),
-                fecha: new Date().toLocaleString('es-VE'),
-                items: carrito,
-                total: parseFloat(document.getElementById('totalFinal').textContent.replace('Bs. ', '')),
-                tipo: 'CONTADO'
-            };
-            ventas.push(venta);
-            db.ref(configMaestra.pathCliente + 'logs/ventas').push(venta);
-            log('✅ Venta registrada');
-            carrito = [];
-            renderCarrito();
-            recalcularTotales();
-            renderHistorial();
+            abrirModalPago();
         }
 
         function abrirModalCredito() {
@@ -1286,6 +1507,119 @@
         }
 
         function onScanErrorVentas(err) { /* Silencio */ }
+
+        // ==================== MODAL DE PESO ====================
+        let itemPesoActual = null;
+
+        function abrirModalPeso(item) {
+            itemPesoActual = item;
+            document.getElementById('modalPesoProducto').textContent = `${item.nombre} (Bs. ${item.precioVenta}/Kg)`;
+            document.getElementById('inputPeso').value = '';
+            document.getElementById('inputPeso').focus();
+            calcularTotalPeso();
+            document.getElementById('modalPeso').classList.add('active');
+        }
+
+        function cerrarModalPeso() {
+            document.getElementById('modalPeso').classList.remove('active');
+            itemPesoActual = null;
+        }
+
+        function calcularTotalPeso() {
+            if (!itemPesoActual) return;
+            const peso = parseFloat(document.getElementById('inputPeso').value) || 0;
+            const totalBs = peso * itemPesoActual.precioVenta;
+            const totalUSD = totalBs / tasaDolar;
+            document.getElementById('modalPesoTotal').textContent = `Total: Bs. ${totalBs.toFixed(2)}`;
+            document.getElementById('modalPesoTotalUSD').textContent = `$ ${totalUSD.toFixed(2)}`;
+        }
+
+        function confirmarPeso() {
+            if (!itemPesoActual) return;
+            const peso = parseFloat(document.getElementById('inputPeso').value) || 0;
+            if (peso <= 0) return alert('Ingresa un peso válido');
+            const itemConPeso = { ...itemPesoActual, cantidad: peso };
+            const existente = carrito.find(c => c.id === itemConPeso.id);
+            if (existente) {
+                existente.cantidad += peso;
+            } else {
+                carrito.push(itemConPeso);
+            }
+            recalcularTotales();
+            renderCarrito();
+            cerrarModalPeso();
+        }
+
+        // ==================== MODAL DE PAGO Y VUELTO ====================
+        function abrirModalPago() {
+            const totalBs = parseFloat(document.getElementById('totalFinal').textContent.replace('Bs. ', ''));
+            const totalUSD = totalBs / tasaDolar;
+            document.getElementById('modalPagoTotal').textContent = `Bs. ${totalBs.toFixed(2)}`;
+            document.getElementById('modalPagoTotalUSD').textContent = `$ ${totalUSD.toFixed(2)}`;
+            document.getElementById('pagoDolares').value = '';
+            document.getElementById('pagoBolivaresBs').value = '';
+            document.getElementById('pagoBolivaresMobil').value = '';
+            document.getElementById('vueltoSection').style.display = 'none';
+            document.getElementById('modalPago').classList.add('active');
+        }
+
+        function cerrarModalPago() {
+            document.getElementById('modalPago').classList.remove('active');
+        }
+
+        function calcularVuelto() {
+            const totalBs = parseFloat(document.getElementById('modalPagoTotal').textContent.replace('Bs. ', ''));
+            const pagoDolares = parseFloat(document.getElementById('pagoDolares').value) || 0;
+            const pagoBolivaresBs = parseFloat(document.getElementById('pagoBolivaresBs').value) || 0;
+            const pagoBolivaresMobil = parseFloat(document.getElementById('pagoBolivaresMobil').value) || 0;
+            
+            const pagoTotalBs = (pagoDolares * tasaDolar) + pagoBolivaresBs + pagoBolivaresMobil;
+            const vueltoBs = pagoTotalBs - totalBs;
+            
+            if (vueltoBs >= 0) {
+                const vueltoUSD = vueltoBs / tasaDolar;
+                document.getElementById('vueltoMonto').textContent = `Bs. ${vueltoBs.toFixed(2)}`;
+                document.getElementById('vueltoDual').textContent = `$ ${vueltoUSD.toFixed(2)}`;
+                document.getElementById('vueltoSection').style.display = 'block';
+            } else {
+                document.getElementById('vueltoSection').style.display = 'none';
+            }
+        }
+
+        function finalizarPago() {
+            const totalBs = parseFloat(document.getElementById('modalPagoTotal').textContent.replace('Bs. ', ''));
+            const pagoDolares = parseFloat(document.getElementById('pagoDolares').value) || 0;
+            const pagoBolivaresBs = parseFloat(document.getElementById('pagoBolivaresBs').value) || 0;
+            const pagoBolivaresMobil = parseFloat(document.getElementById('pagoBolivaresMobil').value) || 0;
+            const pagoTotalBs = (pagoDolares * tasaDolar) + pagoBolivaresBs + pagoBolivaresMobil;
+            
+            if (pagoTotalBs < totalBs) {
+                return alert('Pago insuficiente');
+            }
+            
+            const venta = {
+                id: Date.now().toString(),
+                fecha: new Date().toLocaleString('es-VE'),
+                items: carrito,
+                totalBs: totalBs,
+                totalUSD: totalBs / tasaDolar,
+                pago: {
+                    dolares: pagoDolares,
+                    bolivaresBs: pagoBolivaresBs,
+                    bolivaresMobil: pagoBolivaresMobil
+                },
+                tipo: 'CONTADO'
+            };
+            ventas.push(venta);
+            db.ref(configMaestra.pathCliente + 'logs/ventas').push(venta);
+            log('✅ Venta registrada');
+            carrito = [];
+            renderCarrito();
+            recalcularTotales();
+            renderHistorial();
+            cerrarModalPago();
+            alert('✅ Venta finalizada');
+        }
 
         verificarLibrerias();
     </script>
