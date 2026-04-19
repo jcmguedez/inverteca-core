@@ -352,153 +352,95 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-            gap: 10px;
+            margin-bottom: 5px;
         }
         
-        .item-name {
-            font-weight: 600;
+        .item-title {
+            font-weight: bold;
+            font-size: 1rem;
             color: var(--text);
-            font-size: 0.95rem;
-            flex: 1;
-        }
-        
-        .item-unit {
-            background: #ecf0f1;
-            color: #555;
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-size: 0.75rem;
-            font-weight: 600;
         }
         
         .item-sku {
-            background: var(--primary);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        .item-quantity {
-            background: var(--primary);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            min-width: 35px;
-            text-align: center;
-        }
-        
-        .item-prices {
-            margin: 10px 0;
-            padding: 10px 0;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .item-price-bs {
-            font-weight: 600;
-            color: var(--text);
-            font-size: 0.95rem;
-        }
-        
-        .item-price-usd {
-            color: #999;
-            font-size: 0.85rem;
-            margin-top: 3px;
-        }
-        
-        .item-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 10px;
-        }
-        
-        .item-actions button {
-            padding: 8px 12px;
-            border-radius: 8px;
             font-size: 0.8rem;
+            color: #777;
         }
         
-        .total-section {
-            background: var(--primary);
-            color: white;
-            padding: 15px;
-            border-radius: 15px;
-            text-align: center;
-            margin-top: 20px;
-        }
-        
-        .total-amount {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        
-        #debug-log {
-            margin-top: 20px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.7rem;
-            background: #000;
-            color: #0f0;
-            padding: 10px;
-            border-radius: 5px;
-            width: 100%;
-            max-width: 500px;
-            text-align: left;
-            height: 100px;
-            overflow-y: auto;
-            display: none;
-        }
-        
-        .debug-visible #debug-log {
-            display: block;
-        }
-        
-        .carrito-container {
-            background: #f9f9f9;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
-            min-height: 100px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .carrito-vacio {
-            text-align: center;
-            color: #999;
-            padding: 40px 20px;
-            font-size: 0.95rem;
-        }
-        
-        .carrito-item {
-            background: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border-left: 3px solid var(--primary);
+        .item-body {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
-        .carrito-item-info {
-            flex: 1;
-        }
-        
-        .carrito-item-nombre {
-            font-weight: 600;
-            color: var(--text);
+        .item-details {
             font-size: 0.9rem;
+            color: #555;
         }
         
-        .carrito-item-precio {
+        .item-stock {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .item-price {
+            font-weight: bold;
+            color: var(--info);
+        }
+        
+        .item-actions button {
+            margin-left: 5px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+        }
+        
+        .alert-stock {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        
+        .alert-stock .item-stock {
+            color: #ffc107;
+        }
+        
+        /* Estilos para la pestaña de Venta */
+        .carrito-container {
+            margin-top: 20px;
+        }
+        
+        .carrito-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--info);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .carrito-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .carrito-item-title {
+            font-weight: bold;
+            font-size: 1rem;
+            color: var(--text);
+        }
+        
+        .carrito-item-price {
+            font-weight: bold;
+            color: var(--info);
+        }
+        
+        .carrito-item-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .carrito-item-subdetails {
             color: #666;
             font-size: 0.8rem;
             margin-top: 3px;
@@ -855,88 +797,70 @@
                 <div style="flex: 2;">
                     <label>Costo de Compra (por Unidad/Kg)</label>
                     <div style="display: flex; gap: 5px;">
-                        <input type="number" id="costo" placeholder="0.00" step="0.01" oninput="calcularCostoDual()">
-                        <select id="monedaCosto" style="width: 70px; padding: 10px;" onchange="calcularCostoDual()">
-                            <option value="BS" selected>Bs</option>
+                        <input type="number" id="costo" placeholder="0.00" step="0.01" min="0" oninput="calcularPrecioVenta()">
+                        <select id="monedaCosto" onchange="calcularPrecioVenta()">
                             <option value="USD">$</option>
+                            <option value="BS">Bs.</option>
                         </select>
                     </div>
-                    <div id="costoDual" class="costo-preview">Eqv: $ 0,00</div>
                 </div>
                 <div style="flex: 1;">
-                    <label>Beneficio %</label>
-                    <input type="number" id="beneficio" value="30">
+                    <label>Beneficio (%)</label>
+                    <input type="number" id="beneficio" placeholder="0" step="0.01" min="0" oninput="calcularPrecioVenta()">
                 </div>
             </div>
 
             <div class="input-row">
-                <div>
+                <div class="input-group">
+                    <label>Cantidad</label>
+                    <input type="number" id="cantidad" placeholder="1" step="0.01" min="0">
+                </div>
+                <div class="input-group">
                     <label>Unidad</label>
                     <select id="unidad">
-                        <option value="UND">Unidad (UND)</option>
-                        <option value="KG">Kilogramo (KG)</option>
-                        <option value="LIT">Líquido (LIT)</option>
-                        <option value="PAQ">Paquete (PAQ)</option>
+                        <option value="unidad">Unidad</option>
+                        <option value="kg">Kg</option>
+                        <option value="litro">Litro</option>
                     </select>
-                </div>
-                <div>
-                    <label>Cantidad/Peso</label>
-                    <input type="number" id="cantidad" value="1" step="0.001">
                 </div>
             </div>
 
             <div class="switch-container">
-                <span style="font-size: 0.9rem; font-weight: bold;">Producto Exento de IVA</span>
+                <span>Exento de IVA</span>
                 <label class="switch">
                     <input type="checkbox" id="exentoIVA">
                     <span class="slider"></span>
                 </label>
             </div>
 
+            <div class="costo-preview">Precio de Venta Sugerido: <span id="precioVentaPreview">Bs. 0.00 ($ 0.00)</span></div>
+
             <div class="btn-grid">
-                <button class="btn-add" id="btnGuardar" onclick="addItem()">CARGAR AL INVENTARIO</button>
-                <button class="btn-danger" id="btnCancelarEdit" onclick="limpiarForm()" style="display: none; grid-column: 1 / -1;">CANCELAR EDICIÓN</button>
+                <button class="btn-add" onclick="addItem()">GUARDAR PRODUCTO</button>
+                <button class="btn-danger" onclick="clearForm()">LIMPIAR</button>
+                <button class="btn-edit" onclick="deleteItem()">ELIMINAR</button>
             </div>
 
-            <h2>📦 Inventario Actual</h2>
-            <input type="text" id="filtroStock" class="search-input" placeholder="🔍 Buscar en Stock..." oninput="render()">
-            <div id="lista" class="list-container"></div>
-
-            <div class="total-section">
-                <div style="font-size: 0.8rem; opacity: 0.9;">VALOR TOTAL INVENTARIO</div>
-                <div class="total-amount" id="totalDisplay">Bs. 0,00</div>
-                <div id="totalDisplayUSD" style="font-size: 0.9rem; opacity: 0.8;">$ 0,00</div>
+            <h2>📊 Inventario</h2>
+            <div class="input-group">
+                <input type="text" id="inputBuscaInventario" class="search-input" placeholder="Buscar producto..." oninput="render()">
             </div>
+            <div id="inventarioList" class="list-container"></div>
         </div>
 
-        <!-- TABS PROXIMAMENTE -->
+        <!-- TAB: VENTA -->
         <div id="venta" class="tab-content">
-            <div class="input-row">
-                <div class="input-group" style="flex: 1;">
-                    <input type="text" id="buscarProducto" class="search-input" placeholder="Buscar por nombre..." oninput="filtrarProductos()">
-                </div>
-                <button class="btn-camera" onclick="toggleCameraVentas()" style="flex: 0 1 auto; margin-bottom: 0;">ESCANEAR</button>
-            </div>
+            <h2>🛒 Carrito de Compras</h2>
             <div class="input-group">
-                <label>Código de Barras (Escáner)</label>
-                <input type="text" id="codigoBarrasVentas" placeholder="Escanear o escribir código..." onchange="buscarPorSKU()">
+                <input type="text" id="codigoBarrasVentas" class="search-input" placeholder="Escanea o busca producto..." oninput="buscarPorSKU()">
+                <button class="btn-camera" style="margin-top: 10px;" onclick="toggleCameraVentas()">📷 ESCANEAR</button>
+                <div id="qr-reader-ventas" style="display: none;"></div>
+                <div class="qr-reader-status" id="qr-status-ventas"></div>
             </div>
-            <div id="qr-reader-ventas" style="display: none;"></div>
-            <div class="qr-reader-status" id="qr-status-ventas"></div>
-            <div class="switch-container">
-                <span style="font-size: 0.9rem; font-weight: bold;">Incluir IVA en Ticket</span>
-                <label class="switch">
-                    <input type="checkbox" id="incluirIVAVentas" checked onchange="recalcularTotales()">
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div id="listaProductosVentas" style="margin-bottom: 15px; max-height: 200px; overflow-y: auto;"></div>
-            <h2>Carrito</h2>
-            <div id="carritoVentas" class="carrito-container">
-                <div class="carrito-vacio">Carrito vacío</div>
-            </div>
+            <div id="carritoList" class="carrito-container"></div>
+
             <div class="totales-section">
-                <div class="totales-row"><span>Subtotal Gravable:</span><span id="subtotalGravable">Bs. 0,00</span></div>
+                <div class="totales-row"><span>Subtotal Gravable (IVA):</span><span id="subtotalGravable">Bs. 0,00</span></div>
                 <div class="totales-row"><span>Subtotal Exento:</span><span id="subtotalExento">Bs. 0,00</span></div>
                 <div class="totales-row"><span>IVA (16%):</span><span id="ivaTotal">Bs. 0,00</span></div>
                 <div class="totales-row total-final"><span>TOTAL FINAL</span><span id="totalFinal">Bs. 0,00</span></div>
@@ -948,11 +872,24 @@
             <h2>Ventas de Hoy</h2>
             <div id="historialVentas" class="historial-container"></div>
         </div>
-        <div id="creditos" class="tab-content"><div style="text-align: center; padding: 40px; color: #999;">Módulo de Créditos (Próximamente)</div></div>
-        <div id="reportes" class="tab-content"><div style="text-align: center; padding: 40px; color: #999;">Módulo de Reportes (Próximamente)</div></div>
+
+        <!-- TAB: CRÉDITOS -->
+        <div id="creditos" class="tab-content">
+            <h2>💳 Clientes a Crédito</h2>
+            <div class="input-group">
+                <input type="text" id="inputBuscaClienteCredito" class="search-input" placeholder="Buscar cliente..." oninput="renderClientesCredito()">
+            </div>
+            <div id="clientesCreditoList" class="list-container"></div>
+        </div>
+
+        <!-- TAB: REPORTES -->
+        <div id="reportes" class="tab-content">
+            <h2>📈 Reportes</h2>
+            <p>Contenido de reportes...</p>
+        </div>
     </div>
 
-    <!-- MODAL: INGRESAR PESO -->
+    <!-- MODAL: PESO POR PRODUCTO -->
     <div id="modalPeso" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -960,16 +897,18 @@
                 <span>Ingresar Peso</span>
             </div>
             <div class="modal-body">
-                <div style="font-size: 0.95rem; margin-bottom: 15px;" id="modalPesoProducto"></div>
+                <p>Producto: <span id="modalPesoProducto" style="font-weight: bold;"></span></p>
                 <div class="modal-input-group">
-                    <label id="modalPesoLabel">Peso en Kilogramos (ej: 0.450):</label>
-                    <input type="number" id="inputPeso" placeholder="0.000" step="0.001" min="0" oninput="calcularTotalPeso()">
+                    <label>Peso (Kg):</label>
+                    <input type="number" id="inputPeso" placeholder="0.00" step="0.01" min="0" oninput="calcularTotalPeso()">
                 </div>
-                <div class="modal-total" id="modalPesoTotal">Total: Bs. 0,00</div>
-                <div class="modal-total-dual" id="modalPesoTotalUSD" style="text-align: center;">$ 0,00</div>
+                <div class="modal-total">
+                    Total: <span id="modalPesoTotal">Bs. 0,00</span>
+                    <div class="modal-total-dual" id="modalPesoTotalUSD">$ 0,00</div>
+                </div>
             </div>
             <div class="modal-buttons">
-                <button class="modal-btn modal-btn-primary" onclick="confirmarPeso()">ANADIR</button>
+                <button class="modal-btn modal-btn-primary" onclick="confirmarPeso()">CONFIRMAR</button>
                 <button class="modal-btn modal-btn-danger" onclick="cerrarModalPeso()">CANCELAR</button>
             </div>
         </div>
@@ -979,32 +918,28 @@
     <div id="modalPago" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span>💳</span>
-                <span>Procesar Pago</span>
+                <span>💰</span>
+                <span>Finalizar Pago</span>
             </div>
             <div class="modal-body">
-                <div style="background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 0.85rem; opacity: 0.9;">Total a Cobrar:</div>
-                    <div style="font-size: 1.5rem; font-weight: bold;" id="modalPagoTotal">Bs. 0,00</div>
-                    <div style="font-size: 0.85rem; opacity: 0.9;" id="modalPagoTotalUSD">$ 0,00</div>
+                <div class="modal-total">
+                    TOTAL A PAGAR: <span id="modalPagoTotal">Bs. 0,00</span>
+                    <div class="modal-total-dual" id="modalPagoTotalUSD">$ 0,00</div>
                 </div>
-                <div style="margin-bottom: 15px;">
-                    <div style="font-weight: bold; margin-bottom: 10px; color: #555;">Como paga el cliente?</div>
-                    <div class="pago-row">
-                        <div>
-                            <label>Dolares en Efectivo ($)</label>
-                            <input type="number" id="pagoDolares" placeholder="0.00" step="0.01" min="0" oninput="calcularVuelto()">
-                        </div>
-                        <div>
-                            <label>Bs. en Efectivo</label>
-                            <input type="number" id="pagoBolivaresBs" placeholder="0.00" step="0.01" min="0" oninput="calcularVuelto()">
-                        </div>
+                <div class="pago-row">
+                    <div>
+                        <label>Pago $</label>
+                        <input type="number" id="pagoDolares" placeholder="0.00" step="0.01" min="0" oninput="calcularVuelto()">
                     </div>
-                    <div class="pago-row">
-                        <div>
-                            <label>Bs. Pago Movil/Punto</label>
-                            <input type="number" id="pagoBolivaresMobil" placeholder="0.00" step="0.01" min="0" oninput="calcularVuelto()">
-                        </div>
+                    <div>
+                        <label>Pago Bs. Efectivo</label>
+                        <input type="number" id="pagoBolivaresBs" placeholder="0.00" step="0.01" min="0" oninput="calcularVuelto()">
+                    </div>
+                </div>
+                <div class="pago-row">
+                    <div>
+                        <label>Bs. Pago Movil/Punto</label>
+                        <input type="number" id="pagoBolivaresMobil" placeholder="0.00" step="0.01" min="0" oninput="calcularVuelto()">
                     </div>
                 </div>
                 <div class="vuelto-section" id="vueltoSection" style="display: none;">
@@ -1091,11 +1026,18 @@
     <script>
         // ==================== CONFIGURACIÓN GLOBAL ====================
         let items = [];
+        let carrito = [];
+        let ventas = [];
+        let clientes = [];
+        let clienteActualCredito = null;
+        let creditosActivos = [];
         let tasaDolar = 36.50;
         let ivaPercentaje = 16;
         let db = null;
         let scannerInventario = null;
         let cameraInventarioActive = false;
+        let scannerVentas = null;
+        let cameraVentasActive = false;
         let libreriasListas = false;
         
         const configMaestra = {
@@ -1224,107 +1166,120 @@
 
             const nuevoItem = {
                 id: editId || Date.now().toString(),
-                nombre, sku, costo: costoBs, precioVenta, precioVentaUSD,
-                beneficio, cantidad, unidad, exentoIVA, iva: exentoIVA ? 0 : ivaPercentaje
+                nombre: nombre,
+                sku: sku,
+                costo: costo,
+                monedaCosto: monedaCosto,
+                beneficio: beneficio,
+                cantidad: cantidad,
+                unidad: unidad,
+                exentoIVA: exentoIVA,
+                precioVenta: precioVenta,
+                precioVentaUSD: precioVentaUSD
             };
 
             if (editId) {
-                const idx = items.findIndex(i => i.id === editId);
-                if (idx !== -1) items[idx] = nuevoItem;
+                const index = items.findIndex(item => item.id === editId);
+                if (index !== -1) {
+                    items[index] = nuevoItem;
+                }
             } else {
                 items.push(nuevoItem);
             }
-
-            db.ref(configMaestra.pathCliente + 'data/items').set(items)
-                .then(() => {
-                    log("✅ Guardado.");
-                    limpiarForm();
-                });
+            db.ref(configMaestra.pathCliente + 'data/items').set(items);
+            clearForm();
+            render();
         }
 
-        function editItem(id) {
-            const item = items.find(i => i.id === id);
-            if (!item) return;
-            document.getElementById('nombre').value = item.nombre;
-            document.getElementById('codigoBarras').value = item.sku || '';
-            document.getElementById('costo').value = item.costo;
-            document.getElementById('beneficio').value = item.beneficio;
-            document.getElementById('cantidad').value = item.cantidad;
-            document.getElementById('unidad').value = item.unidad;
-            document.getElementById('exentoIVA').checked = item.exentoIVA;
-            document.getElementById('editId').value = id;
-            document.getElementById('btnGuardar').textContent = '✏️ ACTUALIZAR PRODUCTO';
-            document.getElementById('btnCancelarEdit').style.display = 'block';
-            window.scrollTo(0, 0);
-        }
-
-        function deleteItem(id) {
-            if (confirm('¿Eliminar?')) {
-                items = items.filter(i => i.id !== id);
-                db.ref(configMaestra.pathCliente + 'data/items').set(items).then(render);
-            }
-        }
-
-        function limpiarForm() {
+        function clearForm() {
+            document.getElementById('editId').value = '';
             document.getElementById('nombre').value = '';
             document.getElementById('codigoBarras').value = '';
             document.getElementById('costo').value = '';
-            document.getElementById('editId').value = '';
-            document.getElementById('btnGuardar').textContent = 'CARGAR AL INVENTARIO';
-            document.getElementById('btnCancelarEdit').style.display = 'none';
+            document.getElementById('monedaCosto').value = 'USD';
+            document.getElementById('beneficio').value = '';
+            document.getElementById('cantidad').value = '1';
+            document.getElementById('unidad').value = 'unidad';
+            document.getElementById('exentoIVA').checked = false;
+            calcularPrecioVenta();
         }
 
-        function actualizarTasa() {
-            const nt = parseFloat(document.getElementById('tasa').value) || tasaDolar;
-            db.ref(configMaestra.pathCliente + 'data/tasa_dolar').set(nt).then(() => {
-                tasaDolar = nt;
+        function editItem(id) {
+            const item = items.find(item => item.id === id);
+            if (item) {
+                document.getElementById('editId').value = item.id;
+                document.getElementById('nombre').value = item.nombre;
+                document.getElementById('codigoBarras').value = item.sku;
+                document.getElementById('costo').value = item.costo;
+                document.getElementById('monedaCosto').value = item.monedaCosto;
+                document.getElementById('beneficio').value = item.beneficio;
+                document.getElementById('cantidad').value = item.cantidad;
+                document.getElementById('unidad').value = item.unidad;
+                document.getElementById('exentoIVA').checked = item.exentoIVA;
+                calcularPrecioVenta();
+                switchTab('stock');
+            }
+        }
+
+        function deleteItem(id) {
+            if (confirm('¿Eliminar este producto?')) {
+                items = items.filter(item => item.id !== id);
+                db.ref(configMaestra.pathCliente + 'data/items').set(items);
                 render();
-            });
+            }
         }
 
-        function calcularCostoDual() {
-            const c = parseFloat(document.getElementById('costo').value) || 0;
-            const m = document.getElementById('monedaCosto').value;
-            const eq = m === "BS" ? c / tasaDolar : c;
-            document.getElementById('costoDual').textContent = 'Eqv: $ ' + eq.toFixed(2);
+        function calcularPrecioVenta() {
+            const costo = parseFloat(document.getElementById('costo').value) || 0;
+            const monedaCosto = document.getElementById('monedaCosto').value;
+            const beneficio = parseFloat(document.getElementById('beneficio').value) || 0;
+
+            let costoBs = monedaCosto === "USD" ? costo * tasaDolar : costo;
+            const precioVenta = costoBs * (1 + beneficio / 100);
+            const precioVentaUSD = precioVenta / tasaDolar;
+
+            document.getElementById('precioVentaPreview').textContent = `Bs. ${precioVenta.toFixed(2)} ($ ${precioVentaUSD.toFixed(2)})`;
         }
 
         function render() {
-            const lista = document.getElementById('lista');
-            const filtro = document.getElementById('filtroStock').value.toLowerCase();
-            if (!lista) return;
-            lista.innerHTML = '';
-            let total = 0, totalUSD = 0;
+            const inventarioList = document.getElementById('inventarioList');
+            const filtro = document.getElementById('inputBuscaInventario').value.toLowerCase();
+            inventarioList.innerHTML = '';
 
-            items.filter(i => i.nombre.toLowerCase().includes(filtro) || (i.sku && i.sku.includes(filtro)))
-            .forEach(item => {
-                total += (item.precioVenta * item.cantidad);
-                totalUSD += (item.precioVentaUSD * item.cantidad);
+            const itemsFiltrados = items.filter(item => 
+                item.nombre.toLowerCase().includes(filtro) || 
+                item.sku.toLowerCase().includes(filtro)
+            );
+
+            if (itemsFiltrados.length === 0) {
+                inventarioList.innerHTML = '<p style="text-align:center; color:#999;">No hay productos que coincidan</p>';
+                return;
+            }
+
+            itemsFiltrados.forEach(item => {
                 const div = document.createElement('div');
-                div.className = 'item';
+                div.className = `item ${item.cantidad <= stockMinimo ? 'alert-stock' : ''}`;
                 div.innerHTML = `
                     <div class="item-header">
-                        <span class="item-name">${item.nombre}</span>
-                        <span class="item-unit">${item.unidad}</span>
-                        ${item.sku ? `<span class="item-sku">${item.sku}</span>` : ''}
-                        <span class="item-quantity">${item.cantidad}</span>
+                        <span class="item-title">${item.nombre}</span>
+                        <span class="item-sku">${item.sku}</span>
                     </div>
-                    <div class="item-prices">
-                        <div class="item-price-bs">Bs. ${item.precioVenta.toFixed(2)} /UND</div>
-                        <div class="item-price-usd">$ ${item.precioVentaUSD.toFixed(2)} /UND</div>
-                    </div>
-                    <div class="item-actions">
-                        <button class="btn-edit" onclick="editItem('${item.id}')">✏️</button>
-                        <button class="btn-danger" onclick="deleteItem('${item.id}')">🗑️</button>
+                    <div class="item-body">
+                        <div class="item-details">
+                            Stock: <span class="item-stock">${item.cantidad} ${item.unidad}</span><br>
+                            Precio: <span class="item-price">Bs. ${item.precioVenta.toFixed(2)} ($ ${item.precioVentaUSD.toFixed(2)})</span>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn-edit" onclick="editItem('${item.id}')">Editar</button>
+                            <button class="btn-danger" onclick="deleteItem('${item.id}')">Eliminar</button>
+                        </div>
                     </div>
                 `;
-                lista.appendChild(div);
+                inventarioList.appendChild(div);
             });
-            document.getElementById('totalDisplay').textContent = "Bs. " + total.toLocaleString('es-VE', { minimumFractionDigits: 2 });
-            document.getElementById('totalDisplayUSD').textContent = "$ " + totalUSD.toLocaleString('es-VE', { minimumFractionDigits: 2 });
         }
 
-        // ==================== LÓGICA DEL ESCÁNER (COPIADA DEL OPERATIVO) ====================
+        // ==================== LECTOR QR INVENTARIO ====================
         function toggleCameraInventario() {
             if(!libreriasListas) return alert('Cargando librerías...');
             if(cameraInventarioActive) closeCameraInventario();
@@ -1346,20 +1301,12 @@
             try {
                 scannerInventario = new Html5QrcodeScanner(
                     "qr-reader-inventario",
-                    { 
-                        fps: 10, 
-                        qrbox: { width: 250, height: 250 }, 
-                        rememberLastUsedCamera: true, 
-                        showTorchButtonIfSupported: true,
-                        aspectRatio: 1.0,
-                        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE, Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39, Html5QrcodeSupportedFormats.EAN_13]
-                    },
+                    { fps: 10, qrbox: { width: 250, height: 250 }, rememberLastUsedCamera: true, showTorchButtonIfSupported: true, aspectRatio: 1.0, formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE, Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39, Html5QrcodeSupportedFormats.EAN_13] },
                     false
                 );
                 scannerInventario.render(onScanSuccessInventario, onScanErrorInventario);
                 cameraInventarioActive = true;
                 statusDiv.textContent = '✓ Cámara activa';
-                document.querySelector('.btn-camera').textContent = '❌ CERRAR';
             } catch(err) {
                 statusDiv.textContent = 'Error: ' + err.message;
             }
@@ -1370,7 +1317,6 @@
                 scannerInventario.clear().then(() => {
                     document.getElementById('qr-reader-inventario').style.display = 'none';
                     document.getElementById('qr-status-inventario').textContent = '';
-                    document.querySelector('.btn-camera').textContent = '📷 ESCANEAR';
                     cameraInventarioActive = false;
                 });
             }
@@ -1378,129 +1324,111 @@
 
         function onScanSuccessInventario(decodedText) {
             document.getElementById('codigoBarras').value = decodedText;
-            log("✅ SKU: " + decodedText);
+            const item = items.find(i => i.sku === decodedText);
+            if (item) {
+                editItem(item.id);
+            } else {
+                alert('Producto no encontrado. Ingresa los datos manualmente.');
+            }
             closeCameraInventario();
         }
 
         function onScanErrorInventario(err) { /* Silencio */ }
 
-        // ==================== MÓDULO DE VENTAS ====================
-        let carrito = [];
-        let ventas = [];
-        let scannerVentas = null;
-        let cameraVentasActive = false;
-        
-        // ==================== MÓDULO DE CRÉDITOS ====================
-        let clientes = [];
-        let clienteActualCredito = null;
-        let creditosActivos = [];
-
-        function filtrarProductos() {
-            const filtro = document.getElementById('buscarProducto').value.toLowerCase();
-            const lista = document.getElementById('listaProductosVentas');
-            lista.innerHTML = '';
-            
-            items.filter(i => i.nombre.toLowerCase().includes(filtro))
-                .forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'item';
-                    div.style.cursor = 'pointer';
-                    div.innerHTML = `
-                        <div class="item-header">
-                            <span class="item-name">${item.nombre}</span>
-                            <span class="item-quantity">${item.cantidad}</span>
-                        </div>
-                        <div class="item-prices">
-                            <div class="item-price-bs">Bs. ${item.precioVenta.toFixed(2)}</div>
-                            <div class="item-price-usd">$ ${item.precioVentaUSD.toFixed(2)}</div>
-                        </div>
-                    `;
-                    div.onclick = () => agregarAlCarrito(item);
-                    lista.appendChild(div);
-                });
-        }
-
+        // ==================== GESTIÓN DE CARRITO ====================
         function buscarPorSKU() {
             const sku = document.getElementById('codigoBarrasVentas').value.trim();
             if (!sku) return;
+
             const item = items.find(i => i.sku === sku);
             if (item) {
-                agregarAlCarrito(item);
+                if (item.unidad === 'kg') {
+                    abrirModalPeso(item);
+                } else {
+                    agregarAlCarrito(item);
+                }
                 document.getElementById('codigoBarrasVentas').value = '';
             } else {
-                alert('Producto no encontrado');
+                alert('Producto no encontrado en inventario.');
             }
         }
 
         function agregarAlCarrito(item) {
-            if (item.unidad === 'KG') {
-                abrirModalPeso(item);
+            const existente = carrito.find(c => c.id === item.id);
+            if (existente) {
+                existente.cantidad++;
             } else {
-                const existente = carrito.find(c => c.id === item.id);
-                if (existente) {
-                    existente.cantidad += 1;
-                } else {
-                    carrito.push({ ...item, cantidad: 1 });
-                }
-                recalcularTotales();
-                renderCarrito();
+                carrito.push({ ...item, cantidad: 1 });
             }
+            renderCarrito();
+            recalcularTotales();
+        }
+
+        function cambiarCantidadCarrito(id, delta) {
+            const item = carrito.find(c => c.id === id);
+            if (item) {
+                item.cantidad += delta;
+                if (item.cantidad <= 0) {
+                    carrito = carrito.filter(c => c.id !== id);
+                }
+            }
+            renderCarrito();
+            recalcularTotales();
+        }
+
+        function eliminarDelCarrito(id) {
+            carrito = carrito.filter(c => c.id !== id);
+            renderCarrito();
+            recalcularTotales();
         }
 
         function renderCarrito() {
-            const carritoDiv = document.getElementById('carritoVentas');
+            const carritoList = document.getElementById('carritoList');
+            carritoList.innerHTML = '';
+
             if (carrito.length === 0) {
-                carritoDiv.innerHTML = '<div class="carrito-vacio">Carrito vacío</div>';
+                carritoList.innerHTML = '<p style="text-align:center; color:#999;">Carrito vacío</p>';
                 return;
             }
-            carritoDiv.innerHTML = carrito.map((item, idx) => {
-                const subtotalBs = item.precioVenta * item.cantidad;
-                const subtotalUSD = subtotalBs / tasaDolar;
-                return `
-                    <div class="carrito-item">
-                        <div class="carrito-item-info">
-                            <div class="carrito-item-nombre">${item.nombre}</div>
-                            <div class="carrito-item-precio">Bs. ${subtotalBs.toFixed(2)} / $ ${subtotalUSD.toFixed(2)}</div>
+
+            carrito.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'carrito-item';
+                div.innerHTML = `
+                    <div class="carrito-item-header">
+                        <span class="carrito-item-title">${item.nombre}</span>
+                        <span class="carrito-item-price">Bs. ${(item.precioVenta * item.cantidad).toFixed(2)}</span>
+                    </div>
+                    <div class="carrito-item-details">
+                        <div class="carrito-item-subdetails">
+                            ${item.cantidad} ${item.unidad} x Bs. ${item.precioVenta.toFixed(2)}
                         </div>
                         <div class="carrito-item-cantidad">
-                            <button class="btn-qty" onclick="modificarCantidad(${idx}, -1)">−</button>
+                            <button class="btn-qty" onclick="cambiarCantidadCarrito('${item.id}', -1)">-</button>
                             <span class="qty-display">${item.cantidad}</span>
-                            <button class="btn-qty" onclick="modificarCantidad(${idx}, 1)">+</button>
-                            <button class="btn-remove-item" onclick="removerDelCarrito(${idx})">✕</button>
+                            <button class="btn-qty" onclick="cambiarCantidadCarrito('${item.id}', 1)">+</button>
+                            <button class="btn-remove-item" onclick="eliminarDelCarrito('${item.id}')">X</button>
                         </div>
                     </div>
                 `;
-            }).join('');
-        }
-
-        function modificarCantidad(idx, delta) {
-            carrito[idx].cantidad += delta;
-            if (carrito[idx].cantidad <= 0) removerDelCarrito(idx);
-            else {
-                recalcularTotales();
-                renderCarrito();
-            }
-        }
-
-        function removerDelCarrito(idx) {
-            carrito.splice(idx, 1);
-            recalcularTotales();
-            renderCarrito();
+                carritoList.appendChild(div);
+            });
         }
 
         function recalcularTotales() {
-            let subtotalGravable = 0, subtotalExento = 0, ivaTotal = 0;
-            const incluirIVA = document.getElementById('incluirIVAVentas').checked;
-            
+            let subtotalGravable = 0;
+            let subtotalExento = 0;
+
             carrito.forEach(item => {
-                const subtotal = item.precioVenta * item.cantidad;
+                const totalItem = item.precioVenta * item.cantidad;
                 if (item.exentoIVA) {
-                    subtotalExento += subtotal;
+                    subtotalExento += totalItem;
                 } else {
-                    subtotalGravable += subtotal;
-                    if (incluirIVA) ivaTotal += subtotal * (item.iva / 100);
+                    subtotalGravable += totalItem;
                 }
             });
+
+            const ivaTotal = subtotalGravable * (ivaPercentaje / 100);
             
             const totalFinal = subtotalGravable + subtotalExento + ivaTotal;
             const totalFinalUSD = totalFinal / tasaDolar;
@@ -1523,11 +1451,6 @@
         function finalizarVentaContado() {
             if (carrito.length === 0) return alert('Carrito vacío');
             abrirModalPago();
-        }
-
-        function abrirModalCredito() {
-            if (carrito.length === 0) return alert('Carrito vacío');
-            alert('Modal de crédito (Próximamente)');
         }
 
         function renderHistorial() {
@@ -1701,6 +1624,7 @@
                     if (items[idx].cantidad < 0) items[idx].cantidad = 0;
                 }
             });
+            db.ref(configMaestra.pathCliente + 'data/items').set(items);
             render();
         }
 
@@ -1746,34 +1670,7 @@
             alert('✅ Venta finalizada');
         }
 
-        function anularVenta(ventaId) {
-            const ventaIdx = ventas.findIndex(v => v.id === ventaId);
-            if (ventaIdx === -1) return alert('Venta no encontrada');
-            if (!confirm('¿Estás seguro de que deseas anular esta venta?')) return;
-            
-            const venta = ventas[ventaIdx];
-            venta.estado = 'anulada';
-            venta.fechaAnulacion = new Date().toLocaleString('es-VE');
-            
-            venta.items.forEach(item => {
-                const itemIdx = items.findIndex(i => i.id === item.id);
-                if (itemIdx !== -1) {
-                    items[itemIdx].cantidad += item.cantidad;
-                }
-            });
-            
-            db.ref(configMaestra.pathCliente + 'logs/ventas').push(venta);
-            log('✅ Venta anulada y inventario restaurado');
-            render();
-            renderHistorial();
-        }
-
-        verificarLibrerias();
-    </script>
-</body>
-</html>
-
-        // ==================== FUNCIONES DEL MÓDULO DE CRÉDITOS ====================
+        // ==================== FUNCIONES DEL MÓDULO DE CRÉDITO ====================
         function abrirModalCredito() {
             if (carrito.length === 0) return alert('Carrito vacío');
             document.getElementById('inputBuscaCliente').value = '';
@@ -1793,12 +1690,17 @@
             document.getElementById('modalResumenCredito').classList.remove('active');
         }
 
+        let clienteActualCredito = null;
+
         function filtrarClientes() {
             const filtro = document.getElementById('inputBuscaCliente').value.toLowerCase();
             const lista = document.getElementById('listaClientesFiltrada');
             lista.innerHTML = '';
-            
-            const clientesFiltrados = clientes.filter(c => c.nombre.toLowerCase().includes(filtro));
+
+            const clientesFiltrados = clientes.filter(c => 
+                c.nombre.toLowerCase().includes(filtro) || 
+                c.cedula.toLowerCase().includes(filtro)
+            );
             
             if (clientesFiltrados.length === 0) {
                 lista.innerHTML = '<p style="color: #999; font-size: 0.85rem;">No hay clientes que coincidan</p>';
@@ -1895,7 +1797,7 @@
             
             db.ref(configMaestra.pathCliente + 'clientes_fiado/' + clienteActualCredito.id).set(clienteActualCredito);
             db.ref(configMaestra.pathCliente + 'logs/creditos').push(compra);
-            
+            descontarDelInventario(carrito);
             log('✅ Crédito registrado');
             carrito = [];
             renderCarrito();
@@ -1905,3 +1807,67 @@
             alert('✅ Compra a crédito registrada');
         }
 
+        // ==================== INICIALIZACIÓN DE LA APP ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            verificarLibrerias();
+            switchTab('venta');
+            render();
+            renderCarrito();
+            recalcularTotales();
+            renderHistorial();
+            renderClientesCredito();
+        });
+
+        function renderClientesCredito() {
+            const clientesCreditoList = document.getElementById('clientesCreditoList');
+            const filtro = document.getElementById('inputBuscaClienteCredito').value.toLowerCase();
+            clientesCreditoList.innerHTML = '';
+
+            const clientesFiltrados = clientes.filter(c => 
+                c.nombre.toLowerCase().includes(filtro) || 
+                c.cedula.toLowerCase().includes(filtro)
+            );
+
+            if (clientesFiltrados.length === 0) {
+                clientesCreditoList.innerHTML = '<p style="text-align:center; color:#999;">No hay clientes a crédito</p>';
+                return;
+            }
+
+            clientesFiltrados.forEach(cliente => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `
+                    <div class="item-header">
+                        <span class="item-title">${cliente.nombre}</span>
+                        <span class="item-sku">${cliente.cedula}</span>
+                    </div>
+                    <div class="item-body">
+                        <div class="item-details">
+                            Deuda: <span class="item-price">Bs. ${cliente.deuda.toFixed(2)}</span><br>
+                            Compras: ${cliente.compras.length}
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn-edit" onclick="verDetalleClienteCredito('${cliente.id}')">Ver</button>
+                            <button class="btn-danger" onclick="eliminarClienteCredito('${cliente.id}')">Eliminar</button>
+                        </div>
+                    </div>
+                `;
+                clientesCreditoList.appendChild(div);
+            });
+        }
+
+        function verDetalleClienteCredito(id) {
+            alert('Funcionalidad para ver detalle de cliente a crédito (Próximamente)');
+        }
+
+        function eliminarClienteCredito(id) {
+            if (confirm('¿Eliminar este cliente a crédito? Esto no anulará sus deudas anteriores.')) {
+                clientes = clientes.filter(c => c.id !== id);
+                db.ref(configMaestra.pathCliente + 'clientes_fiado').set(clientes);
+                renderClientesCredito();
+            }
+        }
+
+    </script>
+</body>
+</html>
