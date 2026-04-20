@@ -1329,12 +1329,18 @@
                 const logs = snap.val();
                 ventas = [];
                 if (logs) {
-                    const hoy = new Date().toLocaleDateString('es-VE');
+                    // Obtener fecha de hoy en formato DD/MM/YYYY para comparar
+                    const d = new Date();
+                    const hoy = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+                    
                     Object.keys(logs).forEach(key => {
                         const v = logs[key];
-                        // Solo mostrar las de hoy en el historial rápido
-                        if (v.fecha && v.fecha.includes(hoy)) {
-                            ventas.push({ ...v, id: key });
+                        // Limpiar la fecha del log para comparar solo el día (DD/MM/YYYY)
+                        if (v.fecha) {
+                            const fechaSoloDia = v.fecha.split(',')[0].trim();
+                            if (fechaSoloDia === hoy || v.fecha.includes(hoy)) {
+                                ventas.push({ ...v, id: key });
+                            }
                         }
                     });
                 }
@@ -1939,25 +1945,37 @@
                 anulada: false
             };
 
-            ventas.push(venta);
-            if (db) db.ref(configMaestra.pathCliente + 'logs/ventas').push(venta);
-            log('✅ Venta registrada: Bs. ' + totalBs.toFixed(2) + ' - ' + tipoPago);
+            // Guardar en Firebase primero
+            if (db) {
+                db.ref(configMaestra.pathCliente + 'logs/ventas').push(venta).then(() => {
+                    log('✅ Venta registrada: Bs. ' + totalBs.toFixed(2) + ' - ' + tipoPago);
+                    
+                    // Descontar stock localmente y en DB
+                    carrito.forEach(ci => {
+                        const idx = items.findIndex(i => i.id === ci.id);
+                        if (idx !== -1) {
+                            items[idx].cantidad = Math.max(0, items[idx].cantidad - ci.cantidad);
+                        }
+                    });
+                    db.ref(configMaestra.pathCliente + 'data/items').set(items);
 
-            // Descontar stock
-            carrito.forEach(ci => {
-                const idx = items.findIndex(i => i.id === ci.id);
-                if (idx !== -1) {
-                    items[idx].cantidad = Math.max(0, items[idx].cantidad - ci.cantidad);
-                }
-            });
-            if (db) db.ref(configMaestra.pathCliente + 'data/items').set(items);
-
-            carrito = [];
-            renderCarrito();
-            recalcularTotales();
-            renderHistorial();
-            cerrarModalPago();
-            alert('✅ Venta confirmada\n' + tipoPago + '\nTotal: Bs. ' + totalBs.toFixed(2));
+                    // Limpiar y cerrar
+                    carrito = [];
+                    renderCarrito();
+                    recalcularTotales();
+                    cerrarModalPago();
+                    alert('✅ Venta confirmada\n' + tipoPago + '\nTotal: Bs. ' + totalBs.toFixed(2));
+                }).catch(err => alert('Error al guardar venta: ' + err));
+            } else {
+                // Fallback offline
+                ventas.push(venta);
+                carrito = [];
+                renderCarrito();
+                recalcularTotales();
+                renderHistorial();
+                cerrarModalPago();
+                alert('✅ Venta registrada localmente.');
+            }
         }
 
         // ==================== ANULACIÓN DE VENTAS ====================
@@ -2107,29 +2125,35 @@
             
             // Guardar en Firebase
             if (db) {
-                // Usar push para evitar sobrescribir todo el array y manejar concurrencia
-                db.ref(configMaestra.pathCliente + 'data/clientes').set(clientes);
-                db.ref(configMaestra.pathCliente + 'data/creditos').push(nuevoCredito);
-                db.ref(configMaestra.pathCliente + 'logs/ventas').push(nuevoCredito);
+                Promise.all([
+                    db.ref(configMaestra.pathCliente + 'data/clientes').set(clientes),
+                    db.ref(configMaestra.pathCliente + 'data/creditos').push(nuevoCredito),
+                    db.ref(configMaestra.pathCliente + 'logs/ventas').push(nuevoCredito)
+                ]).then(() => {
+                    // Descontar stock
+                    carrito.forEach(ci => {
+                        const idx = items.findIndex(i => i.id === ci.id);
+                        if (idx !== -1) {
+                            items[idx].cantidad = Math.max(0, items[idx].cantidad - ci.cantidad);
+                        }
+                    });
+                    db.ref(configMaestra.pathCliente + 'data/items').set(items);
+
+                    log('💳 Crédito asignado a ' + nombre + ': Bs. ' + totalBs.toFixed(2));
+                    carrito = [];
+                    renderCarrito();
+                    recalcularTotales();
+                    cerrarModalCredito();
+                    alert('✅ Crédito registrado correctamente.');
+                }).catch(err => alert('Error al guardar crédito: ' + err));
+            } else {
+                // Fallback offline
+                carrito = [];
+                renderCarrito();
+                recalcularTotales();
+                cerrarModalCredito();
+                alert('✅ Crédito registrado localmente.');
             }
-
-            // Descontar stock
-            carrito.forEach(ci => {
-                const idx = items.findIndex(i => i.id === ci.id);
-                if (idx !== -1) {
-                    items[idx].cantidad = Math.max(0, items[idx].cantidad - ci.cantidad);
-                }
-            });
-            if (db) db.ref(configMaestra.pathCliente + 'data/items').set(items);
-
-            log('💳 Crédito asignado a ' + nombre + ': Bs. ' + totalBs.toFixed(2));
-            carrito = [];
-            renderCarrito();
-            recalcularTotales();
-            renderHistorial();
-            filtrarCreditos();
-            cerrarModalCredito();
-            alert('✅ Crédito registrado correctamente.');
         }
 
         function filtrarCreditos() {
