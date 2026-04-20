@@ -602,18 +602,18 @@
         
         .historial-item {
             background: #f9f9f9;
-            padding: 12px;
+            padding: 6px 10px;
             border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             border-left: 3px solid var(--secondary);
-            font-size: 0.85rem;
+            font-size: 0.82rem;
         }
         
         .historial-item-header {
             display: flex;
             justify-content: space-between;
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
         
         .historial-item-detalle {
@@ -844,22 +844,22 @@
         }
 
         .historial-item-items {
-            margin-top: 6px;
-            font-size: 0.78rem;
+            margin-top: 3px;
+            font-size: 0.75rem;
             color: #777;
             border-top: 1px solid #eee;
-            padding-top: 6px;
+            padding-top: 3px;
         }
 
         .btn-anular-venta {
             background: var(--danger);
             color: white;
             border: none;
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 5px;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             cursor: pointer;
-            margin-top: 6px;
+            margin-top: 3px;
         }
 
         .badge-anulada {
@@ -1022,7 +1022,15 @@
             <h2>Ventas de Hoy</h2>
             <div id="historialVentas" class="historial-container"></div>
         </div>
-        <div id="creditos" class="tab-content"><div style="text-align: center; padding: 40px; color: #999;">Módulo de Créditos (Próximamente)</div></div>
+        <div id="creditos" class="tab-content">
+            <div class="input-group">
+                <label>Buscar Cliente con Deuda</label>
+                <input type="text" id="buscarClienteCredito" class="search-input" placeholder="Nombre del cliente..." oninput="filtrarCreditos()">
+            </div>
+            <div id="listaCreditos" class="historial-container">
+                <div style="text-align: center; padding: 20px; color: #999;">Cargando créditos...</div>
+            </div>
+        </div>
         <div id="reportes" class="tab-content"><div style="text-align: center; padding: 40px; color: #999;">Módulo de Reportes (Próximamente)</div></div>
     </div>
 
@@ -1092,6 +1100,73 @@
         </div>
     </div>
 
+    <!-- MODAL: BUSCAR/REGISTRAR CLIENTE PARA CRÉDITO -->
+    <div id="modalCredito" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>👤</span>
+                <span>Asignar Crédito</span>
+            </div>
+            <div class="modal-body">
+                <div style="background: var(--info); color: white; padding: 12px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
+                    <div style="font-size: 0.8rem; opacity: 0.9;">Total a Deber:</div>
+                    <div style="font-size: 1.3rem; font-weight: bold;" id="modalCreditoTotal">Bs. 0,00</div>
+                </div>
+                
+                <div class="modal-input-group">
+                    <label>Nombre del Cliente:</label>
+                    <input type="text" id="nombreClienteCredito" placeholder="Escribe para buscar o registrar..." oninput="buscarClienteExistente(this.value)">
+                    <div id="sugerenciasClientes" style="background: #f1f1f1; border-radius: 0 0 10px 10px; max-height: 150px; overflow-y: auto; display: none;"></div>
+                </div>
+
+                <div id="datosNuevoCliente" style="display: none; border: 1px dashed var(--info); padding: 10px; border-radius: 10px; margin-top: 10px;">
+                    <p style="font-size: 0.75rem; color: var(--info); font-weight: bold; margin-top: 0;">✨ Cliente Nuevo</p>
+                    <div class="modal-input-group" style="margin-bottom: 10px;">
+                        <label>Cédula:</label>
+                        <input type="text" id="cedulaCliente" placeholder="V-00000000">
+                    </div>
+                    <div class="modal-input-group" style="margin-bottom: 0;">
+                        <label>Teléfono:</label>
+                        <input type="text" id="telefonoCliente" placeholder="0412-0000000">
+                    </div>
+                </div>
+
+                <div id="deudaActualCliente" style="display: none; background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 10px; margin-top: 10px; text-align: center;">
+                    <span style="font-size: 0.8rem; color: #856404;">Deuda acumulada actual:</span>
+                    <div style="font-weight: bold; color: #856404;" id="montoDeudaActual">Bs. 0,00</div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="confirmarCredito()">✅ ASIGNAR CRÉDITO</button>
+                <button class="modal-btn modal-btn-danger" onclick="cerrarModalCredito()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ABONO A DEUDA -->
+    <div id="modalAbono" class="modal">
+        <div class="modal-content" style="max-width: 350px;">
+            <div class="modal-header">
+                <span>💰</span>
+                <span>Realizar Abono</span>
+            </div>
+            <div class="modal-body">
+                <div id="infoAbonoCliente" style="text-align: center; margin-bottom: 15px;">
+                    <div style="font-weight: bold;" id="abonoClienteNombre">Cliente</div>
+                    <div style="font-size: 0.9rem; color: var(--danger);" id="abonoDeudaTotal">Deuda: Bs. 0,00</div>
+                </div>
+                <div class="modal-input-group">
+                    <label>Monto del Abono (Bs.):</label>
+                    <input type="number" id="montoAbono" placeholder="0.00" step="0.01">
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="confirmarAbono()">✅ REGISTRAR ABONO</button>
+                <button class="modal-btn" style="background:#95a5a6; color:white;" onclick="cerrarModalAbono()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL: ANULACIÓN DE VENTA -->
     <div id="modalAnulacion" class="modal">
         <div class="modal-content" style="max-width: 380px;">
@@ -1122,6 +1197,8 @@
     <script>
         // ==================== CONFIGURACIÓN GLOBAL ====================
         let items = [];
+        let clientes = []; // {id, nombre, cedula, telefono, deudaTotal}
+        let creditos = []; // {id, clienteId, fecha, items, totalBs, saldo, pagada}
         let tasaDolar = 36.50;
         let ivaPercentaje = 16;
         let db = null;
@@ -1230,7 +1307,11 @@
                     }
                     if (data.iva_porcentaje) ivaPercentaje = data.iva_porcentaje;
                     items = data.items || [];
+                    clientes = data.clientes || [];
+                    creditos = data.creditos || [];
                     render();
+                    renderHistorial();
+                    filtrarCreditos();
                 }
             });
         }
@@ -1872,6 +1953,268 @@
             renderHistorial();
             cerrarModalAnulacion();
             alert('🚫 Venta anulada correctamente.');
+        }
+
+        // ==================== MÓDULO DE CRÉDITOS (CLIENTES Y DEUDAS) ====================
+        let clienteSeleccionadoId = null;
+
+        function abrirModalCredito() {
+            if (carrito.length === 0) return alert('⚠️ El carrito está vacío.');
+            const totalBs = parseFloat(document.getElementById('totalFinal').textContent.replace('Bs. ', '')) || 0;
+            document.getElementById('modalCreditoTotal').textContent = `Bs. ${totalBs.toFixed(2)}`;
+            
+            // Resetear campos
+            document.getElementById('nombreClienteCredito').value = '';
+            document.getElementById('cedulaCliente').value = '';
+            document.getElementById('telefonoCliente').value = '';
+            document.getElementById('datosNuevoCliente').style.display = 'none';
+            document.getElementById('deudaActualCliente').style.display = 'none';
+            document.getElementById('sugerenciasClientes').style.display = 'none';
+            clienteSeleccionadoId = null;
+
+            document.getElementById('modalCredito').classList.add('active');
+            setTimeout(() => document.getElementById('nombreClienteCredito').focus(), 200);
+        }
+
+        function cerrarModalCredito() {
+            document.getElementById('modalCredito').classList.remove('active');
+        }
+
+        function buscarClienteExistente(valor) {
+            const sugerencias = document.getElementById('sugerenciasClientes');
+            if (valor.length < 2) {
+                sugerencias.style.display = 'none';
+                return;
+            }
+
+            const filtrados = clientes.filter(c => c.nombre.toLowerCase().includes(valor.toLowerCase()));
+            
+            if (filtrados.length > 0) {
+                sugerencias.innerHTML = filtrados.map(c => `
+                    <div style="padding: 10px; border-bottom: 1px solid #ddd; cursor: pointer;" onclick="seleccionarCliente('${c.id}', '${c.nombre}')">
+                        <strong>${c.nombre}</strong><br>
+                        <small>CI: ${c.cedula || 'N/A'} | Deuda: Bs. ${(c.deudaTotal || 0).toFixed(2)}</small>
+                    </div>
+                `).join('');
+                sugerencias.style.display = 'block';
+            } else {
+                sugerencias.style.display = 'none';
+                document.getElementById('datosNuevoCliente').style.display = 'block';
+                document.getElementById('deudaActualCliente').style.display = 'none';
+                clienteSeleccionadoId = 'NUEVO';
+            }
+        }
+
+        function seleccionarCliente(id, nombre) {
+            const cliente = clientes.find(c => c.id === id);
+            if (!cliente) return;
+            
+            clienteSeleccionadoId = id;
+            document.getElementById('nombreClienteCredito').value = nombre;
+            document.getElementById('sugerenciasClientes').style.display = 'none';
+            document.getElementById('datosNuevoCliente').style.display = 'none';
+            
+            // Mostrar deuda actual
+            const deudaTotal = cliente.deudaTotal || 0;
+            document.getElementById('montoDeudaActual').textContent = `Bs. ${deudaTotal.toFixed(2)}`;
+            document.getElementById('deudaActualCliente').style.display = 'block';
+        }
+
+        function confirmarCredito() {
+            const nombre = document.getElementById('nombreClienteCredito').value.trim();
+            const totalBs = parseFloat(document.getElementById('modalCreditoTotal').textContent.replace('Bs. ', '')) || 0;
+            
+            if (!nombre) return alert('⚠️ Ingresa el nombre del cliente.');
+
+            let clienteId = clienteSeleccionadoId;
+            
+            // Si es un cliente nuevo, registrarlo
+            if (clienteId === 'NUEVO' || !clienteId) {
+                clienteId = Date.now().toString();
+                const nuevoCliente = {
+                    id: clienteId,
+                    nombre: nombre,
+                    cedula: document.getElementById('cedulaCliente').value.trim(),
+                    telefono: document.getElementById('telefonoCliente').value.trim(),
+                    deudaTotal: totalBs
+                };
+                clientes.push(nuevoCliente);
+            } else {
+                // Actualizar deuda de cliente existente
+                const idx = clientes.findIndex(c => c.id === clienteId);
+                if (idx !== -1) {
+                    clientes[idx].deudaTotal = (clientes[idx].deudaTotal || 0) + totalBs;
+                }
+            }
+
+            // Registrar el crédito
+            const nuevoCredito = {
+                id: 'CRED-' + Date.now(),
+                clienteId: clienteId,
+                clienteNombre: nombre,
+                fecha: new Date().toLocaleString('es-VE'),
+                items: JSON.parse(JSON.stringify(carrito)),
+                totalBs: totalBs,
+                saldo: totalBs,
+                pagada: false
+            };
+            
+            creditos.push(nuevoCredito);
+            
+            // Guardar en Firebase
+            if (db) {
+                db.ref(configMaestra.pathCliente + 'data/clientes').set(clientes);
+                db.ref(configMaestra.pathCliente + 'data/creditos').set(creditos);
+                db.ref(configMaestra.pathCliente + 'logs/ventas').push({
+                    ...nuevoCredito,
+                    tipo: 'CREDITO'
+                });
+            }
+
+            // Descontar stock
+            carrito.forEach(ci => {
+                const idx = items.findIndex(i => i.id === ci.id);
+                if (idx !== -1) {
+                    items[idx].cantidad = Math.max(0, items[idx].cantidad - ci.cantidad);
+                }
+            });
+            if (db) db.ref(configMaestra.pathCliente + 'data/items').set(items);
+
+            log('💳 Crédito asignado a ' + nombre + ': Bs. ' + totalBs.toFixed(2));
+            carrito = [];
+            renderCarrito();
+            recalcularTotales();
+            renderHistorial();
+            filtrarCreditos();
+            cerrarModalCredito();
+            alert('✅ Crédito registrado correctamente.');
+        }
+
+        function filtrarCreditos() {
+            const filtro = document.getElementById('buscarClienteCredito').value.toLowerCase();
+            const lista = document.getElementById('listaCreditos');
+            
+            if (creditos.length === 0) {
+                lista.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">No hay créditos registrados.</div>';
+                return;
+            }
+
+            // Agrupar por cliente para mostrar total general
+            const deudasPorCliente = {};
+            creditos.filter(c => !c.pagada).forEach(c => {
+                if (!deudasPorCliente[c.clienteId]) {
+                    deudasPorCliente[c.clienteId] = {
+                        nombre: c.clienteNombre,
+                        totalDeuda: 0,
+                        detalles: []
+                    };
+                }
+                deudasPorCliente[c.clienteId].totalDeuda += c.saldo;
+                deudasPorCliente[c.clienteId].detalles.push(c);
+            });
+
+            const clientesConDeuda = Object.keys(deudasPorCliente).filter(id => 
+                deudasPorCliente[id].nombre.toLowerCase().includes(filtro)
+            );
+
+            if (clientesConDeuda.length === 0) {
+                lista.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">No se encontraron clientes con deuda.</div>';
+                return;
+            }
+
+            lista.innerHTML = clientesConDeuda.map(id => {
+                const c = deudasPorCliente[id];
+                return `
+                    <div class="historial-item" style="border-left-color: var(--danger); margin-bottom: 15px; padding: 12px;">
+                        <div class="historial-item-header">
+                            <span style="font-size: 1.1rem; color: var(--text);">${c.nombre}</span>
+                            <span style="color: var(--danger); font-size: 1.2rem; font-weight: bold;">TOTAL: Bs. ${c.totalDeuda.toFixed(2)}</span>
+                        </div>
+                        <div style="margin-top: 8px;">
+                            ${c.detalles.map(d => `
+                                <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 5px; font-size: 0.8rem; border: 1px solid #eee;">
+                                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                                        <span>📅 ${d.fecha}</span>
+                                        <span style="color: var(--danger);">Bs. ${d.saldo.toFixed(2)}</span>
+                                    </div>
+                                    <div style="color: #777; font-size: 0.75rem; margin-top: 2px;">
+                                        ${d.items.map(i => `${i.nombre} (x${i.cantidad})`).join(', ')}
+                                    </div>
+                                    <div style="display: flex; gap: 10px; margin-top: 8px;">
+                                        <button onclick="abrirModalAbono('${d.id}')" style="background: var(--primary); color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.75rem; flex: 1;">💰 ABONAR / PAGAR</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== ABONOS Y PAGOS ====================
+        let creditoAbonoId = null;
+
+        function abrirModalAbono(id) {
+            const credito = creditos.find(c => c.id === id);
+            if (!credito) return;
+            
+            creditoAbonoId = id;
+            document.getElementById('abonoClienteNombre').textContent = credito.clienteNombre;
+            document.getElementById('abonoDeudaTotal').textContent = `Saldo pendiente: Bs. ${credito.saldo.toFixed(2)}`;
+            document.getElementById('montoAbono').value = credito.saldo.toFixed(2);
+            document.getElementById('modalAbono').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('montoAbono').focus();
+                document.getElementById('montoAbono').select();
+            }, 200);
+        }
+
+        function cerrarModalAbono() {
+            document.getElementById('modalAbono').classList.remove('active');
+            creditoAbonoId = null;
+        }
+
+        function confirmarAbono() {
+            const monto = parseFloat(document.getElementById('montoAbono').value) || 0;
+            if (monto <= 0) return alert('⚠️ Ingresa un monto válido.');
+
+            const idx = creditos.findIndex(c => c.id === creditoAbonoId);
+            if (idx === -1) return;
+
+            const credito = creditos[idx];
+            if (monto > credito.saldo + 0.01) {
+                return alert('⚠️ El abono no puede ser mayor a la deuda (Bs. ' + credito.saldo.toFixed(2) + ').');
+            }
+
+            // Actualizar saldo del crédito
+            credito.saldo -= monto;
+            if (credito.saldo <= 0.01) {
+                credito.saldo = 0;
+                credito.pagada = true;
+            }
+
+            // Actualizar deuda total del cliente
+            const cIdx = clientes.findIndex(c => c.id === credito.clienteId);
+            if (cIdx !== -1) {
+                clientes[cIdx].deudaTotal = Math.max(0, (clientes[cIdx].deudaTotal || 0) - monto);
+            }
+
+            // Registrar log de abono
+            if (db) {
+                db.ref(configMaestra.pathCliente + 'data/clientes').set(clientes);
+                db.ref(configMaestra.pathCliente + 'data/creditos').set(creditos);
+                db.ref(configMaestra.pathCliente + 'logs/abonos').push({
+                    creditoId: credito.id,
+                    clienteNombre: credito.clienteNombre,
+                    monto: monto,
+                    fecha: new Date().toLocaleString('es-VE')
+                });
+            }
+
+            log('💰 Abono registrado: ' + credito.clienteNombre + ' - Bs. ' + monto.toFixed(2));
+            filtrarCreditos();
+            cerrarModalAbono();
+            alert('✅ Abono registrado correctamente.');
         }
 
         verificarLibrerias();
