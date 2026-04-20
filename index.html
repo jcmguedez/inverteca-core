@@ -1104,13 +1104,13 @@
             </div>
             
             <!-- BOTONES DE ACCIÓN -->
-            <div id="diasPendientesCierre"></div>
+            <div id="diasPendientesCierre" style="margin-bottom: 15px;"></div>
             
-            <button class="btn-venta-contado" style="background: #f39c12; margin-bottom: 10px;" onclick="switchTab('reportes')">
+            <button class="btn-venta-contado" style="background: #f39c12; margin-bottom: 10px;" onclick="realizarCierreGlobal()">
                 🔒 CERRAR CAJA (ARCHIVAR)
             </button>
             
-            <button class="btn-dar-credito" style="background: #e74c3c; margin-bottom: 20px;" onclick="alert('Funcionalidad de Cierre Mensual próximamente')">
+            <button class="btn-dar-credito" style="background: #e74c3c; margin-bottom: 20px;" onclick="realizarCierreMensual()">
                 📅 CIERRE MENSUAL
             </button>
             
@@ -2504,7 +2504,6 @@
                             <div style="font-weight: bold;">${dia}</div>
                             <div style="font-size: 0.85rem; color: #666;">${ventasPorDia[dia].cant} ventas - Bs. ${ventasPorDia[dia].total.toFixed(2)}</div>
                         </div>
-                        <button onclick="realizarCierre('${dia}')" style="background: #f39c12; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">CERRAR DÍA</button>
                     </div>
                 `).join('');
             }
@@ -2545,35 +2544,114 @@
             document.body.removeChild(link);
         }
 
-        function realizarCierre(dia) {
-            if (!confirm(`¿Confirmar el cierre de caja para el día ${dia}?`)) return;
+        function realizarCierreGlobal() {
+            // 1. Agrupar ventas por día que NO estén en un cierre archivado
+            const idsCerrados = new Set();
+            cierres.forEach(c => {
+                if (c.ventasIds) c.ventasIds.forEach(id => idsCerrados.add(id));
+            });
 
-            // Recopilar datos del día
-            const ventasDia = ventas.filter(v => (v.fecha || "").split(',')[0].trim() === dia && !v.anulada);
-            const totalBs = ventasDia.reduce((sum, v) => sum + v.totalBs, 0);
-            const ids = ventasDia.map(v => v.id);
+            const ventasPendientes = ventas.filter(v => !idsCerrados.has(v.id) && !v.anulada);
+            
+            if (ventasPendientes.length === 0) {
+                return alert('⚠️ No hay ventas pendientes para cerrar.');
+            }
 
-            const nuevoCierre = {
-                id: 'CIERRE-' + Date.now(),
-                fecha: dia,
-                fechaCierre: new Date().toLocaleString('es-VE'),
-                totalBs: totalBs,
-                totalUSD: totalBs / tasaDolar,
-                cantVentas: ventasDia.length,
-                ventasIds: ids
-            };
+            // Agrupar por día
+            const ventasPorDia = {};
+            ventasPendientes.forEach(v => {
+                const dia = (v.fecha || "").split(',')[0].trim();
+                if (!dia) return;
+                if (!ventasPorDia[dia]) ventasPorDia[dia] = [];
+                ventasPorDia[dia].push(v);
+            });
+
+            const dias = Object.keys(ventasPorDia);
+            if (!confirm(`Se procederá a cerrar ${dias.length} día(s) con un total de ${ventasPendientes.length} ventas. ¿Continuar?`)) return;
+
+            const promesas = [];
+            dias.forEach(dia => {
+                const ventasDia = ventasPorDia[dia];
+                const totalBs = ventasDia.reduce((sum, v) => sum + v.totalBs, 0);
+                
+                // Calcular IVA acumulado del día
+                let totalIVA = 0;
+                ventasDia.forEach(v => {
+                    v.items.forEach(item => {
+                        if (!item.exentoIVA) {
+                            totalIVA += (item.precioVenta * item.cantidad) * (ivaPercentaje / 100);
+                        }
+                    });
+                });
+
+                const nuevoCierre = {
+                    id: 'CIERRE-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                    fecha: dia,
+                    fechaCierre: new Date().toLocaleString('es-VE'),
+                    totalBs: totalBs,
+                    totalIVA: totalIVA,
+                    totalUSD: totalBs / tasaDolar,
+                    cantVentas: ventasDia.length,
+                    ventasIds: ventasDia.map(v => v.id)
+                };
+
+                if (db) {
+                    promesas.push(db.ref(configMaestra.pathCliente + 'data/cierres').push(nuevoCierre));
+                } else {
+                    cierres.push(nuevoCierre);
+                }
+            });
 
             if (db) {
-                db.ref(configMaestra.pathCliente + 'data/cierres').push(nuevoCierre).then(() => {
-                    alert('✅ Cierre de caja realizado con éxito.\nEl historial de ventas se ha limpiado.');
-                    renderHistorial(); // Esto ahora filtrará las ventas que ya están en cierres
+                Promise.all(promesas).then(() => {
+                    alert('✅ Cierres realizados con éxito.\nEl historial de ventas se ha limpiado.');
+                    renderHistorial();
                     renderReportes();
                 });
             } else {
-                cierres.push(nuevoCierre);
                 renderHistorial();
                 renderReportes();
-                alert('✅ Cierre realizado localmente.');
+                alert('✅ Cierres realizados localmente.');
+            }
+        }
+
+        function realizarCierreMensual() {
+            if (cierres.length === 0) return alert('⚠️ No hay cierres diarios para generar el cierre mensual.');
+
+            const d = new Date();
+            const mesActual = `${d.getMonth() + 1}/${d.getFullYear()}`;
+            
+            if (!confirm(`¿Desea generar el Cierre Mensual para el periodo ${mesActual}?`)) return;
+
+            // Agrupar cierres por mes
+            let totalVentas = 0;
+            let totalIVA = 0;
+            let cantCierres = 0;
+
+            cierres.forEach(c => {
+                const f = c.fecha.split('/');
+                const mesCierre = `${f[1]}/${f[2]}`;
+                if (mesCierre === mesActual) {
+                    totalVentas += c.totalBs;
+                    totalIVA += (c.totalIVA || 0);
+                    cantCierres++;
+                }
+            });
+
+            if (cantCierres === 0) return alert('⚠️ No se encontraron cierres diarios para el mes actual.');
+
+            const resumen = `Resumen Mensual (${mesActual}):\n- Ventas Totales: Bs. ${totalVentas.toFixed(2)}\n- IVA Recaudado: Bs. ${totalIVA.toFixed(2)}\n- Días cerrados: ${cantCierres}`;
+            alert(resumen);
+            
+            // Aquí se podría guardar en un nodo 'data/cierresMensuales' si se desea persistencia
+            if (db) {
+                db.ref(configMaestra.pathCliente + 'logs/cierresMensuales').push({
+                    mes: mesActual,
+                    totalVentas: totalVentas,
+                    totalIVA: totalIVA,
+                    cantCierres: cantCierres,
+                    fechaGeneracion: new Date().toLocaleString('es-VE')
+                });
             }
         }
 
