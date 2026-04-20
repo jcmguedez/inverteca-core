@@ -213,13 +213,50 @@
             border-radius: 10px;
             overflow: hidden;
         }
-        
-        .qr-reader-status {
-            font-size: 0.85rem;
+               .historial-item-items {
+            font-size: 0.75rem;
             color: #666;
-            margin-top: 10px;
-            text-align: center;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        /* ESTILOS DASHBOARD */
+        .dashboard-card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .card-label {
+            font-size: 0.75rem;
             font-weight: bold;
+            color: #7f8c8d;
+            text-transform: uppercase;
+        }
+        .card-value {
+            font-size: 1.6rem;
+            font-weight: bold;
+        }
+        .badge-agotado {
+            background: #e74c3c;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .badge-bajo {
+            background: #f39c12;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }  font-weight: bold;
         }
         
         /* Estilos para html5-qrcode del operativo */
@@ -1036,17 +1073,58 @@
             </div>
         </div>
         <div id="reportes" class="tab-content">
-            <div style="background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                <h3 style="margin-top:0; color:var(--primary);">Cierre de Caja</h3>
-                <p style="font-size:0.85rem; color:#666;">Aquí puedes ver las ventas agrupadas por día y realizar el cierre definitivo.</p>
-                <div id="diasPendientesCierre"></div>
+            <h2 style="display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #27ae60; padding-bottom: 10px;">
+                📊 Dashboard Control Diario
+            </h2>
+            
+            <!-- TARJETAS DE DASHBOARD -->
+            <div class="dashboard-card" style="border-left: 5px solid #3498db;">
+                <div class="card-label">TOTAL VENTAS BRUTAS</div>
+                <div class="card-value" id="dashVentasBrutas" style="color: #3498db;">Bs. 0,00</div>
             </div>
-            <div style="background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                <h3 style="margin-top:0; color:#27ae60;">Historial de Cierres</h3>
-                <div id="historialCierresArchivados">
-                    <p style="text-align:center; color:#999; padding:10px;">No hay cierres archivados.</p>
+            
+            <div class="dashboard-card" style="border-left: 5px solid #95a5a6;">
+                <div class="card-label">TOTAL IVA RECAUDADO</div>
+                <div class="card-value" id="dashIvaRecaudado" style="color: #7f8c8d;">Bs. 0,00</div>
+            </div>
+            
+            <div class="dashboard-card" style="border-left: 5px solid #27ae60;">
+                <div class="card-label">GANANCIA ESTIMADA (NETA)</div>
+                <div class="card-value" id="dashGananciaNeta" style="color: #27ae60;">Bs. 0,00</div>
+            </div>
+            
+            <!-- PRODUCTOS EN FALLA -->
+            <div style="background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee;">
+                <h3 style="margin-top:0; font-size: 1rem; color: #444; display: flex; align-items: center; gap: 8px;">
+                    ⚠️ PRODUCTOS EN FALLA
+                </h3>
+                <div id="listaProductosFalla" style="font-size: 0.9rem; line-height: 1.6;">
+                    <p style="color: #999;">No hay productos en falla.</p>
                 </div>
             </div>
+            
+            <!-- BOTONES DE ACCIÓN -->
+            <div id="diasPendientesCierre"></div>
+            
+            <button class="btn-venta-contado" style="background: #f39c12; margin-bottom: 10px;" onclick="switchTab('reportes')">
+                🔒 CERRAR CAJA (ARCHIVAR)
+            </button>
+            
+            <button class="btn-dar-credito" style="background: #e74c3c; margin-bottom: 20px;" onclick="alert('Funcionalidad de Cierre Mensual próximamente')">
+                📅 CIERRE MENSUAL
+            </button>
+            
+            <!-- HISTORIAL DE CIERRES -->
+            <h3 style="display: flex; align-items: center; gap: 10px; margin-top: 20px;">
+                📂 Historial de Cierres
+            </h3>
+            <div id="historialCierresArchivados" style="margin-bottom: 15px;">
+                <p style="text-align:center; color:#999; padding:10px;">No hay cierres registrados.</p>
+            </div>
+            
+            <button class="btn-camera" style="background: #3498db; width: 100%;" onclick="descargarCSVVentas()">
+                📥 DESCARGAR CSV
+            </button>
         </div>
     </div>
 
@@ -1703,13 +1781,19 @@
         function renderHistorial() {
             const historialDiv = document.getElementById('historialVentas');
             
-            // Filtrar solo las ventas de hoy para el historial rápido
+            // Obtener IDs de ventas ya cerradas
+            const idsCerrados = new Set();
+            cierres.forEach(c => {
+                if (c.ventasIds) c.ventasIds.forEach(id => idsCerrados.add(id));
+            });
+
+            // Filtrar solo las ventas de hoy que NO estén cerradas
             const d = new Date();
             const hoy = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
             const ventasHoy = ventas.filter(v => {
                 if (!v.fecha) return false;
                 const f = v.fecha.split(',')[0].trim();
-                return f === hoy;
+                return f === hoy && !idsCerrados.has(v.id);
             });
 
             if (ventasHoy.length === 0) {
@@ -2345,20 +2429,60 @@
             const archivados = document.getElementById('historialCierresArchivados');
             if (!container || !archivados) return;
 
-            // 1. Agrupar ventas por día que NO estén en un cierre archivado
-            const ventasPorDia = {};
+            // 1. Cálculos para el Dashboard (Ventas de HOY activas)
+            const d = new Date();
+            const hoy = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+            
             const idsCerrados = new Set();
             cierres.forEach(c => {
                 if (c.ventasIds) c.ventasIds.forEach(id => idsCerrados.add(id));
             });
 
-            // Usar todas las ventas registradas (necesitamos escucharlas todas o tener un nodo de ventas completo)
-            // Por ahora, usaremos las ventas cargadas en el historial del día (limitado)
-            // Idealmente, deberíamos cargar logs/ventas completo para reportes
-            
-            // Si ventas está vacío (solo carga hoy), los reportes de días anteriores no saldrán
-            // Vamos a mejorar escucharDatos para cargar más ventas en la pestaña reportes
-            
+            const ventasHoyActivas = ventas.filter(v => 
+                (v.fecha || "").split(',')[0].trim() === hoy && 
+                !v.anulada && 
+                !idsCerrados.has(v.id)
+            );
+
+            let totalBruto = 0;
+            let totalIVA = 0;
+            let totalCosto = 0;
+
+            ventasHoyActivas.forEach(v => {
+                totalBruto += v.totalBs;
+                // Calcular IVA si aplica (asumiendo 16% en los items que no son exentos)
+                v.items.forEach(item => {
+                    const subtotalItem = item.precioVenta * item.cantidad;
+                    if (!item.exentoIVA) {
+                        totalIVA += subtotalItem * (ivaPercentaje / 100);
+                    }
+                    // Ganancia Neta: Precio Venta - Precio Compra
+                    const itemOriginal = items.find(i => i.id === item.id);
+                    const precioCompra = itemOriginal ? (itemOriginal.precioCompra || 0) : 0;
+                    totalCosto += precioCompra * item.cantidad;
+                });
+            });
+
+            document.getElementById('dashVentasBrutas').textContent = `Bs. ${totalBruto.toFixed(2)}`;
+            document.getElementById('dashIvaRecaudado').textContent = `Bs. ${totalIVA.toFixed(2)}`;
+            const gananciaNeta = totalBruto - totalIVA - totalCosto;
+            document.getElementById('dashGananciaNeta').textContent = `Bs. ${gananciaNeta.toFixed(2)}`;
+
+            // 2. Productos en Falla
+            const productosFalla = items.filter(i => i.cantidad <= 5); // Umbral de falla
+            const listaFalla = document.getElementById('listaProductosFalla');
+            if (productosFalla.length === 0) {
+                listaFalla.innerHTML = '<p style="color: #999;">No hay productos en falla.</p>';
+            } else {
+                listaFalla.innerHTML = '<ul style="padding-left: 20px; margin: 0;">' + 
+                    productosFalla.map(i => {
+                        const status = i.cantidad <= 0 ? '<span class="badge-agotado">AGOTADO</span>' : '<span class="badge-bajo">BAJO</span>';
+                        return `<li>${i.nombre}: <strong>${i.cantidad}</strong> ${status}</li>`;
+                    }).join('') + '</ul>';
+            }
+
+            // 3. Agrupar ventas por día para Cierre
+            const ventasPorDia = {};
             const ventasPendientes = ventas.filter(v => !idsCerrados.has(v.id) && !v.anulada);
             
             ventasPendientes.forEach(v => {
@@ -2371,22 +2495,21 @@
             });
 
             const dias = Object.keys(ventasPorDia).sort((a,b) => b.localeCompare(a));
-
             if (dias.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:#999; padding:10px;">No hay ventas pendientes de cierre.</p>';
             } else {
                 container.innerHTML = dias.map(dia => `
-                    <div style="border: 1px solid #eee; padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="border: 1px solid #eee; padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; background: #fff;">
                         <div>
                             <div style="font-weight: bold;">${dia}</div>
                             <div style="font-size: 0.85rem; color: #666;">${ventasPorDia[dia].cant} ventas - Bs. ${ventasPorDia[dia].total.toFixed(2)}</div>
                         </div>
-                        <button onclick="realizarCierre('${dia}')" style="background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.85rem;">CERRAR DÍA</button>
+                        <button onclick="realizarCierre('${dia}')" style="background: #f39c12; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">CERRAR DÍA</button>
                     </div>
                 `).join('');
             }
 
-            // 2. Renderizar archivados
+            // 4. Renderizar archivados
             if (cierres.length === 0) {
                 archivados.innerHTML = '<p style="text-align:center; color:#999; padding:10px;">No hay cierres archivados.</p>';
             } else {
@@ -2400,6 +2523,26 @@
                     </div>
                 `).join('');
             }
+        }
+
+        function descargarCSVVentas() {
+            if (ventas.length === 0) return alert('No hay ventas para descargar.');
+            
+            let csv = 'ID,Fecha,Tipo,Metodo Pago,Total Bs,Items\n';
+            ventas.forEach(v => {
+                const itemsStr = v.items.map(i => `${i.nombre}(${i.cantidad})`).join(' | ');
+                csv += `${v.id},${v.fechaCompleta || v.fecha},${v.tipo},${v.metodoPago},${v.totalBs},"${itemsStr}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `ventas_${new Date().toLocaleDateString()}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function realizarCierre(dia) {
@@ -2422,11 +2565,13 @@
 
             if (db) {
                 db.ref(configMaestra.pathCliente + 'data/cierres').push(nuevoCierre).then(() => {
-                    alert('✅ Cierre de caja realizado con éxito.');
+                    alert('✅ Cierre de caja realizado con éxito.\nEl historial de ventas se ha limpiado.');
+                    renderHistorial(); // Esto ahora filtrará las ventas que ya están en cierres
                     renderReportes();
                 });
             } else {
                 cierres.push(nuevoCierre);
+                renderHistorial();
                 renderReportes();
                 alert('✅ Cierre realizado localmente.');
             }
