@@ -352,7 +352,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             flex-wrap: wrap;
             gap: 10px;
         }
@@ -394,10 +394,13 @@
         }
         
         .item-prices {
-            margin: 10px 0;
-            padding: 10px 0;
+            margin: 5px 0;
+            padding: 5px 0;
             border-top: 1px solid #eee;
             border-bottom: 1px solid #eee;
+            display: flex;
+            gap: 15px;
+            align-items: center;
         }
         
         .item-price-bs {
@@ -409,14 +412,14 @@
         .item-price-usd {
             color: #999;
             font-size: 0.85rem;
-            margin-top: 3px;
+            margin-top: 0;
         }
         
         .item-actions {
             display: flex;
             gap: 10px;
             justify-content: flex-end;
-            margin-top: 10px;
+            margin-top: 5px;
         }
         
         .item-actions button {
@@ -1310,9 +1313,25 @@
                     clientes = data.clientes || [];
                     creditos = data.creditos || [];
                     render();
-                    renderHistorial();
                     filtrarCreditos();
                 }
+            });
+
+            // Escuchar ventas para el historial del día
+            db.ref(configMaestra.pathCliente + 'logs/ventas').on('value', snap => {
+                const logs = snap.val();
+                ventas = [];
+                if (logs) {
+                    // Filtrar solo las de hoy para el historial rápido
+                    const hoy = new Date().toLocaleDateString('es-VE');
+                    Object.keys(logs).forEach(key => {
+                        const v = logs[key];
+                        if (v.fecha && v.fecha.includes(hoy)) {
+                            ventas.push({ ...v, id: key });
+                        }
+                    });
+                }
+                renderHistorial();
             });
         }
 
@@ -1417,17 +1436,19 @@
                 div.innerHTML = `
                     <div class="item-header">
                         <span class="item-name">${item.nombre}</span>
-                        <span class="item-unit">${item.unidad}</span>
-                        ${item.sku ? `<span class="item-sku">${item.sku}</span>` : ''}
-                        <span class="item-quantity">${item.cantidad}</span>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <span class="item-unit">${item.unidad}</span>
+                            ${item.sku ? `<span class="item-sku">${item.sku}</span>` : ''}
+                            <span class="item-quantity" style="padding: 2px 8px; font-size: 0.75rem;">Stock: ${item.cantidad}</span>
+                        </div>
                     </div>
                     <div class="item-prices">
-                        <div class="item-price-bs">Bs. ${item.precioVenta.toFixed(2)} /UND</div>
-                        <div class="item-price-usd">$ ${item.precioVentaUSD.toFixed(2)} /UND</div>
-                    </div>
-                    <div class="item-actions">
-                        <button class="btn-edit" onclick="editItem('${item.id}')">✏️</button>
-                        <button class="btn-danger" onclick="deleteItem('${item.id}')">🗑️</button>
+                        <div class="item-price-bs" style="font-size: 0.85rem;">Bs. ${item.precioVenta.toFixed(2)}</div>
+                        <div class="item-price-usd" style="font-size: 0.8rem;">$ ${item.precioVentaUSD.toFixed(2)}</div>
+                        <div class="item-actions" style="margin-left: auto; margin-top: 0;">
+                            <button class="btn-edit" style="padding: 2px 8px;" onclick="editItem('${item.id}')">✏️</button>
+                            <button class="btn-danger" style="padding: 2px 8px;" onclick="deleteItem('${item.id}')">🗑️</button>
+                        </div>
                     </div>
                 `;
                 lista.appendChild(div);
@@ -1634,10 +1655,7 @@
             abrirModalPago();
         }
 
-        function abrirModalCredito() {
-            if (carrito.length === 0) return alert('Carrito vacío');
-            alert('Modal de crédito (Próximamente)');
-        }
+
 
         function renderHistorial() {
             const historialDiv = document.getElementById('historialVentas');
@@ -1645,27 +1663,45 @@
                 historialDiv.innerHTML = '<p style="text-align:center; color:#999;">Sin ventas hoy</p>';
                 return;
             }
+
+            let totalAcumuladoDia = 0;
+            
             // Mostrar en orden inverso (más reciente primero)
-            historialDiv.innerHTML = [...ventas].reverse().map(v => {
+            const htmlVentas = [...ventas].reverse().map(v => {
                 const esAnulada = v.anulada === true;
+                if (!esAnulada) totalAcumuladoDia += v.totalBs;
+                
                 const itemsDetalle = v.items.map(i =>
                     `${i.nombre} x${i.cantidad} = Bs. ${(i.precioVenta * i.cantidad).toFixed(2)}`
                 ).join(' | ');
+
+                const colorTipo = v.tipo === 'CREDITO' ? '#e67e22' : (esAnulada ? 'var(--danger)' : 'var(--primary)');
+                const labelTipo = v.tipo === 'CREDITO' ? `💳 CRÉDITO (${v.clienteNombre})` : (v.metodoPago || 'CONTADO');
+
                 return `
-                <div class="historial-item${esAnulada ? ' anulada' : ''}">
+                <div class="historial-item${esAnulada ? ' anulada' : ''}" style="${v.tipo === 'CREDITO' ? 'border-left-color: #e67e22;' : ''}">
                     <div class="historial-item-header">
                         <span style="font-size:0.8rem;">${v.fecha}</span>
-                        <span style="color:${esAnulada ? 'var(--danger)' : 'var(--primary)'}; font-size:1rem;">
+                        <span style="color:${colorTipo}; font-size:1rem;">
                             ${esAnulada ? '<span class="badge-anulada">ANULADA</span>' : 'Bs. ' + v.totalBs.toFixed(2)}
                         </span>
                     </div>
-                    <div class="historial-item-detalle">
-                        ${v.items.length} artículo(s) &mdash; ${v.metodoPago || v.tipo}
+                    <div class="historial-item-detalle" style="font-weight:bold; color:${colorTipo};">
+                        ${v.items.length} artículo(s) &mdash; ${labelTipo}
                     </div>
                     <div class="historial-item-items">${itemsDetalle}</div>
                     ${!esAnulada ? `<button class="btn-anular-venta" onclick="abrirModalAnulacion('${v.id}')">&#128683; ANULAR</button>` : `<div style="font-size:0.75rem; color:var(--danger); margin-top:4px;">Motivo: ${v.motivoAnulacion || ''}</div>`}
                 </div>`;
             }).join('');
+
+            historialDiv.innerHTML = `
+                ${htmlVentas}
+                <div style="background: var(--primary); color: white; padding: 15px; border-radius: 10px; margin-top: 15px; text-align: center;">
+                    <div style="font-size: 0.9rem; opacity: 0.9;">TOTAL ACUMULADO HOY:</div>
+                    <div style="font-size: 1.5rem; font-weight: bold;">Bs. ${totalAcumuladoDia.toFixed(2)}</div>
+                    <div style="font-size: 1rem; opacity: 0.8;">$ ${(totalAcumuladoDia / tasaDolar).toFixed(2)}</div>
+                </div>
+            `;
         }
 
         function toggleCameraVentas() {
@@ -1973,7 +2009,9 @@
             clienteSeleccionadoId = null;
 
             document.getElementById('modalCredito').classList.add('active');
-            setTimeout(() => document.getElementById('nombreClienteCredito').focus(), 200);
+            setTimeout(() => {
+                document.getElementById('nombreClienteCredito').focus();
+            }, 200);
         }
 
         function cerrarModalCredito() {
