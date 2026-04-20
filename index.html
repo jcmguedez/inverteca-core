@@ -1301,6 +1301,7 @@
         }
 
         function escucharDatos() {
+            // Escuchar cambios en data (items, clientes, tasa)
             db.ref(configMaestra.pathCliente + 'data').on('value', snap => {
                 const data = snap.val();
                 if (data) {
@@ -1311,21 +1312,27 @@
                     if (data.iva_porcentaje) ivaPercentaje = data.iva_porcentaje;
                     items = data.items || [];
                     clientes = data.clientes || [];
-                    creditos = data.creditos || [];
+                    // Convertir objeto de créditos a array si es necesario
+                    const creditosData = data.creditos;
+                    if (creditosData) {
+                        creditos = Array.isArray(creditosData) ? creditosData : Object.keys(creditosData).map(k => ({...creditosData[k], id: k}));
+                    } else {
+                        creditos = [];
+                    }
                     render();
                     filtrarCreditos();
                 }
             });
 
-            // Escuchar ventas para el historial del día
+            // Escuchar ventas para el historial del día (logs/ventas)
             db.ref(configMaestra.pathCliente + 'logs/ventas').on('value', snap => {
                 const logs = snap.val();
                 ventas = [];
                 if (logs) {
-                    // Filtrar solo las de hoy para el historial rápido
                     const hoy = new Date().toLocaleDateString('es-VE');
                     Object.keys(logs).forEach(key => {
                         const v = logs[key];
+                        // Solo mostrar las de hoy en el historial rápido
                         if (v.fecha && v.fecha.includes(hoy)) {
                             ventas.push({ ...v, id: key });
                         }
@@ -2094,19 +2101,16 @@
                 items: JSON.parse(JSON.stringify(carrito)),
                 totalBs: totalBs,
                 saldo: totalBs,
-                pagada: false
+                pagada: false,
+                tipo: 'CREDITO'
             };
-            
-            creditos.push(nuevoCredito);
             
             // Guardar en Firebase
             if (db) {
+                // Usar push para evitar sobrescribir todo el array y manejar concurrencia
                 db.ref(configMaestra.pathCliente + 'data/clientes').set(clientes);
-                db.ref(configMaestra.pathCliente + 'data/creditos').set(creditos);
-                db.ref(configMaestra.pathCliente + 'logs/ventas').push({
-                    ...nuevoCredito,
-                    tipo: 'CREDITO'
-                });
+                db.ref(configMaestra.pathCliente + 'data/creditos').push(nuevoCredito);
+                db.ref(configMaestra.pathCliente + 'logs/ventas').push(nuevoCredito);
             }
 
             // Descontar stock
@@ -2240,7 +2244,18 @@
             // Registrar log de abono
             if (db) {
                 db.ref(configMaestra.pathCliente + 'data/clientes').set(clientes);
-                db.ref(configMaestra.pathCliente + 'data/creditos').set(creditos);
+                // Si el crédito tiene ID de Firebase (key), actualizar esa entrada específica
+                const creditoKey = creditos[idx].id;
+                if (creditoKey && !creditoKey.startsWith('CRED-')) {
+                    db.ref(configMaestra.pathCliente + 'data/creditos/' + creditoKey).update({
+                        saldo: credito.saldo,
+                        pagada: credito.pagada
+                    });
+                } else {
+                    // Si no tiene key, actualizar todo el nodo (fallback)
+                    db.ref(configMaestra.pathCliente + 'data/creditos').set(creditos);
+                }
+                
                 db.ref(configMaestra.pathCliente + 'logs/abonos').push({
                     creditoId: credito.id,
                     clienteNombre: credito.clienteNombre,
