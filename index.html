@@ -1701,7 +1701,11 @@
             // Filtrar solo las ventas de hoy para el historial rápido
             const d = new Date();
             const hoy = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
-            const ventasHoy = ventas.filter(v => v.fecha && v.fecha.split(',')[0].trim() === hoy);
+            const ventasHoy = ventas.filter(v => {
+                if (!v.fecha) return false;
+                const f = v.fecha.split(',')[0].trim();
+                return f === hoy;
+            });
 
             if (ventasHoy.length === 0) {
                 historialDiv.innerHTML = '<p style="text-align:center; color:#999;">Sin ventas hoy</p>';
@@ -1725,7 +1729,7 @@
                 return `
                 <div class="historial-item${esAnulada ? ' anulada' : ''}" style="${v.tipo === 'CREDITO' ? 'border-left-color: #e67e22;' : ''}">
                     <div class="historial-item-header">
-                        <span style="font-size:0.8rem;">${v.fecha}</span>
+                        <span style="font-size:0.8rem;">${v.fechaCompleta || v.fecha}</span>
                         <span style="color:${colorTipo}; font-size:1rem;">
                             ${esAnulada ? '<span class="badge-anulada">ANULADA</span>' : 'Bs. ' + v.totalBs.toFixed(2)}
                         </span>
@@ -1959,14 +1963,14 @@
             }
 
             const ahora = new Date();
-            const fechaHora = ahora.toLocaleString('es-VE', {
-                year: 'numeric', month: '2-digit', day: '2-digit',
-                hour: '2-digit', minute: '2-digit', second: '2-digit'
-            });
+            const soloFecha = `${ahora.getDate()}/${ahora.getMonth() + 1}/${ahora.getFullYear()}`;
+            const soloHora = ahora.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
             const venta = {
                 id: 'VENTA-' + Date.now(),
-                fecha: fechaHora,
+                fecha: soloFecha,
+                hora: soloHora,
+                fechaCompleta: soloFecha + ', ' + soloHora,
                 items: JSON.parse(JSON.stringify(carrito)),
                 totalBs: totalBs,
                 totalUSD: totalBs / tasaDolar,
@@ -2141,11 +2145,17 @@
             }
 
             // Registrar el crédito
+            const ahora = new Date();
+            const soloFecha = `${ahora.getDate()}/${ahora.getMonth() + 1}/${ahora.getFullYear()}`;
+            const soloHora = ahora.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
             const nuevoCredito = {
                 id: 'CRED-' + Date.now(),
                 clienteId: clienteId,
                 clienteNombre: nombre,
-                fecha: new Date().toLocaleString('es-VE'),
+                fecha: soloFecha,
+                hora: soloHora,
+                fechaCompleta: soloFecha + ', ' + soloHora,
                 items: JSON.parse(JSON.stringify(carrito)),
                 totalBs: totalBs,
                 saldo: totalBs,
@@ -2347,7 +2357,8 @@
             const ventasPendientes = ventas.filter(v => !idsCerrados.has(v.id) && !v.anulada);
             
             ventasPendientes.forEach(v => {
-                const dia = v.fecha.split(',')[0].trim();
+                const dia = (v.fecha || "").split(',')[0].trim();
+                if (!dia) return;
                 if (!ventasPorDia[dia]) ventasPorDia[dia] = { total: 0, cant: 0, ids: [] };
                 ventasPorDia[dia].total += v.totalBs;
                 ventasPorDia[dia].cant += 1;
@@ -2390,7 +2401,7 @@
             if (!confirm(`¿Confirmar el cierre de caja para el día ${dia}?`)) return;
 
             // Recopilar datos del día
-            const ventasDia = ventas.filter(v => v.fecha.startsWith(dia) && !v.anulada);
+            const ventasDia = ventas.filter(v => (v.fecha || "").split(',')[0].trim() === dia && !v.anulada);
             const totalBs = ventasDia.reduce((sum, v) => sum + v.totalBs, 0);
             const ids = ventasDia.map(v => v.id);
 
