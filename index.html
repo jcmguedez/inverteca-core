@@ -479,9 +479,9 @@
         
         .carrito-item {
             background: white;
-            padding: 12px;
+            padding: 6px 10px;
             border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             border-left: 3px solid var(--primary);
             display: flex;
             justify-content: space-between;
@@ -501,7 +501,7 @@
         .carrito-item-precio {
             color: #666;
             font-size: 0.8rem;
-            margin-top: 3px;
+            margin-top: 1px;
         }
         
         .carrito-item-cantidad {
@@ -1431,14 +1431,16 @@
                     const div = document.createElement('div');
                     div.className = 'item';
                     div.style.cursor = 'pointer';
+                    div.style.padding = '8px 12px';
+                    div.style.marginBottom = '5px';
                     div.innerHTML = `
-                        <div class="item-header">
-                            <span class="item-name">${item.nombre}</span>
-                            <span class="item-quantity">${item.cantidad}</span>
+                        <div class="item-header" style="margin-bottom: 2px;">
+                            <span class="item-name" style="font-size: 0.85rem;">${item.nombre}</span>
+                            <span class="item-quantity" style="font-size: 0.75rem; padding: 2px 8px;">Stock: ${item.cantidad}</span>
                         </div>
-                        <div class="item-prices">
-                            <div class="item-price-bs">Bs. ${item.precioVenta.toFixed(2)}</div>
-                            <div class="item-price-usd">$ ${item.precioVentaUSD.toFixed(2)}</div>
+                        <div class="item-prices" style="margin: 0; padding: 0; border: none; display: flex; gap: 10px;">
+                            <div class="item-price-bs" style="font-size: 0.8rem;">Bs. ${item.precioVenta.toFixed(2)}</div>
+                            <div class="item-price-usd" style="font-size: 0.75rem; margin: 0;">$ ${item.precioVentaUSD.toFixed(2)}</div>
                         </div>
                     `;
                     div.onclick = () => agregarAlCarrito(item);
@@ -1696,18 +1698,19 @@
             if (metodo === 'bs') {
                 label.textContent = 'Monto recibido en Bs.:';
                 input.placeholder = '0.00';
-                input.value = '';
-                document.getElementById('vueltoSection').style.display = 'none';
+                input.value = totalBs.toFixed(2);
+                calcularVuelto();
             } else if (metodo === 'dolar') {
                 label.textContent = 'Monto recibido en Dólares ($):';
                 input.placeholder = '0.00';
-                input.value = '';
-                document.getElementById('vueltoSection').style.display = 'none';
+                input.value = totalUSD.toFixed(2);
+                calcularVuelto();
             } else if (metodo === 'punto') {
                 label.textContent = 'Monto a cobrar por Punto / Pago Móvil (Bs.):';
                 input.value = totalBs.toFixed(2);
                 document.getElementById('vueltoSection').style.display = 'none';
             }
+            setTimeout(() => input.select(), 100);
         }
 
         function abrirModalPago() {
@@ -1715,17 +1718,21 @@
             const totalUSD = totalBs / tasaDolar;
             document.getElementById('modalPagoTotal').textContent = `Bs. ${totalBs.toFixed(2)}`;
             document.getElementById('modalPagoTotalUSD').textContent = `$ ${totalUSD.toFixed(2)}`;
-            // Resetear al método por defecto: Bs.
+            
+            // Iniciar siempre con Bs. y monto precargado
             metodoPagoActual = 'bs';
             document.getElementById('btnMetodoBs').classList.add('selected');
             document.getElementById('btnMetodoDolar').classList.remove('selected');
             document.getElementById('btnMetodoPunto').classList.remove('selected');
             document.getElementById('labelMontoPago').textContent = 'Monto recibido en Bs.:';
-            document.getElementById('montoPagoInput').value = '';
-            document.getElementById('montoPagoInput').placeholder = '0.00';
+            document.getElementById('montoPagoInput').value = totalBs.toFixed(2);
             document.getElementById('vueltoSection').style.display = 'none';
             document.getElementById('modalPago').classList.add('active');
-            setTimeout(() => document.getElementById('montoPagoInput').focus(), 200);
+            
+            setTimeout(() => {
+                document.getElementById('montoPagoInput').focus();
+                document.getElementById('montoPagoInput').select();
+            }, 200);
         }
 
         function cerrarModalPago() {
@@ -1736,30 +1743,32 @@
             const totalBs = parseFloat(document.getElementById('modalPagoTotal').textContent.replace('Bs. ', '')) || 0;
             const montoIngresado = parseFloat(document.getElementById('montoPagoInput').value) || 0;
 
-            // Para Punto/Pago Móvil no hay vuelto
             if (metodoPagoActual === 'punto') {
                 document.getElementById('vueltoSection').style.display = 'none';
                 return;
             }
 
             let pagoEnBs = 0;
+            let totalAComparar = 0;
+            
             if (metodoPagoActual === 'bs') {
                 pagoEnBs = montoIngresado;
+                totalAComparar = totalBs;
             } else if (metodoPagoActual === 'dolar') {
                 pagoEnBs = montoIngresado * tasaDolar;
+                totalAComparar = totalBs;
             }
 
-            const vueltoBs = pagoEnBs - totalBs;
+            const diferenciaBs = pagoEnBs - totalBs;
 
-            if (vueltoBs > 0) {
-                const vueltoUSD = vueltoBs / tasaDolar;
+            if (diferenciaBs > 0.01) {
+                const vueltoUSD = diferenciaBs / tasaDolar;
                 if (metodoPagoActual === 'bs') {
-                    document.getElementById('vueltoMonto').textContent = `Bs. ${vueltoBs.toFixed(2)}`;
+                    document.getElementById('vueltoMonto').textContent = `Bs. ${diferenciaBs.toFixed(2)}`;
                     document.getElementById('vueltoDual').textContent = `$ ${vueltoUSD.toFixed(2)}`;
                 } else {
-                    // Pagó en dólares, mostrar vuelto en dólares primero
                     document.getElementById('vueltoMonto').textContent = `$ ${vueltoUSD.toFixed(2)}`;
-                    document.getElementById('vueltoDual').textContent = `Bs. ${vueltoBs.toFixed(2)}`;
+                    document.getElementById('vueltoDual').textContent = `Bs. ${diferenciaBs.toFixed(2)}`;
                 }
                 document.getElementById('vueltoSection').style.display = 'block';
             } else {
