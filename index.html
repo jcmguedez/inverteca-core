@@ -989,8 +989,9 @@
         <!-- TABS PROXIMAMENTE -->
         <div id="venta" class="tab-content">
             <div class="input-row">
-                <div class="input-group" style="flex: 1;">
+                <div class="input-group" style="flex: 1; position: relative;">
                     <input type="text" id="buscarProducto" class="search-input" placeholder="Buscar por nombre..." oninput="filtrarProductos()">
+                    <button onclick="limpiarBusqueda()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #eee; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; display: none;" id="btnLimpiarBusqueda">✕</button>
                 </div>
                 <button class="btn-camera" onclick="toggleCameraVentas()" style="flex: 0 1 auto; margin-bottom: 0;">ESCANEAR</button>
             </div>
@@ -1034,7 +1035,19 @@
                 <div style="text-align: center; padding: 20px; color: #999;">Cargando créditos...</div>
             </div>
         </div>
-        <div id="reportes" class="tab-content"><div style="text-align: center; padding: 40px; color: #999;">Módulo de Reportes (Próximamente)</div></div>
+        <div id="reportes" class="tab-content">
+            <div style="background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <h3 style="margin-top:0; color:var(--primary);">Cierre de Caja</h3>
+                <p style="font-size:0.85rem; color:#666;">Aquí puedes ver las ventas agrupadas por día y realizar el cierre definitivo.</p>
+                <div id="diasPendientesCierre"></div>
+            </div>
+            <div style="background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <h3 style="margin-top:0; color:#27ae60;">Historial de Cierres</h3>
+                <div id="historialCierresArchivados">
+                    <p style="text-align:center; color:#999; padding:10px;">No hay cierres archivados.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL: INGRESAR PESO -->
@@ -1202,6 +1215,7 @@
         let items = [];
         let clientes = []; // {id, nombre, cedula, telefono, deudaTotal}
         let creditos = []; // {id, clienteId, fecha, items, totalBs, saldo, pagada}
+        let cierres = []; // {fecha, totalBs, totalUSD, cantVentas, ventasIds}
         let tasaDolar = 36.50;
         let ivaPercentaje = 16;
         let db = null;
@@ -1312,39 +1326,38 @@
                     if (data.iva_porcentaje) ivaPercentaje = data.iva_porcentaje;
                     items = data.items || [];
                     clientes = data.clientes || [];
-                    // Convertir objeto de créditos a array si es necesario
+                    
                     const creditosData = data.creditos;
                     if (creditosData) {
                         creditos = Array.isArray(creditosData) ? creditosData : Object.keys(creditosData).map(k => ({...creditosData[k], id: k}));
                     } else {
                         creditos = [];
                     }
+
+                    const cierresData = data.cierres;
+                    if (cierresData) {
+                        cierres = Array.isArray(cierresData) ? cierresData : Object.keys(cierresData).map(k => ({...cierresData[k], id: k}));
+                    } else {
+                        cierres = [];
+                    }
+
                     render();
                     filtrarCreditos();
+                    renderReportes();
                 }
             });
 
-            // Escuchar ventas para el historial del día (logs/ventas)
+            // Escuchar todas las ventas para el historial y reportes
             db.ref(configMaestra.pathCliente + 'logs/ventas').on('value', snap => {
                 const logs = snap.val();
                 ventas = [];
                 if (logs) {
-                    // Obtener fecha de hoy en formato DD/MM/YYYY para comparar
-                    const d = new Date();
-                    const hoy = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
-                    
                     Object.keys(logs).forEach(key => {
-                        const v = logs[key];
-                        // Limpiar la fecha del log para comparar solo el día (DD/MM/YYYY)
-                        if (v.fecha) {
-                            const fechaSoloDia = v.fecha.split(',')[0].trim();
-                            if (fechaSoloDia === hoy || v.fecha.includes(hoy)) {
-                                ventas.push({ ...v, id: key });
-                            }
-                        }
+                        ventas.push({ ...logs[key], id: key });
                     });
                 }
                 renderHistorial();
+                renderReportes();
             });
         }
 
@@ -1536,8 +1549,20 @@
         let scannerVentas = null;
         let cameraVentasActive = false;
 
+        function limpiarBusqueda() {
+            document.getElementById('buscarProducto').value = '';
+            document.getElementById('btnLimpiarBusqueda').style.display = 'none';
+            filtrarProductos();
+            document.getElementById('buscarProducto').focus();
+        }
+
         function filtrarProductos() {
-            const filtro = document.getElementById('buscarProducto').value.toLowerCase();
+            const input = document.getElementById('buscarProducto');
+            const filtro = input.value.toLowerCase();
+            const btnLimpiar = document.getElementById('btnLimpiarBusqueda');
+            
+            if (btnLimpiar) btnLimpiar.style.display = filtro ? 'block' : 'none';
+            
             const lista = document.getElementById('listaProductosVentas');
             lista.innerHTML = '';
             
@@ -1672,7 +1697,13 @@
 
         function renderHistorial() {
             const historialDiv = document.getElementById('historialVentas');
-            if (ventas.length === 0) {
+            
+            // Filtrar solo las ventas de hoy para el historial rápido
+            const d = new Date();
+            const hoy = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+            const ventasHoy = ventas.filter(v => v.fecha && v.fecha.split(',')[0].trim() === hoy);
+
+            if (ventasHoy.length === 0) {
                 historialDiv.innerHTML = '<p style="text-align:center; color:#999;">Sin ventas hoy</p>';
                 return;
             }
@@ -1680,7 +1711,7 @@
             let totalAcumuladoDia = 0;
             
             // Mostrar en orden inverso (más reciente primero)
-            const htmlVentas = [...ventas].reverse().map(v => {
+            const htmlVentas = [...ventasHoy].reverse().map(v => {
                 const esAnulada = v.anulada === true;
                 if (!esAnulada) totalAcumuladoDia += v.totalBs;
                 
@@ -1934,7 +1965,7 @@
             });
 
             const venta = {
-                id: Date.now().toString(),
+                id: 'VENTA-' + Date.now(),
                 fecha: fechaHora,
                 items: JSON.parse(JSON.stringify(carrito)),
                 totalBs: totalBs,
@@ -1945,11 +1976,9 @@
                 anulada: false
             };
 
-            // Guardar en Firebase primero
+            // Guardar en Firebase (usando la misma lógica que crédito)
             if (db) {
                 db.ref(configMaestra.pathCliente + 'logs/ventas').push(venta).then(() => {
-                    log('✅ Venta registrada: Bs. ' + totalBs.toFixed(2) + ' - ' + tipoPago);
-                    
                     // Descontar stock localmente y en DB
                     carrito.forEach(ci => {
                         const idx = items.findIndex(i => i.id === ci.id);
@@ -1959,10 +1988,11 @@
                     });
                     db.ref(configMaestra.pathCliente + 'data/items').set(items);
 
-                    // Limpiar y cerrar
+                    log('✅ Venta registrada: Bs. ' + totalBs.toFixed(2) + ' - ' + tipoPago);
                     carrito = [];
                     renderCarrito();
                     recalcularTotales();
+                    renderHistorial(); // Forzar renderizado inmediato
                     cerrarModalPago();
                     alert('✅ Venta confirmada\n' + tipoPago + '\nTotal: Bs. ' + totalBs.toFixed(2));
                 }).catch(err => alert('Error al guardar venta: ' + err));
@@ -2292,6 +2322,98 @@
             filtrarCreditos();
             cerrarModalAbono();
             alert('✅ Abono registrado correctamente.');
+        }
+
+        // ==================== REPORTES Y CIERRES ====================
+        function renderReportes() {
+            const container = document.getElementById('diasPendientesCierre');
+            const archivados = document.getElementById('historialCierresArchivados');
+            if (!container || !archivados) return;
+
+            // 1. Agrupar ventas por día que NO estén en un cierre archivado
+            const ventasPorDia = {};
+            const idsCerrados = new Set();
+            cierres.forEach(c => {
+                if (c.ventasIds) c.ventasIds.forEach(id => idsCerrados.add(id));
+            });
+
+            // Usar todas las ventas registradas (necesitamos escucharlas todas o tener un nodo de ventas completo)
+            // Por ahora, usaremos las ventas cargadas en el historial del día (limitado)
+            // Idealmente, deberíamos cargar logs/ventas completo para reportes
+            
+            // Si ventas está vacío (solo carga hoy), los reportes de días anteriores no saldrán
+            // Vamos a mejorar escucharDatos para cargar más ventas en la pestaña reportes
+            
+            const ventasPendientes = ventas.filter(v => !idsCerrados.has(v.id) && !v.anulada);
+            
+            ventasPendientes.forEach(v => {
+                const dia = v.fecha.split(',')[0].trim();
+                if (!ventasPorDia[dia]) ventasPorDia[dia] = { total: 0, cant: 0, ids: [] };
+                ventasPorDia[dia].total += v.totalBs;
+                ventasPorDia[dia].cant += 1;
+                ventasPorDia[dia].ids.push(v.id);
+            });
+
+            const dias = Object.keys(ventasPorDia).sort((a,b) => b.localeCompare(a));
+
+            if (dias.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#999; padding:10px;">No hay ventas pendientes de cierre.</p>';
+            } else {
+                container.innerHTML = dias.map(dia => `
+                    <div style="border: 1px solid #eee; padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: bold;">${dia}</div>
+                            <div style="font-size: 0.85rem; color: #666;">${ventasPorDia[dia].cant} ventas - Bs. ${ventasPorDia[dia].total.toFixed(2)}</div>
+                        </div>
+                        <button onclick="realizarCierre('${dia}')" style="background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.85rem;">CERRAR DÍA</button>
+                    </div>
+                `).join('');
+            }
+
+            // 2. Renderizar archivados
+            if (cierres.length === 0) {
+                archivados.innerHTML = '<p style="text-align:center; color:#999; padding:10px;">No hay cierres archivados.</p>';
+            } else {
+                archivados.innerHTML = [...cierres].reverse().map(c => `
+                    <div style="border-left: 4px solid #27ae60; background: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 0.9rem;">
+                        <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                            <span>Día: ${c.fecha}</span>
+                            <span style="color: #27ae60;">Bs. ${c.totalBs.toFixed(2)}</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #777;">Cerrado el: ${c.fechaCierre || 'N/A'} - ${c.cantVentas} ventas</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function realizarCierre(dia) {
+            if (!confirm(`¿Confirmar el cierre de caja para el día ${dia}?`)) return;
+
+            // Recopilar datos del día
+            const ventasDia = ventas.filter(v => v.fecha.startsWith(dia) && !v.anulada);
+            const totalBs = ventasDia.reduce((sum, v) => sum + v.totalBs, 0);
+            const ids = ventasDia.map(v => v.id);
+
+            const nuevoCierre = {
+                id: 'CIERRE-' + Date.now(),
+                fecha: dia,
+                fechaCierre: new Date().toLocaleString('es-VE'),
+                totalBs: totalBs,
+                totalUSD: totalBs / tasaDolar,
+                cantVentas: ventasDia.length,
+                ventasIds: ids
+            };
+
+            if (db) {
+                db.ref(configMaestra.pathCliente + 'data/cierres').push(nuevoCierre).then(() => {
+                    alert('✅ Cierre de caja realizado con éxito.');
+                    renderReportes();
+                });
+            } else {
+                cierres.push(nuevoCierre);
+                renderReportes();
+                alert('✅ Cierre realizado localmente.');
+            }
         }
 
         verificarLibrerias();
