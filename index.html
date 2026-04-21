@@ -1012,9 +1012,12 @@
                 <button class="btn-danger" id="btnCancelarEdit" onclick="limpiarForm()" style="display: none; grid-column: 1 / -1;">CANCELAR EDICIÓN</button>
             </div>
 
-            <h2>📦 Inventario Actual</h2>
-            <input type="text" id="filtroStock" class="search-input" placeholder="🔍 Buscar en Stock..." oninput="render()">
-            <div id="lista" class="list-container"></div>
+               <h2>🔍 Inventario</h2>
+            <div class="input-group" style="position: relative;">
+                <input type="text" id="filtroStock" class="search-input" placeholder="🔍 Buscar en Stock..." oninput="renderStockConBoton()">
+                <button onclick="limpiarBusquedaStock()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: none; font-weight: bold; font-size: 16px; line-height: 1; padding: 0;" id="btnLimpiarStock" title="Limpiar búsqueda">✕</button>
+            </div>
+            <div id="lista" class="list-container"></div>div>
 
             <div class="total-section">
                 <div style="font-size: 0.8rem; opacity: 0.9;">VALOR TOTAL INVENTARIO</div>
@@ -1080,26 +1083,34 @@
             <!-- TARJETAS DE DASHBOARD -->
             <div class="dashboard-card" style="border-left: 5px solid #3498db;">
                 <div class="card-label">TOTAL VENTAS BRUTAS</div>
-                <div class="card-value" id="dashVentasBrutas" style="color: #3498db;">Bs. 0,00</div>
+                <div style="display: flex; align-items: baseline; gap: 10px;">
+                    <div class="card-value" id="dashVentasBrutas" style="color: #3498db;">Bs. 0,00</div>
+                    <div id="dashVentasBrutasUSD" style="font-size: 0.9rem; color: #7f8c8d; font-weight: bold;">$ 0,00</div>
+                </div>
             </div>
             
             <div class="dashboard-card" style="border-left: 5px solid #95a5a6;">
                 <div class="card-label">TOTAL IVA RECAUDADO</div>
-                <div class="card-value" id="dashIvaRecaudado" style="color: #7f8c8d;">Bs. 0,00</div>
+                <div class="card-value" id="dashIvaRecaudado" style="color: #7f8c8d; font-size: 1.3rem;">Bs. 0,00</div>
             </div>
             
             <div class="dashboard-card" style="border-left: 5px solid #27ae60;">
                 <div class="card-label">GANANCIA ESTIMADA (NETA)</div>
-                <div class="card-value" id="dashGananciaNeta" style="color: #27ae60;">Bs. 0,00</div>
+                <div class="card-value" id="dashGananciaNeta" style="color: #27ae60; font-size: 1.3rem;">Bs. 0,00</div>
             </div>
             
-            <!-- PRODUCTOS EN FALLA -->
-            <div style="background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee;">
-                <h3 style="margin-top:0; font-size: 1rem; color: #444; display: flex; align-items: center; gap: 8px;">
-                    ⚠️ PRODUCTOS EN FALLA
-                </h3>
-                <div id="listaProductosFalla" style="font-size: 0.9rem; line-height: 1.6;">
-                    <p style="color: #999;">No hay productos en falla.</p>
+            <!-- PRODUCTOS EN FALLA (PLEGABLE) -->
+            <div style="background: #fff; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; overflow: hidden;">
+                <div onclick="toggleAccordion('falla')" style="padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fdfdfd;">
+                    <h3 style="margin:0; font-size: 1rem; color: #444; display: flex; align-items: center; gap: 8px;">
+                        ⚠️ PRODUCTOS EN FALLA
+                    </h3>
+                    <span id="iconFalla">➕</span>
+                </div>
+                <div id="contentFalla" style="display: none; padding: 0 15px 15px 15px;">
+                    <div id="listaProductosFalla" style="font-size: 0.9rem; line-height: 1.6;">
+                        <p style="color: #999;">No hay productos en falla.</p>
+                    </div>
                 </div>
             </div>
             
@@ -1114,12 +1125,19 @@
                 📅 CIERRE MENSUAL
             </button>
             
-            <!-- HISTORIAL DE CIERRES -->
-            <h3 style="display: flex; align-items: center; gap: 10px; margin-top: 20px;">
-                📂 Historial de Cierres
-            </h3>
-            <div id="historialCierresArchivados" style="margin-bottom: 15px;">
-                <p style="text-align:center; color:#999; padding:10px;">No hay cierres registrados.</p>
+            <!-- HISTORIAL DE CIERRES (PLEGABLE) -->
+            <div style="background: #fff; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; overflow: hidden; margin-top: 20px;">
+                <div onclick="toggleAccordion('cierres')" style="padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fdfdfd;">
+                    <h3 style="margin:0; font-size: 1rem; color: #444; display: flex; align-items: center; gap: 8px;">
+                        📂 HISTORIAL DE CIERRES
+                    </h3>
+                    <span id="iconCierres">➕</span>
+                </div>
+                <div id="contentCierres" style="display: none; padding: 0 15px 15px 15px;">
+                    <div id="historialCierresArchivados">
+                        <p style="text-align:center; color:#999; padding:10px;">No hay cierres registrados.</p>
+                    </div>
+                </div>
             </div>
             
             <button class="btn-camera" style="background: #3498db; width: 100%;" onclick="descargarCSVVentas()">
@@ -1620,6 +1638,20 @@
         }
 
         function onScanErrorInventario(err) { /* Silencio */ }
+
+        function renderStockConBoton() {
+            const input = document.getElementById('filtroStock');
+            const btn = document.getElementById('btnLimpiarStock');
+            if (btn) btn.style.display = input.value ? 'block' : 'none';
+            render();
+        }
+
+        function limpiarBusquedaStock() {
+            document.getElementById('filtroStock').value = '';
+            document.getElementById('btnLimpiarStock').style.display = 'none';
+            render();
+            document.getElementById('filtroStock').focus();
+        }
 
         // ==================== MÓDULO DE VENTAS ====================
         let carrito = [];
@@ -2424,6 +2456,18 @@
         }
 
         // ==================== REPORTES Y CIERRES ====================
+        function toggleAccordion(id) {
+            const content = document.getElementById('content' + id.charAt(0).toUpperCase() + id.slice(1));
+            const icon = document.getElementById('icon' + id.charAt(0).toUpperCase() + id.slice(1));
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.textContent = '➖';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '➕';
+            }
+        }
+
         function renderReportes() {
             const container = document.getElementById('diasPendientesCierre');
             const archivados = document.getElementById('historialCierresArchivados');
@@ -2464,6 +2508,7 @@
             });
 
             document.getElementById('dashVentasBrutas').textContent = `Bs. ${totalBruto.toFixed(2)}`;
+            document.getElementById('dashVentasBrutasUSD').textContent = `$ ${(totalBruto / tasaDolar).toFixed(2)}`;
             document.getElementById('dashIvaRecaudado').textContent = `Bs. ${totalIVA.toFixed(2)}`;
             const gananciaNeta = totalBruto - totalIVA - totalCosto;
             document.getElementById('dashGananciaNeta').textContent = `Bs. ${gananciaNeta.toFixed(2)}`;
@@ -2518,7 +2563,11 @@
                             <span>Día: ${c.fecha}</span>
                             <span style="color: #27ae60;">Bs. ${c.totalBs.toFixed(2)}</span>
                         </div>
-                        <div style="font-size: 0.8rem; color: #777;">Cerrado el: ${c.fechaCierre || 'N/A'} - ${c.cantVentas} ventas</div>
+                        <div style="font-size: 0.8rem; color: #777; display: flex; justify-content: space-between;">
+                            <span>Cerrado: ${c.fechaCierre || 'N/A'}</span>
+                            <span style="color: #7f8c8d;">IVA: Bs. ${(c.totalIVA || 0).toFixed(2)}</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #777;">Ventas: ${c.cantVentas}</div>
                     </div>
                 `).join('');
             }
