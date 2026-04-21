@@ -1352,6 +1352,16 @@
         }
 
         // ==================== INICIALIZACIÓN ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Zdp-7lwUSFc",
+            authDomain: "inverteca-core.firebaseapp.com",
+            databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
+            projectId: "inverteca-core",
+            storageBucket: "inverteca-core.firebasestorage.app",
+            messagingSenderId: "647568711575",
+            appId: "1:647568711575:web:d09efc868294c96b0aeed2"
+        };
+
         function verificarLibrerias() {
             const firebaseCargado = typeof firebase !== 'undefined';
             const scannerCargado = typeof Html5QrcodeScanner !== 'undefined';
@@ -1359,61 +1369,42 @@
             if(firebaseCargado && scannerCargado) {
                 libreriasListas = true;
                 log('✓ Librerías cargadas correctamente');
-                init();
+                iniciarSistema();
             } else {
                 setTimeout(verificarLibrerias, 100);
             }
         }
 
-        function init() {
+        function iniciarSistema() {
             const urlParams = new URLSearchParams(window.location.search);
             let clienteId = urlParams.get('id') || "c001angeles";
-            
             configMaestra.idActual = clienteId;
             configMaestra.pathCliente = 'clientes/' + clienteId + '/';
-            
-            inicializarFirebase();
-        }
 
-        function inicializarFirebase() {
-            const firebaseConfig = {
-                apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Zdp-7lwUSFc",
-                authDomain: "inverteca-core.firebaseapp.com",
-                databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
-                projectId: "inverteca-core",
-                storageBucket: "inverteca-core.firebasestorage.app",
-                messagingSenderId: "647568711575",
-                appId: "1:647568711575:web:d09efc868294c96b0aeed2"
-            };
-
-            try {
-                // 1. Inicializar Firebase
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(firebaseConfig);
-                }
-                
-                // 2. Activar Persistencia con Inicialización de DB
-                firebase.database().enablePersistence()
-                    .then(() => {
-                        console.log("✅ Persistencia activada");
-                        db = firebase.database();
-                        verificarSesion();
-                    })
-                    .catch((err) => {
-                        console.error("❌ Error de persistencia:", err.code);
-                        db = firebase.database();
-                        verificarSesion();
-                    });
-
-            } catch (e) {
-                log("❌ Error Init: " + e.message);
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
             }
+
+            // Activar Persistencia ANTES de cualquier lectura
+            firebase.database().enablePersistence()
+                .then(() => {
+                    log("✅ Offline listo");
+                    conectarDB();
+                })
+                .catch((err) => {
+                    log("⚠️ Falló persistencia, conectando modo online: " + err.code);
+                    conectarDB();
+                });
         }
 
-        function verificarSesion() {
+        function conectarDB() {
+            db = firebase.database();
+            log("🔗 Conexión establecida. Verificando sesión...");
+            
             firebase.auth().onAuthStateChanged((user) => {
                 if (user) {
                     log("👤 Usuario conectado: " + user.uid);
+                    // Solo llamar a las funciones de carga AQUÍ
                     escucharConfig();
                     escucharDatos();
                 } else {
