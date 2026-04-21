@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Inverteca Core - Módulo Stock</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#27ae60">
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-app.js"></script>
@@ -1386,6 +1388,16 @@
 
             try {
                 firebase.initializeApp(firebaseConfig);
+                
+                // Habilitar persistencia offline de Firebase
+                firebase.database().enablePersistence().catch((err) => {
+                    if (err.code == 'failed-precondition') {
+                        console.warn("Persistencia: Una pestaña activa a la vez.");
+                    } else if (err.code == 'unimplemented') {
+                        console.warn("El navegador no soporta persistencia.");
+                    }
+                });
+
                 firebase.auth().signInAnonymously().then(() => {
                     log("🔐 Conexión Firebase OK.");
                     db = firebase.database();
@@ -2747,6 +2759,15 @@
         }
 
         verificarLibrerias();
+
+        // Registro de Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW registrado', reg))
+                    .catch(err => console.error('Error SW', err));
+            });
+        }
     </script>
 </body>
 </html>
