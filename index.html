@@ -1392,30 +1392,36 @@
                     firebase.initializeApp(firebaseConfig);
                 }
                 
-                // 2. Activar Persistencia DESPUÉS de inicializar
+                // 2. Activar Persistencia con Inicialización de DB
                 firebase.database().enablePersistence()
                     .then(() => {
                         console.log("✅ Persistencia activada");
-                        iniciarApp();
+                        db = firebase.database();
+                        verificarSesion();
                     })
                     .catch((err) => {
                         console.error("❌ Error de persistencia:", err.code);
-                        if (err.code == 'failed-precondition') console.warn("Persistencia: Una pestaña activa a la vez.");
-                        else if (err.code == 'unimplemented') console.warn("El navegador no soporta persistencia.");
-                        iniciarApp();
+                        db = firebase.database();
+                        verificarSesion();
                     });
 
-                function iniciarApp() {
-                    firebase.auth().signInAnonymously().then(() => {
-                        log("🔐 Conexión Firebase OK.");
-                        db = firebase.database();
-                        escucharConfig();
-                        escucharDatos();
-                    }).catch(e => log("❌ Error Auth: " + e.message));
-                }
             } catch (e) {
                 log("❌ Error Init: " + e.message);
             }
+        }
+
+        function verificarSesion() {
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    log("👤 Usuario conectado: " + user.uid);
+                    escucharConfig();
+                    escucharDatos();
+                } else {
+                    log("🔑 Autenticando...");
+                    firebase.auth().signInAnonymously()
+                        .catch(e => log("❌ Error Auth: " + e.message));
+                }
+            });
         }
 
         function escucharConfig() {
