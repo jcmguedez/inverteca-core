@@ -1381,30 +1381,24 @@
             configMaestra.idActual = clienteId;
             configMaestra.pathCliente = 'clientes/' + clienteId + '/';
 
+            // 1. INICIALIZACIÓN SECUENCIAL
             if (!firebase.apps.length) {
                 firebase.initializeApp(firebaseConfig);
             }
 
-            // Activar Persistencia ANTES de cualquier lectura
-            firebase.database().enablePersistence()
-                .then(() => {
-                    log("✅ Offline listo");
-                    conectarDB();
-                })
-                .catch((err) => {
-                    log("⚠️ Falló persistencia, conectando modo online: " + err.code);
-                    conectarDB();
-                });
-        }
-
-        function conectarDB() {
+            // 2. DEFINICIÓN INMEDIATA DE DB
             db = firebase.database();
-            log("🔗 Conexión establecida. Verificando sesión...");
-            
+            log("🔗 Conexión inmediata establecida.");
+
+            // 3. PERSISTENCIA EN SEGUNDO PLANO
+            firebase.database().enablePersistence().catch(err => {
+                log("⚠️ Persistencia desactivada (modo solo online): " + err.code);
+            });
+
+            // 4. VERIFICACIÓN DE SESIÓN Y CARGA
             firebase.auth().onAuthStateChanged((user) => {
                 if (user) {
                     log("👤 Usuario conectado: " + user.uid);
-                    // Solo llamar a las funciones de carga AQUÍ
                     escucharConfig();
                     escucharDatos();
                 } else {
