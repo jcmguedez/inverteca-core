@@ -1387,23 +1387,32 @@
             };
 
             try {
-                firebase.initializeApp(firebaseConfig);
+                // 1. Inicializar Firebase
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
                 
-                // Habilitar persistencia offline de Firebase
-                firebase.database().enablePersistence().catch((err) => {
-                    if (err.code == 'failed-precondition') {
-                        console.warn("Persistencia: Una pestaña activa a la vez.");
-                    } else if (err.code == 'unimplemented') {
-                        console.warn("El navegador no soporta persistencia.");
-                    }
-                });
+                // 2. Activar Persistencia DESPUÉS de inicializar
+                firebase.database().enablePersistence()
+                    .then(() => {
+                        console.log("✅ Persistencia activada");
+                        iniciarApp();
+                    })
+                    .catch((err) => {
+                        console.error("❌ Error de persistencia:", err.code);
+                        if (err.code == 'failed-precondition') console.warn("Persistencia: Una pestaña activa a la vez.");
+                        else if (err.code == 'unimplemented') console.warn("El navegador no soporta persistencia.");
+                        iniciarApp();
+                    });
 
-                firebase.auth().signInAnonymously().then(() => {
-                    log("🔐 Conexión Firebase OK.");
-                    db = firebase.database();
-                    escucharConfig();
-                    escucharDatos();
-                }).catch(e => log("❌ Error Auth: " + e.message));
+                function iniciarApp() {
+                    firebase.auth().signInAnonymously().then(() => {
+                        log("🔐 Conexión Firebase OK.");
+                        db = firebase.database();
+                        escucharConfig();
+                        escucharDatos();
+                    }).catch(e => log("❌ Error Auth: " + e.message));
+                }
             } catch (e) {
                 log("❌ Error Init: " + e.message);
             }
