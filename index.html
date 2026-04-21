@@ -1015,9 +1015,9 @@
                <h2>🔍 Inventario</h2>
             <div class="input-group" style="position: relative;">
                 <input type="text" id="filtroStock" class="search-input" placeholder="🔍 Buscar en Stock..." oninput="renderStockConBoton()">
-                <button onclick="limpiarBusquedaStock()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: none; font-weight: bold; font-size: 16px; line-height: 1; padding: 0;" id="btnLimpiarStock" title="Limpiar búsqueda">✕</button>
+                <button onclick="limpiarBusquedaStock()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: none; font-weight: bold; font-size: 16px; line-height: 1; padding: 0; z-index: 10;" id="btnLimpiarStock" title="Limpiar búsqueda">✕</button>
             </div>
-            <div id="lista" class="list-container"></div>div>
+            <div id="lista" class="list-container"></div>
 
             <div class="total-section">
                 <div style="font-size: 0.8rem; opacity: 0.9;">VALOR TOTAL INVENTARIO</div>
@@ -1312,6 +1312,7 @@
         let clientes = []; // {id, nombre, cedula, telefono, deudaTotal}
         let creditos = []; // {id, clienteId, fecha, items, totalBs, saldo, pagada}
         let cierres = []; // {fecha, totalBs, totalUSD, cantVentas, ventasIds}
+        let cierresMensuales = [];
         let tasaDolar = 36.50;
         let ivaPercentaje = 16;
         let db = null;
@@ -1436,6 +1437,18 @@
                     } else {
                         cierres = [];
                     }
+
+                    // Escuchar cierres mensuales
+                    db.ref(configMaestra.pathCliente + 'logs/cierresMensuales').on('value', snap => {
+                        const cmData = snap.val();
+                        window.cierresMensuales = [];
+                        if (cmData) {
+                            Object.keys(cmData).forEach(key => {
+                                window.cierresMensuales.push({ ...cmData[key], id: key });
+                            });
+                        }
+                        renderReportes();
+                    });
 
                     render();
                     filtrarCreditos();
@@ -1823,8 +1836,7 @@
             const d = new Date();
             const hoy = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
             const ventasHoy = ventas.filter(v => {
-                if (!v.fecha) return false;
-                const f = v.fecha.split(',')[0].trim();
+                const f = (v.fecha || "").split(',')[0].trim();
                 return f === hoy && !idsCerrados.has(v.id);
             });
 
@@ -2553,12 +2565,33 @@
                 `).join('');
             }
 
-            // 4. Renderizar archivados
-            if (cierres.length === 0) {
-                archivados.innerHTML = '<p style="text-align:center; color:#999; padding:10px;">No hay cierres archivados.</p>';
+            // 4. Renderizar archivados (Diarios y Mensuales)
+            if (cierres.length === 0 && (!window.cierresMensuales || window.cierresMensuales.length === 0)) {
+                archivados.innerHTML = '<p style="text-align:center; color:#999; padding:10px;">No hay cierres registrados.</p>';
             } else {
-                archivados.innerHTML = [...cierres].reverse().map(c => `
-                    <div style="border-left: 4px solid #27ae60; background: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 0.9rem;">
+                let html = '';
+                
+                // Mostrar Cierres Mensuales Primero (si existen)
+                if (window.cierresMensuales && window.cierresMensuales.length > 0) {
+                    html += '<h4 style="margin: 10px 0 5px 0; font-size: 0.8rem; color: #e74c3c;">🗓️ CIERRES MENSUALES</h4>';
+                    html += [...window.cierresMensuales].reverse().map(cm => `
+                        <div style="border-left: 4px solid #e74c3c; background: #fff5f5; padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 0.9rem; border: 1px solid #fed7d7;">
+                            <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                                <span>Mes: ${cm.mes}</span>
+                                <span style="color: #e74c3c;">Bs. ${cm.totalVentas.toFixed(2)}</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: #777; display: flex; justify-content: space-between;">
+                                <span>Días cerrados: ${cm.cantCierres}</span>
+                                <span style="color: #c53030;">IVA: Bs. ${(cm.totalIVA || 0).toFixed(2)}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // Mostrar Cierres Diarios
+                html += '<h4 style="margin: 10px 0 5px 0; font-size: 0.8rem; color: #27ae60;">☀️ CIERRES DIARIOS</h4>';
+                html += [...cierres].reverse().map(c => `
+                    <div style="border-left: 4px solid #27ae60; background: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 0.9rem; border: 1px solid #eee;">
                         <div style="display: flex; justify-content: space-between; font-weight: bold;">
                             <span>Día: ${c.fecha}</span>
                             <span style="color: #27ae60;">Bs. ${c.totalBs.toFixed(2)}</span>
@@ -2570,6 +2603,8 @@
                         <div style="font-size: 0.8rem; color: #777;">Ventas: ${c.cantVentas}</div>
                     </div>
                 `).join('');
+                
+                archivados.innerHTML = html;
             }
         }
 
@@ -2654,8 +2689,15 @@
             if (db) {
                 Promise.all(promesas).then(() => {
                     alert('✅ Cierres realizados con éxito.\nEl historial de ventas se ha limpiado.');
-                    renderHistorial();
-                    renderReportes();
+                    // Forzar recarga local de cierres para que renderHistorial filtre correctamente
+                    db.ref(configMaestra.pathCliente + 'data/cierres').once('value', snap => {
+                        const cData = snap.val();
+                        if (cData) {
+                            cierres = Array.isArray(cData) ? cData : Object.keys(cData).map(k => ({...cData[k], id: k}));
+                        }
+                        renderHistorial();
+                        renderReportes();
+                    });
                 });
             } else {
                 renderHistorial();
