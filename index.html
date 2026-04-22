@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Inverteca Core - Módulo Stock</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#27ae60">
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-app.js"></script>
@@ -923,10 +921,6 @@
                 <span class="status-badge" id="estadoServicio">ABIERTO</span>
                 <span id="connectionStatus" class="connection-status">DESCONECTADO</span>
             </div>
-            <div id="syncIndicator" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; font-size: 0.85rem; background: rgba(0,0,0,0.2); padding: 5px 10px; border-radius: 10px;">
-                <div id="statusDot" style="width: 10px; height: 10px; border-radius: 50%; background-color: #e74c3c;"></div>
-                <span id="statusText" style="color: white;">Esperando conexión...</span>
-            </div>
             <div style="font-size: 0.8rem; margin-top: 8px; cursor: pointer;" onclick="toggleDebug()">
                 (Toca aquí para configurar o ver QR)
             </div>
@@ -1356,86 +1350,51 @@
         }
 
         // ==================== INICIALIZACIÓN ====================
-        const firebaseConfig = {
-            apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Zdp-7lwUSFc",
-            authDomain: "inverteca-core.firebaseapp.com",
-            databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
-            projectId: "inverteca-core",
-            storageBucket: "inverteca-core.firebasestorage.app",
-            messagingSenderId: "647568711575",
-            appId: "1:647568711575:web:d09efc868294c96b0aeed2"
-        };
-
         function verificarLibrerias() {
             const firebaseCargado = typeof firebase !== 'undefined';
-            const scannerCargado = typeof Html5Qrcode !== 'undefined';
+            const scannerCargado = typeof Html5QrcodeScanner !== 'undefined';
 
             if(firebaseCargado && scannerCargado) {
                 libreriasListas = true;
                 log('✓ Librerías cargadas correctamente');
-                iniciarSistema();
+                init();
             } else {
                 setTimeout(verificarLibrerias, 100);
             }
         }
 
-        function iniciarSistema() {
+        function init() {
             const urlParams = new URLSearchParams(window.location.search);
             let clienteId = urlParams.get('id') || "c001angeles";
-            configMaestra.idActual = clienteId;
-
-            // 1. INICIALIZACIÓN SECUENCIAL (PASO 2)
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
             
-            // DEFINICIÓN GLOBAL INMEDIATA
-            db = firebase.database();
-            log("🔗 Conexión global establecida.");
+            configMaestra.idActual = clienteId;
+            configMaestra.pathCliente = 'clientes/' + clienteId + '/';
+            
+            inicializarFirebase();
+        }
 
-            // PERSISTENCIA EN SEGUNDO PLANO
-            firebase.database().enablePersistence().catch(err => {
-                console.warn("Persistencia desactivada (modo solo online):", err.code);
-            });
+        function inicializarFirebase() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Zdp-7lwUSFc",
+                authDomain: "inverteca-core.firebaseapp.com",
+                databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
+                projectId: "inverteca-core",
+                storageBucket: "inverteca-core.firebasestorage.app",
+                messagingSenderId: "647568711575",
+                appId: "1:647568711575:web:d09efc868294c96b0aeed2"
+            };
 
-            // 2. SINCRONIZACIÓN DE INTERFAZ (PASO 3 - FORZAR PUNTO VERDE)
-            firebase.auth().onAuthStateChanged((user) => {
-                const statusDot = document.getElementById('statusDot');
-                const statusText = document.getElementById('statusText');
-                
-                if (user) {
-                    // Mantenemos el ID del cliente de la URL si existe, de lo contrario usamos el UID
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const clienteUrl = urlParams.get('id');
-                    configMaestra.pathCliente = `clientes/${clienteUrl || user.uid}/`;
-                    
-                    if (statusDot) statusDot.style.backgroundColor = '#27ae60'; // CAMBIA A VERDE
-                    if (statusText) statusText.innerHTML = `<b>En Línea:</b> ${user.email || 'Sesión Activa'}`;
-                    
-                    const connStatus = document.getElementById('connectionStatus');
-                    if (connStatus) {
-                        connStatus.textContent = 'CONECTADO';
-                        connStatus.classList.add('online');
-                    }
-
-                    console.log("Cargando datos para path:", configMaestra.pathCliente);
-                    if (typeof escucharConfig === 'function') escucharConfig();
-                    if (typeof escucharDatos === 'function') escucharDatos();
-                } else {
-                    if (statusDot) statusDot.style.backgroundColor = '#e74c3c'; // ROJO
-                    if (statusText) statusText.innerText = 'Desconectado';
-                    
-                    const connStatus = document.getElementById('connectionStatus');
-                    if (connStatus) {
-                        connStatus.textContent = 'DESCONECTADO';
-                        connStatus.classList.remove('online');
-                    }
-
-                    log("🔑 Autenticando...");
-                    firebase.auth().signInAnonymously()
-                        .catch(e => log("❌ Error Auth: " + e.message));
-                }
-            });
+            try {
+                firebase.initializeApp(firebaseConfig);
+                firebase.auth().signInAnonymously().then(() => {
+                    log("🔐 Conexión Firebase OK.");
+                    db = firebase.database();
+                    escucharConfig();
+                    escucharDatos();
+                }).catch(e => log("❌ Error Auth: " + e.message));
+            } catch (e) {
+                log("❌ Error Init: " + e.message);
+            }
         }
 
         function escucharConfig() {
@@ -1456,18 +1415,14 @@
             // Escuchar cambios en data (items, clientes, tasa)
             db.ref(configMaestra.pathCliente + 'data').on('value', snap => {
                 const data = snap.val();
-                console.log("Datos recibidos de Firebase:", data);
                 if (data) {
                     if (data.tasa_dolar) {
                         tasaDolar = data.tasa_dolar;
-                        const tasaInput = document.getElementById('tasa');
-                        if (tasaInput) tasaInput.value = tasaDolar;
+                        document.getElementById('tasa').value = tasaDolar;
                     }
                     if (data.iva_porcentaje) ivaPercentaje = data.iva_porcentaje;
-                    
-                    // Asegurar que items y clientes sean arrays
-                    items = Array.isArray(data.items) ? data.items : (data.items ? Object.values(data.items) : []);
-                    clientes = Array.isArray(data.clientes) ? data.clientes : (data.clientes ? Object.values(data.clientes) : []);
+                    items = data.items || [];
+                    clientes = data.clientes || [];
                     
                     const creditosData = data.creditos;
                     if (creditosData) {
@@ -1498,11 +1453,6 @@
                     render();
                     filtrarCreditos();
                     renderReportes();
-                } else {
-                    console.warn("No se encontraron datos en el path:", configMaestra.pathCliente + 'data');
-                    items = [];
-                    clientes = [];
-                    render();
                 }
             });
 
@@ -1643,53 +1593,61 @@
         }
 
         // ==================== LÓGICA DEL ESCÁNER (COPIADA DEL OPERATIVO) ====================
-        // REPARAR EL ESCÁNER (PASO 4)
-        let html5QrCodeInventario = null;
+        function toggleCameraInventario() {
+            if(!libreriasListas) return alert('Cargando librerías...');
+            if(cameraInventarioActive) closeCameraInventario();
+            else openCameraInventario();
+        }
 
-        async function toggleCameraInventario() {
+        function openCameraInventario() {
             const readerDiv = document.getElementById('qr-reader-inventario');
-            if (readerDiv.style.display === 'none' || !cameraInventarioActive) {
-                readerDiv.style.display = 'block';
-                html5QrCodeInventario = new Html5Qrcode("qr-reader-inventario");
-                try {
-                    cameraInventarioActive = true;
-                    document.getElementById('qr-status-inventario').textContent = 'Iniciando cámara...';
-                    await html5QrCodeInventario.start(
-                        { facingMode: "environment" }, 
-                        { fps: 10, qrbox: { width: 250, height: 150 } },
-                        (decodedText) => {
-                            document.getElementById('codigoBarras').value = decodedText;
-                            closeCameraInventario();
-                        }
-                    );
-                    document.getElementById('qr-status-inventario').textContent = '✓ Cámara activa';
-                    document.querySelector('.btn-camera').textContent = '❌ CERRAR';
-                } catch (err) { 
-                    alert("Error cámara: " + err); 
-                    readerDiv.style.display = 'none'; 
-                    cameraInventarioActive = false;
-                }
-            } else { 
-                closeCameraInventario(); 
+            const statusDiv = document.getElementById('qr-status-inventario');
+            readerDiv.style.display = 'block';
+            readerDiv.innerHTML = '';
+            statusDiv.textContent = 'Inicializando cámara...';
+            
+            if(scannerInventario) {
+                try { scannerInventario.clear(); } catch(e) {}
+                scannerInventario = null;
+            }
+            
+            try {
+                scannerInventario = new Html5QrcodeScanner(
+                    "qr-reader-inventario",
+                    { 
+                        fps: 10, 
+                        qrbox: { width: 250, height: 250 }, 
+                        rememberLastUsedCamera: true, 
+                        showTorchButtonIfSupported: true,
+                        aspectRatio: 1.0,
+                        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE, Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39, Html5QrcodeSupportedFormats.EAN_13]
+                    },
+                    false
+                );
+                scannerInventario.render(onScanSuccessInventario, onScanErrorInventario);
+                cameraInventarioActive = true;
+                statusDiv.textContent = '✓ Cámara activa';
+                document.querySelector('.btn-camera').textContent = '❌ CERRAR';
+            } catch(err) {
+                statusDiv.textContent = 'Error: ' + err.message;
             }
         }
 
         function closeCameraInventario() {
-            if(html5QrCodeInventario && cameraInventarioActive) {
-                html5QrCodeInventario.stop().then(() => {
+            if(scannerInventario) {
+                scannerInventario.clear().then(() => {
                     document.getElementById('qr-reader-inventario').style.display = 'none';
                     document.getElementById('qr-status-inventario').textContent = '';
-                    cameraInventarioActive = false;
                     document.querySelector('.btn-camera').textContent = '📷 ESCANEAR';
-                }).catch(err => {
-                    console.error("Error al cerrar cámara:", err);
-                    document.getElementById('qr-reader-inventario').style.display = 'none';
                     cameraInventarioActive = false;
                 });
-            } else {
-                document.getElementById('qr-reader-inventario').style.display = 'none';
-                cameraInventarioActive = false;
             }
+        }
+
+        function onScanSuccessInventario(decodedText) {
+            document.getElementById('codigoBarras').value = decodedText;
+            log("✅ SKU: " + decodedText);
+            closeCameraInventario();
         }
 
         function onScanErrorInventario(err) { /* Silencio */ }
@@ -1927,51 +1885,52 @@
             `;
         }
 
-        let html5QrCodeVentas = null;
+        function toggleCameraVentas() {
+            if(!libreriasListas) return alert('Cargando librerías...');
+            if(cameraVentasActive) closeCameraVentas();
+            else openCameraVentas();
+        }
 
-        async function toggleCameraVentas() {
+        function openCameraVentas() {
             const readerDiv = document.getElementById('qr-reader-ventas');
-            if (readerDiv.style.display === 'none' || !cameraVentasActive) {
-                readerDiv.style.display = 'block';
-                html5QrCodeVentas = new Html5Qrcode("qr-reader-ventas");
-                try {
-                    cameraVentasActive = true;
-                    document.getElementById('qr-status-ventas').textContent = 'Iniciando cámara...';
-                    await html5QrCodeVentas.start(
-                        { facingMode: "environment" }, 
-                        { fps: 10, qrbox: { width: 250, height: 150 } },
-                        (decodedText) => {
-                            document.getElementById('codigoBarrasVentas').value = decodedText;
-                            if (typeof buscarPorSKU === 'function') buscarPorSKU();
-                            closeCameraVentas();
-                        }
-                    );
-                    document.getElementById('qr-status-ventas').textContent = '✓ Cámara activa';
-                } catch (err) { 
-                    alert("Error cámara: " + err); 
-                    readerDiv.style.display = 'none'; 
-                    cameraVentasActive = false;
-                }
-            } else { 
-                closeCameraVentas(); 
+            const statusDiv = document.getElementById('qr-status-ventas');
+            readerDiv.style.display = 'block';
+            readerDiv.innerHTML = '';
+            statusDiv.textContent = 'Inicializando cámara...';
+            
+            if(scannerVentas) {
+                try { scannerVentas.clear(); } catch(e) {}
+                scannerVentas = null;
+            }
+            
+            try {
+                scannerVentas = new Html5QrcodeScanner(
+                    "qr-reader-ventas",
+                    { fps: 10, qrbox: { width: 250, height: 250 }, rememberLastUsedCamera: true, showTorchButtonIfSupported: true, aspectRatio: 1.0, formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE, Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39, Html5QrcodeSupportedFormats.EAN_13] },
+                    false
+                );
+                scannerVentas.render(onScanSuccessVentas, onScanErrorVentas);
+                cameraVentasActive = true;
+                statusDiv.textContent = '✓ Cámara activa';
+            } catch(err) {
+                statusDiv.textContent = 'Error: ' + err.message;
             }
         }
 
         function closeCameraVentas() {
-            if(html5QrCodeVentas && cameraVentasActive) {
-                html5QrCodeVentas.stop().then(() => {
+            if(scannerVentas) {
+                scannerVentas.clear().then(() => {
                     document.getElementById('qr-reader-ventas').style.display = 'none';
                     document.getElementById('qr-status-ventas').textContent = '';
                     cameraVentasActive = false;
-                }).catch(err => {
-                    console.error("Error al cerrar cámara:", err);
-                    document.getElementById('qr-reader-ventas').style.display = 'none';
-                    cameraVentasActive = false;
                 });
-            } else {
-                document.getElementById('qr-reader-ventas').style.display = 'none';
-                cameraVentasActive = false;
             }
+        }
+
+        function onScanSuccessVentas(decodedText) {
+            document.getElementById('codigoBarrasVentas').value = decodedText;
+            buscarPorSKU();
+            closeCameraVentas();
         }
 
         function onScanErrorVentas(err) { /* Silencio */ }
@@ -2116,10 +2075,6 @@
         }
 
         function finalizarPago() {
-            if (!db || !configMaestra.pathCliente) {
-                return alert('❌ Error: No hay conexión o sesión activa. Reintenta en unos segundos.');
-            }
-
             const totalBs = parseFloat(document.getElementById('modalPagoTotal').textContent.replace('Bs. ', '')) || 0;
             const montoIngresado = parseFloat(document.getElementById('montoPagoInput').value) || 0;
 
@@ -2158,31 +2113,27 @@
                 anulada: false
             };
 
-            // El secreto es usar siempre configMaestra.pathCliente (PASO 1)
-            const rutaVentas = configMaestra.pathCliente + 'logs/ventas';
-            
-            db.ref(rutaVentas).push(venta).then(() => {
-                // Descontar stock localmente y en DB
-                carrito.forEach(ci => {
-                    const idx = items.findIndex(i => i.id === ci.id);
-                    if (idx !== -1) {
-                        items[idx].cantidad = Math.max(0, items[idx].cantidad - ci.cantidad);
-                    }
-                });
-                db.ref(configMaestra.pathCliente + 'data/items').set(items);
+            // Guardar en Firebase (usando la misma lógica que crédito)
+            if (db) {
+                db.ref(configMaestra.pathCliente + 'logs/ventas').push(venta).then(() => {
+                    // Descontar stock localmente y en DB
+                    carrito.forEach(ci => {
+                        const idx = items.findIndex(i => i.id === ci.id);
+                        if (idx !== -1) {
+                            items[idx].cantidad = Math.max(0, items[idx].cantidad - ci.cantidad);
+                        }
+                    });
+                    db.ref(configMaestra.pathCliente + 'data/items').set(items);
 
-                log('✅ Venta registrada: Bs. ' + totalBs.toFixed(2) + ' - ' + tipoPago);
-                carrito = [];
-                renderCarrito();
-                recalcularTotales();
-                renderHistorial(); // Forzar renderizado inmediato
-                cerrarModalPago();
-                alert('✅ Venta concretada con éxito\n' + tipoPago + '\nTotal: Bs. ' + totalBs.toFixed(2));
-            }).catch(err => {
-                console.error("Error en venta:", err);
-                alert("❌ Acceso denegado: Revisa las reglas de seguridad de Firebase o tu conexión.");
-            });
-        }
+                    log('✅ Venta registrada: Bs. ' + totalBs.toFixed(2) + ' - ' + tipoPago);
+                    carrito = [];
+                    renderCarrito();
+                    recalcularTotales();
+                    renderHistorial(); // Forzar renderizado inmediato
+                    cerrarModalPago();
+                    alert('✅ Venta confirmada\n' + tipoPago + '\nTotal: Bs. ' + totalBs.toFixed(2));
+                }).catch(err => alert('Error al guardar venta: ' + err));
+            } else {
                 // Fallback offline
                 ventas.push(venta);
                 carrito = [];
@@ -2300,10 +2251,6 @@
         }
 
         function confirmarCredito() {
-            if (!db || !configMaestra.pathCliente) {
-                return alert('❌ Error: No hay conexión o sesión activa. Reintenta en unos segundos.');
-            }
-
             const nombre = document.getElementById('nombreClienteCredito').value.trim();
             const totalBs = parseFloat(document.getElementById('modalCreditoTotal').textContent.replace('Bs. ', '')) || 0;
             
@@ -2344,13 +2291,12 @@
                 fechaCompleta: soloFecha + ', ' + soloHora,
                 items: JSON.parse(JSON.stringify(carrito)),
                 totalBs: totalBs,
-                totalUSD: totalBs / tasaDolar,
                 saldo: totalBs,
                 pagada: false,
                 tipo: 'CREDITO'
             };
             
-            // Guardar en Firebase (usando siempre pathCliente para permisos)
+            // Guardar en Firebase
             if (db) {
                 Promise.all([
                     db.ref(configMaestra.pathCliente + 'data/clientes').set(clientes),
@@ -2371,11 +2317,8 @@
                     renderCarrito();
                     recalcularTotales();
                     cerrarModalCredito();
-                    alert('✅ Crédito concretado con éxito.');
-                }).catch(err => {
-                    console.error("Error en crédito:", err);
-                    alert("❌ Acceso denegado: Revisa las reglas de seguridad de Firebase.");
-                });
+                    alert('✅ Crédito registrado correctamente.');
+                }).catch(err => alert('Error al guardar crédito: ' + err));
             } else {
                 // Fallback offline
                 carrito = [];
@@ -2804,15 +2747,6 @@
         }
 
         verificarLibrerias();
-
-        // Registro de Service Worker para PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW registrado', reg))
-                    .catch(err => console.error('Error SW', err));
-            });
-        }
     </script>
 </body>
 </html>
