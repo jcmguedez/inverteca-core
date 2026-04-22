@@ -1,4 +1,4 @@
-const CACHE_NAME = 'inverteca-v-actualizada-final';
+const CACHE_NAME = 'inverteca-v-permisos-reparados-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -9,7 +9,7 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
+  e.waitUntil(caches.open(CACHE_NAME ).then(cache => cache.addAll(ASSETS)));
 });
 
 self.addEventListener('fetch', e => {

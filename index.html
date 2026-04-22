@@ -12,7 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-auth.js"></script>
     
-    <!-- Html5-QRCode para lector de códigos de barras (Versión exacta del operativo) -->
+    <!-- Html5-QRCode para lector de códigos de barras -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
     
     <style>
@@ -37,7 +37,7 @@
         }
         
         body {
-            background-color: var(--bg);
+            background-color: var(--bg );
             margin: 0;
             padding: 10px;
             display: flex;
@@ -215,7 +215,8 @@
             border-radius: 10px;
             overflow: hidden;
         }
-               .historial-item-items {
+
+        .historial-item-items {
             font-size: 0.75rem;
             color: #666;
             margin-top: 5px;
@@ -258,16 +259,13 @@
             border-radius: 4px;
             font-size: 0.7rem;
             font-weight: bold;
-        }  font-weight: bold;
         }
         
-        /* Estilos para html5-qrcode del operativo */
+        /* Estilos para html5-qrcode */
         .html5-qrcode-element { width: 100% !important; background: transparent !important; }
         .html5-qrcode { width: 100% !important; background: transparent !important; }
         .html5-qrcode video { width: 100% !important; height: auto !important; border-radius: 10px; }
         .html5-qrcode__scan-region { border: 3px solid var(--primary) !important; border-radius: 10px !important; }
-        .html5-qrcode__camera-selection { margin: 10px 0 !important; background: transparent !important; }
-        .html5-qrcode__camera-selection select { width: 100% !important; padding: 10px !important; border: 2px solid var(--primary) !important; border-radius: 10px !important; }
         
         .costo-preview {
             color: var(--info);
@@ -348,1152 +346,404 @@
             font-size: 0.85rem;
             transition: all 0.3s;
         }
-        
-        .btn-add {
-            background: var(--primary);
-            grid-column: 1 / -1;
-            padding: 15px;
-            font-size: 0.95rem;
-        }
-        
-        .btn-danger {
-            background: var(--danger);
-        }
-        
-        .btn-edit {
-            background: var(--info);
-        }
-        
-        .list-container {
-            margin-top: 20px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        
-        .search-input {
-            width: 100% !important;
-            padding: 12px !important;
-            border: 2px solid #eee !important;
-            border-radius: 10px !important;
-            font-size: 16px !important;
-        }
-        
+
+        /* Estilos de Stock y Carrito Compactos */
         .item {
-            background: #f9f9f9;
-            padding: 15px;
+            background: #fff;
+            padding: 10px;
             border-radius: 10px;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--primary);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 10px;
+            border: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
-        
         .item-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 5px;
-            flex-wrap: wrap;
-            gap: 10px;
         }
-        
-        .item-name {
-            font-weight: 600;
-            color: var(--text);
-            font-size: 0.95rem;
-            flex: 1;
-        }
-        
-        .item-unit {
-            background: #ecf0f1;
-            color: #555;
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        .item-sku {
-            background: var(--primary);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        .item-quantity {
-            background: var(--primary);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            min-width: 35px;
-            text-align: center;
-        }
-        
-        .item-prices {
-            margin: 5px 0;
+        .item-name { font-weight: bold; color: var(--text); }
+        .item-unit { font-size: 0.7rem; color: #7f8c8d; }
+        .item-sku { font-size: 0.7rem; color: #7f8c8d; background: #eee; padding: 2px 5px; border-radius: 4px; }
+        .item-prices { display: flex; gap: 15px; align-items: center; }
+        .item-price-bs { font-weight: bold; color: var(--primary); }
+        .item-price-usd { color: var(--info); font-size: 0.9rem; }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 5px 0;
-            border-top: 1px solid #eee;
             border-bottom: 1px solid #eee;
-            display: flex;
-            gap: 15px;
-            align-items: center;
         }
-        
-        .item-price-bs {
-            font-weight: 600;
-            color: var(--text);
-            font-size: 0.95rem;
-        }
-        
-        .item-price-usd {
-            color: #999;
-            font-size: 0.85rem;
-            margin-top: 0;
-        }
-        
-        .item-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 5px;
-        }
-        
-        .item-actions button {
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-        }
-        
-        .total-section {
-            background: var(--primary);
+        .cart-item-info { flex: 1; }
+        .cart-item-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 0; }
+        .cart-item-details { font-size: 0.75rem; color: #666; margin-top: 0; }
+
+        .btn-clear-search {
+            background: #e74c3c;
             color: white;
-            padding: 15px;
-            border-radius: 15px;
-            text-align: center;
-            margin-top: 20px;
-        }
-        
-        .total-amount {
-            font-size: 1.8rem;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
             font-weight: bold;
-            margin: 10px 0;
-        }
-        
-        #debug-log {
-            margin-top: 20px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.7rem;
-            background: #000;
-            color: #0f0;
-            padding: 10px;
-            border-radius: 5px;
-            width: 100%;
-            max-width: 500px;
-            text-align: left;
-            height: 100px;
-            overflow-y: auto;
-            display: none;
-        }
-        
-        .debug-visible #debug-log {
-            display: block;
-        }
-        
-        .carrito-container {
-            background: #f9f9f9;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
-            min-height: 100px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .carrito-vacio {
-            text-align: center;
-            color: #999;
-            padding: 40px 20px;
-            font-size: 0.95rem;
-        }
-        
-        .carrito-item {
-            background: white;
-            padding: 6px 10px;
-            border-radius: 8px;
-            margin-bottom: 5px;
-            border-left: 3px solid var(--primary);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .carrito-item-info {
-            flex: 1;
-        }
-        
-        .carrito-item-nombre {
-            font-weight: 600;
-            color: var(--text);
-            font-size: 0.9rem;
-        }
-        
-        .carrito-item-precio {
-            color: #666;
-            font-size: 0.8rem;
-            margin-top: 1px;
-        }
-        
-        .carrito-item-cantidad {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .btn-qty {
-            width: 28px;
-            height: 28px;
             padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            background: #eee;
-            color: #333;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .btn-qty:active {
-            transform: scale(0.95);
-        }
-        
-        .qty-display {
-            min-width: 30px;
-            text-align: center;
-            font-weight: 600;
-        }
-        
-        .btn-remove-item {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.75rem;
-        }
-        
-        .totales-section {
-            background: var(--primary);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin: 15px 0;
-        }
-        
-        .totales-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-        }
-        
-        .totales-row.total-final {
-            border-top: 2px solid rgba(255,255,255,0.3);
-            padding-top: 10px;
-            font-size: 1.3rem;
-            font-weight: bold;
-        }
-        
-        .totales-usd {
-            font-size: 0.85rem;
-            opacity: 0.9;
-            margin-top: 5px;
-        }
-        
-        .btn-venta-contado {
-            background: var(--secondary);
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-        }
-        
-        .btn-dar-credito {
-            background: var(--info);
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-        }
-        
-        .btn-limpiar-carrito {
-            background: var(--danger);
-            width: 100%;
-            padding: 15px;
-            font-size: 0.95rem;
-        }
-        
-        .historial-container {
-            margin-top: 20px;
-        }
-        
-        .historial-item {
-            background: #f9f9f9;
-            padding: 6px 10px;
-            border-radius: 8px;
-            margin-bottom: 5px;
-            border-left: 3px solid var(--secondary);
-            font-size: 0.82rem;
-        }
-        
-        .historial-item-header {
-            display: flex;
-            justify-content: space-between;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-        
-        .historial-item-detalle {
-            color: #666;
-            font-size: 0.8rem;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            padding: 10px;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            max-width: 450px;
-            width: 100%;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: var(--text);
-        }
-        
-        .modal-body {
-            margin-bottom: 20px;
-        }
-        
-        .modal-input-group {
-            margin-bottom: 15px;
-        }
-        
-        .modal-input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
-            font-size: 0.9rem;
-        }
-        
-        .modal-input-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #eee;
-            border-radius: 10px;
-            font-size: 16px;
-            outline: none;
-        }
-        
-        .modal-input-group input:focus {
-            border-color: var(--primary);
-        }
-        
-        .modal-total {
-            background: var(--primary);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            margin: 15px 0;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-        
-        .modal-total-dual {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            margin-top: 5px;
-        }
-        
-        .modal-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        
-        .modal-btn {
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s;
-        }
-        
-        .modal-btn-primary {
-            background: var(--primary);
-            color: white;
-            grid-column: 1 / -1;
-        }
-        
-        .modal-btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .pago-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .pago-row > div {
-            flex: 1;
-        }
-        
-        .pago-row label {
-            font-size: 0.8rem;
-        }
-        
-        .pago-row input {
-            font-size: 0.9rem;
-            padding: 10px;
-        }
-        
-        .vuelto-section {
-            background: #f0f8ff;
-            border: 2px solid var(--info);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
-            text-align: center;
-        }
-        
-        .vuelto-label {
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 5px;
-        }
-        
-        .vuelto-amount {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--info);
-            margin-bottom: 5px;
-        }
-        
-        .vuelto-dual {
-            font-size: 0.85rem;
-            color: #999;
-        }
-
-        /* ===== NUEVO MODAL PAGO MEJORADO ===== */
-        .metodo-pago-selector {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .metodo-btn {
-            flex: 1;
-            min-width: 90px;
-            padding: 10px 8px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            background: white;
-            color: #555;
-            font-weight: 600;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-        }
-
-        .metodo-btn.selected {
-            border-color: var(--info);
-            background: var(--info);
-            color: white;
-        }
-
-        .monto-pago-group {
-            margin-bottom: 15px;
-        }
-
-        .monto-pago-group label {
-            font-weight: 600;
-            color: #555;
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .monto-pago-group input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid var(--info);
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            outline: none;
-            text-align: center;
-            color: var(--text);
-        }
-
-        .monto-pago-group input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(39,174,96,0.15);
-        }
-
-        /* ===== HISTORIAL MEJORADO ===== */
-        .historial-item.anulada {
-            border-left-color: var(--danger) !important;
-            opacity: 0.7;
-        }
-
-        .historial-item-items {
-            margin-top: 3px;
-            font-size: 0.75rem;
-            color: #777;
-            border-top: 1px solid #eee;
-            padding-top: 3px;
-        }
-
-        .btn-anular-venta {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-size: 0.72rem;
-            cursor: pointer;
-            margin-top: 3px;
-        }
-
-        .badge-anulada {
-            background: var(--danger);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- HEADER -->
         <div class="header-info">
-            <h2 id="nombreNegocioDisplay">Cargando...</h2>
-            <div>
-                <span class="status-badge" id="estadoServicio">ABIERTO</span>
-                <span id="connectionStatus" class="connection-status">DESCONECTADO</span>
-            </div>
-            <div id="syncIndicator" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; font-size: 0.85rem; background: rgba(0,0,0,0.2); padding: 5px 10px; border-radius: 10px;">
-                <div id="statusDot" style="width: 10px; height: 10px; border-radius: 50%; background-color: #e74c3c;"></div>
-                <span id="statusText" style="color: white;">Esperando conexión...</span>
-            </div>
-            <div style="font-size: 0.8rem; margin-top: 8px; cursor: pointer;" onclick="toggleDebug()">
-                (Toca aquí para configurar o ver QR)
+            <h2>Viveres los Angeles</h2>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+                <span class="status-badge">ACTIVO</span>
+                <div id="statusDot" style="width: 10px; height: 10px; border-radius: 50%; background: #e74c3c;"></div>
+                <span id="statusText" style="font-size: 0.75rem; font-weight: bold;">Desconectado</span>
             </div>
         </div>
 
-        <!-- TABS -->
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('stock')">📦 Stock</button>
             <button class="tab-btn" onclick="switchTab('venta')">🛒 Venta</button>
             <button class="tab-btn" onclick="switchTab('creditos')">💳 Créditos</button>
-            <button class="tab-btn" onclick="switchTab('reportes')">🏢 Reportes</button>
+            <button class="tab-btn" onclick="switchTab('reportes')">📊 Reportes</button>
         </div>
-
-        <!-- TAB: STOCK -->
-        <div id="stock" class="tab-content active">
-            <div class="input-row">
-                <div class="input-group">
-                    <label>Tasa Dólar (BCV)</label>
-                    <input type="number" id="tasa" step="0.01" onchange="actualizarTasa()">
-                </div>
-                <div class="input-group">
-                    <label>Alerta Stock</label>
-                    <input type="number" id="stockMinimo" value="2" onchange="render()">
-                </div>
-            </div>
-
-            <h2>➕ Cargar Producto</h2>
-            <input type="hidden" id="editId">
-            
+         <div id="stock" class="tab-content active">
+            <h2>📦 Gestión de Inventario</h2>
             <div class="input-group">
-                <label>Nombre del producto</label>
-                <input type="text" id="nombre" placeholder="Nombre del producto">
+                <label>Nombre del Producto</label>
+                <input type="text" id="nombre" placeholder="Ej: Harina Pan 1kg">
             </div>
-
             <div class="input-group">
                 <label>Código de Barras (SKU)</label>
                 <div class="camera-container">
-                    <input type="text" id="codigoBarras" placeholder="Escanea o ingresa código...">
+                    <input type="text" id="codigoBarras" placeholder="Escanear o escribir...">
                     <button class="btn-camera" onclick="toggleCameraInventario()">📷 ESCANEAR</button>
                 </div>
-                <div id="qr-reader-inventario" style="display: none;"></div>
-                <div class="qr-reader-status" id="qr-status-inventario"></div>
+                <div id="qr-reader-inventario" style="display: none; margin-top: 10px;"></div>
+                <div id="qr-status-inventario" style="font-size: 0.75rem; color: var(--purple); margin-top: 5px; text-align: center;"></div>
             </div>
-
             <div class="input-row">
-                <div style="flex: 2;">
-                    <label>Costo de Compra (por Unidad/Kg)</label>
+                <div>
+                    <label>Costo</label>
                     <div style="display: flex; gap: 5px;">
-                        <input type="number" id="costo" placeholder="0.00" step="0.01" oninput="calcularCostoDual()">
-                        <select id="monedaCosto" style="width: 70px; padding: 10px;" onchange="calcularCostoDual()">
-                            <option value="BS" selected>Bs</option>
+                        <input type="number" id="costo" step="0.01" oninput="calcularCostoDual()">
+                        <select id="monedaCosto" style="width: 80px;" onchange="calcularCostoDual()">
                             <option value="USD">$</option>
+                            <option value="BS">Bs.</option>
                         </select>
                     </div>
-                    <div id="costoDual" class="costo-preview">Eqv: $ 0,00</div>
+                    <div id="costoDual" class="costo-preview">Eqv: $ 0.00</div>
                 </div>
-                <div style="flex: 1;">
-                    <label>Beneficio %</label>
+                <div>
+                    <label>% Ganancia</label>
                     <input type="number" id="beneficio" value="30">
                 </div>
             </div>
-
             <div class="input-row">
+                <div>
+                    <label>Cantidad Inicial</label>
+                    <input type="number" id="cantidad" value="0">
+                </div>
                 <div>
                     <label>Unidad</label>
                     <select id="unidad">
-                        <option value="UND">Unidad (UND)</option>
+                        <option value="UNIDAD">Unidad</option>
                         <option value="KG">Kilogramo (KG)</option>
-                        <option value="LIT">Líquido (LIT)</option>
-                        <option value="PAQ">Paquete (PAQ)</option>
+                        <option value="LITRO">Litro (L)</option>
+                        <option value="PAQUETE">Paquete</option>
                     </select>
                 </div>
-                <div>
-                    <label>Cantidad/Peso</label>
-                    <input type="number" id="cantidad" value="1" step="0.001">
-                </div>
             </div>
-
             <div class="switch-container">
-                <span style="font-size: 0.9rem; font-weight: bold;">Producto Exento de IVA</span>
+                <label>Producto Exento de IVA (16%)</label>
                 <label class="switch">
                     <input type="checkbox" id="exentoIVA">
                     <span class="slider"></span>
                 </label>
             </div>
+            <input type="hidden" id="editId">
+            <button id="btnGuardar" onclick="saveItem()" style="background: var(--primary); width: 100%; font-size: 1rem; padding: 15px;">CARGAR AL INVENTARIO</button>
+            <button id="btnCancelarEdit" onclick="limpiarForm()" style="background: var(--danger); width: 100%; margin-top: 10px; display: none;">CANCELAR EDICIÓN</button>
+
+            <h2>📋 Lista de Productos</h2>
+            <div class="input-group" style="position: relative;">
+                <input type="text" id="filtroStock" placeholder="Buscar por nombre o código..." oninput="render()">
+                <div id="btnClearSearchStock" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: none;">
+                    <button class="btn-clear-search" onclick="limpiarBusquedaStock()">✕</button>
+                </div>
+            </div>
+            <div id="lista"></div>
+            <div style="margin-top: 20px; padding: 15px; background: #eee; border-radius: 10px; text-align: center;">
+                <div style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">VALOR TOTAL DEL INVENTARIO</div>
+                <div id="totalDisplay" style="font-size: 1.4rem; font-weight: bold; color: var(--primary);">Bs. 0,00</div>
+                <div id="totalDisplayUSD" style="font-size: 1rem; color: var(--info);">$ 0,00</div>
+            </div>
+        </div>
+
+        <div id="venta" class="tab-content">
+            <div class="dashboard-card" style="background: linear-gradient(135deg, #27ae60, #2ecc71); color: white;">
+                <span class="card-label" style="color: rgba(255,255,255,0.8);">Total Venta Actual</span>
+                <div id="ventaTotalGrande" class="card-value">Bs. 0,00</div>
+                <div id="ventaTotalUSDGrande" style="font-size: 1rem; opacity: 0.9;">$ 0,00</div>
+            </div>
+
+            <div class="input-group" style="position: relative;">
+                <label>Buscar Producto</label>
+                <div class="camera-container">
+                    <input type="text" id="busquedaManual" placeholder="Nombre o Código..." oninput="filtrarProductos()">
+                    <button class="btn-camera" onclick="toggleCameraVenta()">📷 SCAN</button>
+                </div>
+                <div id="btnClearSearchVenta" style="position: absolute; right: 85px; top: 38px; display: none;">
+                    <button class="btn-clear-search" onclick="limpiarBusquedaVenta()">✕</button>
+                </div>
+                <div id="qr-reader-venta" style="display: none; margin-top: 10px;"></div>
+                <div id="qr-status-venta" style="font-size: 0.75rem; color: var(--purple); margin-top: 5px; text-align: center;"></div>
+                <div id="resultadosBusqueda" style="background: white; border: 1px solid #ddd; border-radius: 10px; margin-top: 5px; max-height: 200px; overflow-y: auto; display: none; position: absolute; width: 100%; z-index: 100;"></div>
+            </div>
+
+            <div class="carrito-container" id="carrito">
+                <div class="carrito-vacio">El carrito está vacío</div>
+            </div>
 
             <div class="btn-grid">
-                <button class="btn-add" id="btnGuardar" onclick="addItem()">CARGAR AL INVENTARIO</button>
-                <button class="btn-danger" id="btnCancelarEdit" onclick="limpiarForm()" style="display: none; grid-column: 1 / -1;">CANCELAR EDICIÓN</button>
+                <button class="btn-venta-contado" onclick="abrirModalPago()" style="background: var(--primary);">💰 PAGAR (CONTADO)</button>
+                <button class="btn-dar-credito" onclick="abrirModalCredito()" style="background: var(--info);">💳 DAR CRÉDITO</button>
             </div>
+            <button class="btn-limpiar-carrito" onclick="limpiarCarrito()" style="background: var(--danger); width: 100%; margin-top: 10px;">🗑️ VACIAR CARRITO</button>
 
-               <h2>🔍 Inventario</h2>
-            <div class="input-group" style="position: relative;">
-                <input type="text" id="filtroStock" class="search-input" placeholder="🔍 Buscar en Stock..." oninput="renderStockConBoton()">
-                <button onclick="limpiarBusquedaStock()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: none; font-weight: bold; font-size: 16px; line-height: 1; padding: 0; z-index: 10;" id="btnLimpiarStock" title="Limpiar búsqueda">✕</button>
-            </div>
-            <div id="lista" class="list-container"></div>
-
-            <div class="total-section">
-                <div style="font-size: 0.8rem; opacity: 0.9;">VALOR TOTAL INVENTARIO</div>
-                <div class="total-amount" id="totalDisplay">Bs. 0,00</div>
-                <div id="totalDisplayUSD" style="font-size: 0.9rem; opacity: 0.8;">$ 0,00</div>
-            </div>
-        </div>
-
-        <!-- TABS PROXIMAMENTE -->
-        <div id="venta" class="tab-content">
-            <div class="input-row">
-                <div class="input-group" style="flex: 1; position: relative;">
-                    <input type="text" id="buscarProducto" class="search-input" placeholder="Buscar por nombre..." oninput="filtrarProductos()">
-                    <button onclick="limpiarBusqueda()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: none; font-weight: bold; font-size: 16px; line-height: 1; padding: 0;" id="btnLimpiarBusqueda" title="Limpiar búsqueda">✕</button>
-                </div>
-                <button class="btn-camera" onclick="toggleCameraVentas()" style="flex: 0 1 auto; margin-bottom: 0;">ESCANEAR</button>
-            </div>
-            <div class="input-group">
-                <label>Código de Barras (Escáner)</label>
-                <input type="text" id="codigoBarrasVentas" placeholder="Escanear o escribir código..." onchange="buscarPorSKU()">
-            </div>
-            <div id="qr-reader-ventas" style="display: none;"></div>
-            <div class="qr-reader-status" id="qr-status-ventas"></div>
-            <div class="switch-container">
-                <span style="font-size: 0.9rem; font-weight: bold;">Incluir IVA en Ticket</span>
-                <label class="switch">
-                    <input type="checkbox" id="incluirIVAVentas" checked onchange="recalcularTotales()">
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div id="listaProductosVentas" style="margin-bottom: 15px; max-height: 200px; overflow-y: auto;"></div>
-            <h2>Carrito</h2>
-            <div id="carritoVentas" class="carrito-container">
-                <div class="carrito-vacio">Carrito vacío</div>
-            </div>
-            <div class="totales-section">
-                <div class="totales-row"><span>Subtotal Gravable:</span><span id="subtotalGravable">Bs. 0,00</span></div>
-                <div class="totales-row"><span>Subtotal Exento:</span><span id="subtotalExento">Bs. 0,00</span></div>
-                <div class="totales-row"><span>IVA (16%):</span><span id="ivaTotal">Bs. 0,00</span></div>
-                <div class="totales-row total-final"><span>TOTAL FINAL</span><span id="totalFinal">Bs. 0,00</span></div>
-                <div class="totales-usd" id="totalFinalUSD">$ 0,00</div>
-            </div>
-            <button class="btn-venta-contado" onclick="finalizarVentaContado()">VENTA CONTADO</button>
-            <button class="btn-dar-credito" onclick="abrirModalCredito()">DAR CREDITO</button>
-            <button class="btn-limpiar-carrito" onclick="limpiarCarrito()">LIMPIAR CARRITO</button>
-            <h2>Ventas de Hoy</h2>
+            <h2>📅 Ventas de Hoy</h2>
             <div id="historialVentas" class="historial-container"></div>
+            <div id="acumuladoHoyContainer" style="margin-top: 15px; padding: 15px; background: #e8f5e9; border-radius: 10px; text-align: right; border: 2px solid var(--primary);">
+                <div style="font-size: 0.75rem; font-weight: bold; color: var(--primary); text-transform: uppercase;">Total Acumulado Hoy</div>
+                <div id="acumuladoHoyBs" style="font-size: 1.3rem; font-weight: bold; color: #2e7d32;">Bs. 0,00</div>
+                <div id="acumuladoHoyUSD" style="font-size: 0.9rem; color: #1b5e20;">$ 0,00</div>
+            </div>
         </div>
+
         <div id="creditos" class="tab-content">
+            <h2>💳 Gestión de Créditos</h2>
             <div class="input-group">
                 <label>Buscar Cliente con Deuda</label>
-                <input type="text" id="buscarClienteCredito" class="search-input" placeholder="Nombre del cliente..." oninput="filtrarCreditos()">
+                <input type="text" id="buscarClienteCredito" placeholder="Nombre del cliente..." oninput="filtrarCreditos()">
             </div>
-            <div id="listaCreditos" class="historial-container">
-                <div style="text-align: center; padding: 20px; color: #999;">Cargando créditos...</div>
-            </div>
+            <div id="listaCreditos"></div>
         </div>
+
         <div id="reportes" class="tab-content">
-            <h2 style="display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #27ae60; padding-bottom: 10px;">
-                📊 Dashboard Control Diario
-            </h2>
+            <div class="header-info" style="background: #fff; color: var(--text); border: 1px solid #eee; margin-bottom: 15px;">
+                <h2 style="border: none; margin: 0; justify-content: center;">📊 Dashboard Control Diario</h2>
+            </div>
             
-            <!-- TARJETAS DE DASHBOARD -->
-            <div class="dashboard-card" style="border-left: 5px solid #3498db;">
-                <div class="card-label">TOTAL VENTAS BRUTAS</div>
-                <div style="display: flex; align-items: baseline; gap: 10px;">
-                    <div class="card-value" id="dashVentasBrutas" style="color: #3498db;">Bs. 0,00</div>
-                    <div id="dashVentasBrutasUSD" style="font-size: 0.9rem; color: #7f8c8d; font-weight: bold;">$ 0,00</div>
+            <div class="dashboard-card" style="border-left: 5px solid var(--info);">
+                <span class="card-label">Total Ventas Brutas</span>
+                <div id="dashVentasBrutas" class="card-value" style="color: var(--info);">Bs. 0,00</div>
+                <div id="dashVentasBrutasUSD" style="font-size: 0.9rem; color: #7f8c8d;">$ 0,00</div>
+            </div>
+
+            <div class="dashboard-card" style="border-left: 5px solid var(--primary);">
+                <span class="card-label">Total IVA Recaudado (16%)</span>
+                <div id="dashIvaRecaudado" class="card-value" style="color: var(--primary);">Bs. 0,00</div>
+            </div>
+
+            <div class="dashboard-card" style="border-left: 5px solid var(--secondary);">
+                <span class="card-label">Ganancia Estimada (Neta)</span>
+                <div id="dashGananciaNeta" class="card-value" style="color: var(--secondary);">Bs. 0,00</div>
+            </div>
+
+            <div class="accordion" style="margin-top: 20px;">
+                <div class="accordion-item" style="border: 1px solid #eee; border-radius: 10px; margin-bottom: 10px; overflow: hidden;">
+                    <div class="accordion-header" onclick="toggleAccordion('accFalla')" style="background: #fff; padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold;">
+                        <span>⚠️ PRODUCTOS EN FALLA</span>
+                        <span id="accFallaIcon">➕</span>
+                    </div>
+                    <div id="accFallaContent" style="display: none; padding: 15px; background: #fafafa; border-top: 1px solid #eee;">
+                        <div id="listaFalla">No hay productos en falla.</div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="dashboard-card" style="border-left: 5px solid #95a5a6;">
-                <div class="card-label">TOTAL IVA RECAUDADO</div>
-                <div class="card-value" id="dashIvaRecaudado" style="color: #7f8c8d; font-size: 1.3rem;">Bs. 0,00</div>
-            </div>
-            
-            <div class="dashboard-card" style="border-left: 5px solid #27ae60;">
-                <div class="card-label">GANANCIA ESTIMADA (NETA)</div>
-                <div class="card-value" id="dashGananciaNeta" style="color: #27ae60; font-size: 1.3rem;">Bs. 0,00</div>
-            </div>
-            
-            <!-- PRODUCTOS EN FALLA (PLEGABLE) -->
-            <div style="background: #fff; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; overflow: hidden;">
-                <div onclick="toggleAccordion('falla')" style="padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fdfdfd;">
-                    <h3 style="margin:0; font-size: 1rem; color: #444; display: flex; align-items: center; gap: 8px;">
-                        ⚠️ PRODUCTOS EN FALLA
-                    </h3>
-                    <span id="iconFalla">➕</span>
-                </div>
-                <div id="contentFalla" style="display: none; padding: 0 15px 15px 15px;">
-                    <div id="listaProductosFalla" style="font-size: 0.9rem; line-height: 1.6;">
-                        <p style="color: #999;">No hay productos en falla.</p>
+
+                <div class="accordion-item" style="border: 1px solid #eee; border-radius: 10px; margin-bottom: 10px; overflow: hidden;">
+                    <div class="accordion-header" onclick="toggleAccordion('accCierres')" style="background: #fff; padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold;">
+                        <span>📁 HISTORIAL DE CIERRES</span>
+                        <span id="accCierresIcon">➕</span>
+                    </div>
+                    <div id="accCierresContent" style="display: none; padding: 15px; background: #fafafa; border-top: 1px solid #eee;">
+                        <div id="historialCierres">No hay cierres registrados.</div>
                     </div>
                 </div>
             </div>
-            
-            <!-- BOTONES DE ACCIÓN -->
-            <div id="diasPendientesCierre" style="margin-bottom: 15px;"></div>
-            
-            <button class="btn-venta-contado" style="background: #f39c12; margin-bottom: 10px;" onclick="realizarCierreGlobal()">
-                🔒 CERRAR CAJA (ARCHIVAR)
-            </button>
-            
-            <button class="btn-dar-credito" style="background: #e74c3c; margin-bottom: 20px;" onclick="realizarCierreMensual()">
-                📅 CIERRE MENSUAL
-            </button>
-            
-            <!-- HISTORIAL DE CIERRES (PLEGABLE) -->
-            <div style="background: #fff; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; overflow: hidden; margin-top: 20px;">
-                <div onclick="toggleAccordion('cierres')" style="padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fdfdfd;">
-                    <h3 style="margin:0; font-size: 1rem; color: #444; display: flex; align-items: center; gap: 8px;">
-                        📂 HISTORIAL DE CIERRES
-                    </h3>
-                    <span id="iconCierres">➕</span>
-                </div>
-                <div id="contentCierres" style="display: none; padding: 0 15px 15px 15px;">
-                    <div id="historialCierresArchivados">
-                        <p style="text-align:center; color:#999; padding:10px;">No hay cierres registrados.</p>
-                    </div>
-                </div>
+
+            <div class="btn-grid" style="margin-top: 20px;">
+                <button onclick="realizarCierreGlobal()" style="background: var(--warning); padding: 15px;">🔒 CERRAR CAJA (ARCHIVAR)</button>
+                <button onclick="realizarCierreMensual()" style="background: var(--danger); padding: 15px;">📅 CIERRE MENSUAL</button>
             </div>
-            
-            <button class="btn-camera" style="background: #3498db; width: 100%;" onclick="descargarCSVVentas()">
-                📥 DESCARGAR CSV
-            </button>
+            <button onclick="descargarCSV()" style="background: var(--info); width: 100%; margin-top: 10px; padding: 15px;">📥 DESCARGAR CSV</button>
         </div>
     </div>
 
-    <!-- MODAL: INGRESAR PESO -->
-    <div id="modalPeso" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span>⚖️</span>
-                <span>Ingresar Peso</span>
-            </div>
-            <div class="modal-body">
-                <div style="font-size: 0.95rem; margin-bottom: 15px;" id="modalPesoProducto"></div>
-                <div class="modal-input-group">
-                    <label id="modalPesoLabel">Peso en Kilogramos (ej: 0.450):</label>
-                    <input type="number" id="inputPeso" placeholder="0.000" step="0.001" min="0" oninput="calcularTotalPeso()">
-                </div>
-                <div class="modal-total" id="modalPesoTotal">Total: Bs. 0,00</div>
-                <div class="modal-total-dual" id="modalPesoTotalUSD" style="text-align: center;">$ 0,00</div>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn modal-btn-primary" onclick="confirmarPeso()">ANADIR</button>
-                <button class="modal-btn modal-btn-danger" onclick="cerrarModalPeso()">CANCELAR</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: PAGO Y VUELTO (MEJORADO) -->
+    <!-- MODAL DE PAGO -->
     <div id="modalPago" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <span>💳</span>
-                <span>Confirmar Venta</span>
-            </div>
+            <div class="modal-header">💰 Confirmar Venta</div>
             <div class="modal-body">
-                <!-- Total a cobrar (cuadro verde) -->
-                <div style="background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 0.85rem; opacity: 0.9;">Total a Cobrar:</div>
-                    <div style="font-size: 1.8rem; font-weight: bold;" id="modalPagoTotal">Bs. 0,00</div>
-                    <div style="font-size: 0.9rem; opacity: 0.9;" id="modalPagoTotalUSD">$ 0,00</div>
+                <div class="modal-total">
+                    <div id="modalPagoTotal">Bs. 0,00</div>
+                    <div id="modalPagoTotalUSD" class="modal-total-dual">$ 0,00</div>
+                </div>
+                
+                <div class="modal-input-group">
+                    <label>Método de Pago</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;">
+                        <button id="btnMetodoBs" class="modal-btn" onclick="seleccionarMetodo('BS')" style="background: var(--primary); font-size: 0.7rem; padding: 8px 2px;">Bs. EFECTIVO</button>
+                        <button id="btnMetodoUSD" class="modal-btn" onclick="seleccionarMetodo('USD')" style="background: #eee; color: #333; font-size: 0.7rem; padding: 8px 2px;">DÓLARES</button>
+                        <button id="btnMetodoPunto" class="modal-btn" onclick="seleccionarMetodo('PUNTO')" style="background: #eee; color: #333; font-size: 0.7rem; padding: 8px 2px;">PUNTO / P.M.</button>
+                    </div>
                 </div>
 
-                <!-- Selector de método de pago -->
-                <div style="font-weight: bold; margin-bottom: 10px; color: #555;">¿Cómo paga el cliente?</div>
-                <div class="metodo-pago-selector">
-                    <button class="metodo-btn selected" id="btnMetodoBs" onclick="seleccionarMetodo('bs')">💵 Bs. Efectivo</button>
-                    <button class="metodo-btn" id="btnMetodoDolar" onclick="seleccionarMetodo('dolar')">💲 Dólares</button>
-                    <button class="metodo-btn" id="btnMetodoPunto" onclick="seleccionarMetodo('punto')">📱 Punto / Pago Móvil</button>
+                <div class="modal-input-group">
+                    <label id="labelMontoPago">Monto Recibido (Bs.)</label>
+                    <input type="number" id="montoPagoInput" step="0.01" oninput="calcularVuelto()">
                 </div>
 
-                <!-- Casilla única de monto -->
-                <div class="monto-pago-group">
-                    <label id="labelMontoPago">Monto recibido en Bs.:</label>
-                    <input type="number" id="montoPagoInput" placeholder="0.00" step="0.01" min="0" oninput="calcularVuelto()">
+                <div id="cuadroVuelto" style="display: none; background: #ebf5ff; border: 2px solid var(--info); padding: 15px; border-radius: 10px; text-align: center; margin-top: 15px;">
+                    <div style="font-size: 0.8rem; font-weight: bold; color: var(--info); text-transform: uppercase;">Vuelto al Cliente</div>
+                    <div id="vueltoPrincipal" style="font-size: 1.4rem; font-weight: bold; color: #0056b3;">Bs. 0,00</div>
+                    <div id="vueltoSecundario" style="font-size: 1rem; color: #007bff;">$ 0,00</div>
                 </div>
-
-                <!-- Sección de vuelto (cuadro azul) -->
-                <div class="vuelto-section" id="vueltoSection" style="display: none;">
-                    <div class="vuelto-label">VUELTO A DAR:</div>
-                    <div class="vuelto-amount" id="vueltoMonto">Bs. 0,00</div>
-                    <div class="vuelto-dual" id="vueltoDual">$ 0,00</div>
-                </div>
+                
+                <div id="errorPago" style="display: none; color: var(--danger); font-weight: bold; text-align: center; margin-top: 10px; font-size: 0.9rem;">⚠️ Monto insuficiente</div>
             </div>
             <div class="modal-buttons">
-                <button class="modal-btn modal-btn-primary" onclick="finalizarPago()">✅ CONFIRMAR VENTA</button>
-                <button class="modal-btn modal-btn-danger" onclick="cerrarModalPago()">CANCELAR</button>
+                <button onclick="cerrarModalPago()" style="background: #95a5a6;">CANCELAR</button>
+                <button id="btnConfirmarPago" onclick="finalizarPago()" style="background: var(--primary);">CONFIRMAR</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: BUSCAR/REGISTRAR CLIENTE PARA CRÉDITO -->
+    <!-- MODAL DE CRÉDITO -->
     <div id="modalCredito" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <span>👤</span>
-                <span>Asignar Crédito</span>
-            </div>
+            <div class="modal-header">💳 Asignar Crédito</div>
             <div class="modal-body">
-                <div style="background: var(--info); color: white; padding: 12px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
-                    <div style="font-size: 0.8rem; opacity: 0.9;">Total a Deber:</div>
-                    <div style="font-size: 1.3rem; font-weight: bold;" id="modalCreditoTotal">Bs. 0,00</div>
+                <div class="modal-total">
+                    <div id="modalCreditoTotal">Bs. 0,00</div>
                 </div>
-                
                 <div class="modal-input-group">
-                    <label>Nombre del Cliente:</label>
-                    <input type="text" id="nombreClienteCredito" placeholder="Escribe para buscar o registrar..." oninput="buscarClienteExistente(this.value)">
-                    <div id="sugerenciasClientes" style="background: #f1f1f1; border-radius: 0 0 10px 10px; max-height: 150px; overflow-y: auto; display: none;"></div>
+                    <label>Nombre del Cliente</label>
+                    <input type="text" id="nombreClienteCredito" placeholder="Buscar o escribir nombre..." oninput="buscarSugerenciasClientes()">
+                    <div id="sugerenciasClientes" style="display: none; background: white; border: 1px solid #ddd; border-radius: 5px; margin-top: 5px; max-height: 150px; overflow-y: auto;"></div>
                 </div>
-
                 <div id="datosNuevoCliente" style="display: none; border: 1px dashed var(--info); padding: 10px; border-radius: 10px; margin-top: 10px;">
-                    <p style="font-size: 0.75rem; color: var(--info); font-weight: bold; margin-top: 0;">✨ Cliente Nuevo</p>
-                    <div class="modal-input-group" style="margin-bottom: 10px;">
-                        <label>Cédula:</label>
-                        <input type="text" id="cedulaCliente" placeholder="V-00000000">
+                    <p style="font-size: 0.8rem; color: var(--info); margin: 0 0 10px 0;">✨ Cliente nuevo detectado</p>
+                    <div class="modal-input-group">
+                        <label>Cédula</label>
+                        <input type="text" id="cedulaCliente">
                     </div>
-                    <div class="modal-input-group" style="margin-bottom: 0;">
-                        <label>Teléfono:</label>
-                        <input type="text" id="telefonoCliente" placeholder="0412-0000000">
+                    <div class="modal-input-group">
+                        <label>Teléfono</label>
+                        <input type="text" id="telefonoCliente">
                     </div>
                 </div>
-
-                <div id="deudaActualCliente" style="display: none; background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 10px; margin-top: 10px; text-align: center;">
-                    <span style="font-size: 0.8rem; color: #856404;">Deuda acumulada actual:</span>
-                    <div style="font-weight: bold; color: #856404;" id="montoDeudaActual">Bs. 0,00</div>
+                <div id="deudaActualCliente" style="display: none; background: #fff3e0; padding: 10px; border-radius: 10px; margin-top: 10px; border: 1px solid #ffe0b2;">
+                    <p style="font-size: 0.8rem; color: #e65100; margin: 0;">⚠️ Deuda actual acumulada: <span id="montoDeudaActual" style="font-weight: bold;">Bs. 0,00</span></p>
                 </div>
             </div>
             <div class="modal-buttons">
-                <button class="modal-btn modal-btn-primary" onclick="confirmarCredito()">✅ ASIGNAR CRÉDITO</button>
-                <button class="modal-btn modal-btn-danger" onclick="cerrarModalCredito()">CANCELAR</button>
+                <button onclick="cerrarModalCredito()" style="background: #95a5a6;">CANCELAR</button>
+                <button onclick="confirmarCredito()" style="background: var(--info);">CONFIRMAR CRÉDITO</button>
             </div>
         </div>
     </div>
-
-    <!-- MODAL: ABONO A DEUDA -->
-    <div id="modalAbono" class="modal">
-        <div class="modal-content" style="max-width: 350px;">
-            <div class="modal-header">
-                <span>💰</span>
-                <span>Realizar Abono</span>
-            </div>
-            <div class="modal-body">
-                <div id="infoAbonoCliente" style="text-align: center; margin-bottom: 15px;">
-                    <div style="font-weight: bold;" id="abonoClienteNombre">Cliente</div>
-                    <div style="font-size: 0.9rem; color: var(--danger);" id="abonoDeudaTotal">Deuda: Bs. 0,00</div>
-                </div>
-                <div class="modal-input-group">
-                    <label>Monto del Abono (Bs.):</label>
-                    <input type="number" id="montoAbono" placeholder="0.00" step="0.01">
-                </div>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn modal-btn-primary" onclick="confirmarAbono()">✅ REGISTRAR ABONO</button>
-                <button class="modal-btn" style="background:#95a5a6; color:white;" onclick="cerrarModalAbono()">CANCELAR</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: ANULACIÓN DE VENTA -->
-    <div id="modalAnulacion" class="modal">
-        <div class="modal-content" style="max-width: 380px;">
-            <div class="modal-header">
-                <span>🚫</span>
-                <span>Anular Venta</span>
-            </div>
-            <div class="modal-body">
-                <div style="background: #fff3f3; border: 2px solid var(--danger); border-radius: 10px; padding: 12px; margin-bottom: 15px; text-align: center;">
-                    <div style="font-size: 0.85rem; color: #c0392b; font-weight: 600;">Venta a anular:</div>
-                    <div style="font-size: 1.1rem; font-weight: bold; color: var(--danger);" id="anulacionVentaInfo">Bs. 0,00</div>
-                    <div style="font-size: 0.8rem; color: #999;" id="anulacionVentaFecha"></div>
-                </div>
-                <div class="modal-input-group">
-                    <label>Motivo de la anulación (obligatorio):</label>
-                    <input type="text" id="motivoAnulacion" placeholder="Ej: Error en precio, devolución..." maxlength="100">
-                </div>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn modal-btn-danger" onclick="confirmarAnulacion()">🚫 ANULAR VENTA</button>
-                <button class="modal-btn" style="background:#95a5a6; color:white;" onclick="cerrarModalAnulacion()">CANCELAR</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="debug-log"></div>
-
-    <script>
+           <script>
         // ==================== CONFIGURACIÓN GLOBAL ====================
-        let items = [];
-        let clientes = []; // {id, nombre, cedula, telefono, deudaTotal}
-        let creditos = []; // {id, clienteId, fecha, items, totalBs, saldo, pagada}
-        let cierres = []; // {fecha, totalBs, totalUSD, cantVentas, ventasIds}
-        let cierresMensuales = [];
-        let tasaDolar = 36.50;
-        let ivaPercentaje = 16;
-        let db = null;
-        let scannerInventario = null;
-        let cameraInventarioActive = false;
-        let libreriasListas = false;
-        
+        var db;
+        var items = [];
+        var carrito = [];
+        var clientes = [];
+        var ventas = [];
+        var creditos = [];
+        var tasaDolar = 40;
+        var ivaPercentaje = 16;
+        var metodoPagoActual = 'BS';
+
         const configMaestra = {
-            idActual: '',
             pathCliente: '',
-            nombreNegocio: 'Inverteca Core'
+            firebaseConfig: {
+                apiKey: "TU_API_KEY",
+                authDomain: "TU_PROYECTO.firebaseapp.com",
+                databaseURL: "https://TU_PROYECTO.firebaseio.com",
+                projectId: "TU_PROYECTO",
+                storageBucket: "TU_PROYECTO.appspot.com",
+                messagingSenderId: "TU_ID",
+                appId: "TU_APP_ID"
+            }
         };
 
-        // ==================== FUNCIONES UTILITARIAS ====================
-        function log(msg) {
-            const el = document.getElementById('debug-log');
-            if (el) {
-                el.innerHTML += `<div>> ${msg}</div>`;
-                el.scrollTop = el.scrollHeight;
-            }
-            console.log(msg);
-        }
-
-        function toggleDebug() {
-            document.body.classList.toggle('debug-visible');
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            const target = document.getElementById(tabId);
-            if (target) target.classList.add('active');
-            const btn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
-            if (btn) btn.classList.add('active');
-        }
-
-        // ==================== INICIALIZACIÓN ====================
-        const firebaseConfig = {
-            apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Zdp-7lwUSFc",
-            authDomain: "inverteca-core.firebaseapp.com",
-            databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
-            projectId: "inverteca-core",
-            storageBucket: "inverteca-core.firebasestorage.app",
-            messagingSenderId: "647568711575",
-            appId: "1:647568711575:web:d09efc868294c96b0aeed2"
-        };
-
-        function verificarLibrerias() {
-            const firebaseCargado = typeof firebase !== 'undefined';
-            const scannerCargado = typeof Html5Qrcode !== 'undefined';
-
-            if(firebaseCargado && scannerCargado) {
-                libreriasListas = true;
-                log('✓ Librerías cargadas correctamente');
-                iniciarSistema();
-            } else {
-                setTimeout(verificarLibrerias, 100);
-            }
-        }
-
-        function iniciarSistema() {
-            const urlParams = new URLSearchParams(window.location.search);
-            let clienteId = urlParams.get('id') || "c001angeles";
-            configMaestra.idActual = clienteId;
-
-            // 1. INICIALIZACIÓN SECUENCIAL (PASO 2)
+        // ==================== INICIALIZACIÓN DE FIREBASE ====================
+        function iniciarSistema( ) {
             if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
+                firebase.initializeApp(configMaestra.firebaseConfig);
             }
-            
-            // DEFINICIÓN GLOBAL INMEDIATA
+
+            // Activar Persistencia ANTES de cualquier lectura
+            firebase.database().enablePersistence()
+                .then(() => {
+                    console.log("✅ Offline listo");
+                    conectarDB();
+                })
+                .catch((err) => {
+                    console.warn("⚠️ Falló persistencia, conectando modo online:", err.code);
+                    conectarDB();
+                });
+        }
+
+        function conectarDB() {
             db = firebase.database();
-            log("🔗 Conexión global establecida.");
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
 
-            // PERSISTENCIA EN SEGUNDO PLANO
-            firebase.database().enablePersistence().catch(err => {
-                console.warn("Persistencia desactivada (modo solo online):", err.code);
-            });
-
-            // 2. SINCRONIZACIÓN DE INTERFAZ (PASO 3)
             firebase.auth().onAuthStateChanged((user) => {
-                const statusDot = document.getElementById('statusDot');
-                const statusText = document.getElementById('statusText');
-                
                 if (user) {
                     configMaestra.pathCliente = `clientes/${user.uid}/`;
-                    if (statusDot) statusDot.style.backgroundColor = '#27ae60'; // Verde
-                    if (statusText) statusText.innerHTML = `<b>Conectado:</b> ${user.email || 'Anónimo'}`;
-                    
-                    const connStatus = document.getElementById('connectionStatus');
-                    if (connStatus) {
-                        connStatus.textContent = 'CONECTADO';
-                        connStatus.classList.add('online');
-                    }
-
-                    console.log("Cargando datos para path:", configMaestra.pathCliente);
-                    escucharConfig();
+                    statusDot.style.background = '#27ae60';
+                    statusText.innerHTML = `<b>En Línea:</b> Sesión Activa`;
                     escucharDatos();
                 } else {
-                    if (statusDot) statusDot.style.backgroundColor = '#e74c3c'; // Rojo
-                    if (statusText) statusText.innerText = 'Sesión no iniciada';
-                    
-                    const connStatus = document.getElementById('connectionStatus');
-                    if (connStatus) {
-                        connStatus.textContent = 'DESCONECTADO';
-                        connStatus.classList.remove('online');
-                    }
-
-                    log("🔑 Autenticando...");
-                    firebase.auth().signInAnonymously()
-                        .catch(e => log("❌ Error Auth: " + e.message));
-                }
-            });
-        }
-
-        function escucharConfig() {
-            db.ref(configMaestra.pathCliente + 'config').on('value', snap => {
-                const config = snap.val();
-                if (config) {
-                    configMaestra.nombreNegocio = config.nombre_negocio || config.nombre || "Inverteca";
-                    document.getElementById('nombreNegocioDisplay').textContent = configMaestra.nombreNegocio;
-                    document.getElementById('estadoServicio').textContent = (config.estado_servicio || "activo").toUpperCase();
-                    const statusEl = document.getElementById('connectionStatus');
-                    statusEl.textContent = 'Online (' + (config.nivel_plan || "basico").toUpperCase() + ')';
-                    statusEl.className = 'connection-status online';
+                    statusDot.style.background = '#e74c3c';
+                    statusText.innerText = 'Desconectado';
+                    firebase.auth().signInAnonymously().catch(err => console.error("Error Auth:", err));
                 }
             });
         }
 
         function escucharDatos() {
-            // Escuchar cambios en data (items, clientes, tasa)
+            if (!db || !configMaestra.pathCliente) return;
+
+            // Escuchar Tasa de Dólar
+            db.ref(configMaestra.pathCliente + 'data/tasa_dolar').on('value', snap => {
+                tasaDolar = snap.val() || 40;
+                render();
+                actualizarTablaCarrito();
+            });
+
+            // Escuchar Items y Clientes
             db.ref(configMaestra.pathCliente + 'data').on('value', snap => {
                 const data = snap.val();
                 if (data) {
-                    if (data.tasa_dolar) {
-                        tasaDolar = data.tasa_dolar;
-                        document.getElementById('tasa').value = tasaDolar;
-                    }
-                    if (data.iva_porcentaje) ivaPercentaje = data.iva_porcentaje;
-                    items = data.items || [];
-                    clientes = data.clientes || [];
-                    
-                    const creditosData = data.creditos;
-                    if (creditosData) {
-                        creditos = Array.isArray(creditosData) ? creditosData : Object.keys(creditosData).map(k => ({...creditosData[k], id: k}));
-                    } else {
-                        creditos = [];
-                    }
-
-                    const cierresData = data.cierres;
-                    if (cierresData) {
-                        cierres = Array.isArray(cierresData) ? cierresData : Object.keys(cierresData).map(k => ({...cierresData[k], id: k}));
-                    } else {
-                        cierres = [];
-                    }
-
-                    // Escuchar cierres mensuales
-                    db.ref(configMaestra.pathCliente + 'logs/cierresMensuales').on('value', snap => {
-                        const cmData = snap.val();
-                        window.cierresMensuales = [];
-                        if (cmData) {
-                            Object.keys(cmData).forEach(key => {
-                                window.cierresMensuales.push({ ...cmData[key], id: key });
-                            });
-                        }
-                        renderReportes();
-                    });
-
+                    items = data.items ? (Array.isArray(data.items) ? data.items : Object.values(data.items)) : [];
+                    clientes = data.clientes ? Object.values(data.clientes) : [];
                     render();
-                    filtrarCreditos();
-                    renderReportes();
                 }
             });
 
-            // Escuchar todas las ventas para el historial y reportes
+            // Escuchar Ventas
             db.ref(configMaestra.pathCliente + 'logs/ventas').on('value', snap => {
                 const logs = snap.val();
                 ventas = [];
@@ -1505,1283 +755,239 @@
                 renderHistorial();
                 renderReportes();
             });
+
+            // Escuchar Créditos
+            db.ref(configMaestra.pathCliente + 'creditos').on('value', snap => {
+                const creds = snap.val();
+                creditos = [];
+                if (creds) {
+                    Object.keys(creds).forEach(key => {
+                        creditos.push({ ...creds[key], id: key });
+                    });
+                }
+                renderCreditos();
+            });
         }
 
-        // ==================== GESTIÓN DE PRODUCTOS ====================
-        function addItem() {
-            const nombre = document.getElementById('nombre').value.trim();
-            const sku = document.getElementById('codigoBarras').value.trim();
-            const costo = parseFloat(document.getElementById('costo').value) || 0;
-            const monedaCosto = document.getElementById('monedaCosto').value;
-            const beneficio = parseFloat(document.getElementById('beneficio').value) || 0;
-            const cantidad = parseFloat(document.getElementById('cantidad').value) || 1;
-            const unidad = document.getElementById('unidad').value;
-            const exentoIVA = document.getElementById('exentoIVA').checked;
-            const editId = document.getElementById('editId').value;
-
-            if (!nombre) return alert("Ingresa el nombre");
-
-            let costoBs = monedaCosto === "USD" ? costo * tasaDolar : costo;
-            const precioVenta = costoBs * (1 + beneficio / 100);
-            const precioVentaUSD = precioVenta / tasaDolar;
-
-            const nuevoItem = {
-                id: editId || Date.now().toString(),
-                nombre, sku, costo: costoBs, precioVenta, precioVentaUSD,
-                beneficio, cantidad, unidad, exentoIVA, iva: exentoIVA ? 0 : ivaPercentaje
-            };
-
-            if (editId) {
-                const idx = items.findIndex(i => i.id === editId);
-                if (idx !== -1) items[idx] = nuevoItem;
-            } else {
-                items.push(nuevoItem);
-            }
-
-            db.ref(configMaestra.pathCliente + 'data/items').set(items)
-                .then(() => {
-                    log("✅ Guardado.");
-                    limpiarForm();
-                });
-        }
-
-        function editItem(id) {
+        // ==================== FUNCIONES DE VENTA ====================
+        function agregarAlCarrito(id) {
             const item = items.find(i => i.id === id);
-            if (!item) return;
-            document.getElementById('nombre').value = item.nombre;
-            document.getElementById('codigoBarras').value = item.sku || '';
-            document.getElementById('costo').value = item.costo;
-            document.getElementById('beneficio').value = item.beneficio;
-            document.getElementById('cantidad').value = item.cantidad;
-            document.getElementById('unidad').value = item.unidad;
-            document.getElementById('exentoIVA').checked = item.exentoIVA;
-            document.getElementById('editId').value = id;
-            document.getElementById('btnGuardar').textContent = '✏️ ACTUALIZAR PRODUCTO';
-            document.getElementById('btnCancelarEdit').style.display = 'block';
-            window.scrollTo(0, 0);
-        }
+            if (!item || item.cantidad <= 0) return alert("Sin stock");
 
-        function deleteItem(id) {
-            if (confirm('¿Eliminar?')) {
-                items = items.filter(i => i.id !== id);
-                db.ref(configMaestra.pathCliente + 'data/items').set(items).then(render);
-            }
-        }
-
-        function limpiarForm() {
-            document.getElementById('nombre').value = '';
-            document.getElementById('codigoBarras').value = '';
-            document.getElementById('costo').value = '';
-            document.getElementById('editId').value = '';
-            document.getElementById('btnGuardar').textContent = 'CARGAR AL INVENTARIO';
-            document.getElementById('btnCancelarEdit').style.display = 'none';
-        }
-
-        function actualizarTasa() {
-            const nt = parseFloat(document.getElementById('tasa').value) || tasaDolar;
-            db.ref(configMaestra.pathCliente + 'data/tasa_dolar').set(nt).then(() => {
-                tasaDolar = nt;
-                render();
-            });
-        }
-
-        function calcularCostoDual() {
-            const c = parseFloat(document.getElementById('costo').value) || 0;
-            const m = document.getElementById('monedaCosto').value;
-            const eq = m === "BS" ? c / tasaDolar : c;
-            document.getElementById('costoDual').textContent = 'Eqv: $ ' + eq.toFixed(2);
-        }
-
-        function render() {
-            const lista = document.getElementById('lista');
-            const filtro = document.getElementById('filtroStock').value.toLowerCase();
-            if (!lista) return;
-            lista.innerHTML = '';
-            let total = 0, totalUSD = 0;
-
-            items.filter(i => i.nombre.toLowerCase().includes(filtro) || (i.sku && i.sku.includes(filtro)))
-            .forEach(item => {
-                total += (item.precioVenta * item.cantidad);
-                totalUSD += (item.precioVentaUSD * item.cantidad);
-                const div = document.createElement('div');
-                div.className = 'item';
-                div.innerHTML = `
-                    <div class="item-header">
-                        <span class="item-name">${item.nombre}</span>
-                        <div style="display: flex; gap: 5px; align-items: center;">
-                            <span class="item-unit">${item.unidad}</span>
-                            ${item.sku ? `<span class="item-sku">${item.sku}</span>` : ''}
-                            <span class="item-quantity" style="padding: 2px 8px; font-size: 0.75rem;">Stock: ${item.cantidad}</span>
-                        </div>
-                    </div>
-                    <div class="item-prices">
-                        <div class="item-price-bs" style="font-size: 0.85rem;">Bs. ${item.precioVenta.toFixed(2)}</div>
-                        <div class="item-price-usd" style="font-size: 0.8rem;">$ ${item.precioVentaUSD.toFixed(2)}</div>
-                        <div class="item-actions" style="margin-left: auto; margin-top: 0;">
-                            <button class="btn-edit" style="padding: 2px 8px;" onclick="editItem('${item.id}')">✏️</button>
-                            <button class="btn-danger" style="padding: 2px 8px;" onclick="deleteItem('${item.id}')">🗑️</button>
-                        </div>
-                    </div>
-                `;
-                lista.appendChild(div);
-            });
-            document.getElementById('totalDisplay').textContent = "Bs. " + total.toLocaleString('es-VE', { minimumFractionDigits: 2 });
-            document.getElementById('totalDisplayUSD').textContent = "$ " + totalUSD.toLocaleString('es-VE', { minimumFractionDigits: 2 });
-        }
-
-        // ==================== LÓGICA DEL ESCÁNER (COPIADA DEL OPERATIVO) ====================
-        // REPARAR EL ESCÁNER (PASO 4)
-        let html5QrCodeInventario = null;
-
-        async function toggleCameraInventario() {
-            const readerDiv = document.getElementById('qr-reader-inventario');
-            if (readerDiv.style.display === 'none' || !cameraInventarioActive) {
-                readerDiv.style.display = 'block';
-                html5QrCodeInventario = new Html5Qrcode("qr-reader-inventario");
-                try {
-                    cameraInventarioActive = true;
-                    document.getElementById('qr-status-inventario').textContent = 'Iniciando cámara...';
-                    await html5QrCodeInventario.start(
-                        { facingMode: "environment" }, 
-                        { fps: 10, qrbox: { width: 250, height: 150 } },
-                        (decodedText) => {
-                            document.getElementById('codigoBarras').value = decodedText;
-                            closeCameraInventario();
-                        }
-                    );
-                    document.getElementById('qr-status-inventario').textContent = '✓ Cámara activa';
-                    document.querySelector('.btn-camera').textContent = '❌ CERRAR';
-                } catch (err) { 
-                    alert("Error cámara: " + err); 
-                    readerDiv.style.display = 'none'; 
-                    cameraInventarioActive = false;
-                }
-            } else { 
-                closeCameraInventario(); 
-            }
-        }
-
-        function closeCameraInventario() {
-            if(html5QrCodeInventario && cameraInventarioActive) {
-                html5QrCodeInventario.stop().then(() => {
-                    document.getElementById('qr-reader-inventario').style.display = 'none';
-                    document.getElementById('qr-status-inventario').textContent = '';
-                    cameraInventarioActive = false;
-                    document.querySelector('.btn-camera').textContent = '📷 ESCANEAR';
-                }).catch(err => {
-                    console.error("Error al cerrar cámara:", err);
-                    document.getElementById('qr-reader-inventario').style.display = 'none';
-                    cameraInventarioActive = false;
-                });
-            } else {
-                document.getElementById('qr-reader-inventario').style.display = 'none';
-                cameraInventarioActive = false;
-            }
-        }
-
-        function onScanErrorInventario(err) { /* Silencio */ }
-
-        function renderStockConBoton() {
-            const input = document.getElementById('filtroStock');
-            const btn = document.getElementById('btnLimpiarStock');
-            if (btn) btn.style.display = input.value ? 'block' : 'none';
-            render();
-        }
-
-        function limpiarBusquedaStock() {
-            document.getElementById('filtroStock').value = '';
-            document.getElementById('btnLimpiarStock').style.display = 'none';
-            render();
-            document.getElementById('filtroStock').focus();
-        }
-
-        // ==================== MÓDULO DE VENTAS ====================
-        let carrito = [];
-        let ventas = [];
-        let scannerVentas = null;
-        let cameraVentasActive = false;
-
-        function limpiarBusqueda() {
-            document.getElementById('buscarProducto').value = '';
-            document.getElementById('btnLimpiarBusqueda').style.display = 'none';
-            filtrarProductos();
-            document.getElementById('buscarProducto').focus();
-        }
-
-        function filtrarProductos() {
-            const input = document.getElementById('buscarProducto');
-            const filtro = input.value.toLowerCase();
-            const btnLimpiar = document.getElementById('btnLimpiarBusqueda');
-            
-            if (btnLimpiar) btnLimpiar.style.display = filtro ? 'block' : 'none';
-            
-            const lista = document.getElementById('listaProductosVentas');
-            lista.innerHTML = '';
-            
-            // Si el filtro está vacío, no mostrar ningún producto para mantener la interfaz limpia
-            if (!filtro) {
-                return;
-            }
-            
-            items.filter(i => i.nombre.toLowerCase().includes(filtro))
-                .forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'item';
-                    div.style.cursor = 'pointer';
-                    div.style.padding = '8px 12px';
-                    div.style.marginBottom = '5px';
-                    div.innerHTML = `
-                        <div class="item-header" style="margin-bottom: 2px;">
-                            <span class="item-name" style="font-size: 0.85rem;">${item.nombre}</span>
-                            <span class="item-quantity" style="font-size: 0.75rem; padding: 2px 8px;">Stock: ${item.cantidad}</span>
-                        </div>
-                        <div class="item-prices" style="margin: 0; padding: 0; border: none; display: flex; gap: 10px;">
-                            <div class="item-price-bs" style="font-size: 0.8rem;">Bs. ${item.precioVenta.toFixed(2)}</div>
-                            <div class="item-price-usd" style="font-size: 0.75rem; margin: 0;">$ ${item.precioVentaUSD.toFixed(2)}</div>
-                        </div>
-                    `;
-                    div.onclick = () => agregarAlCarrito(item);
-                    lista.appendChild(div);
-                });
-        }
-
-        function buscarPorSKU() {
-            const sku = document.getElementById('codigoBarrasVentas').value.trim();
-            if (!sku) return;
-            const item = items.find(i => i.sku === sku);
-            if (item) {
-                agregarAlCarrito(item);
-                document.getElementById('codigoBarrasVentas').value = '';
-            } else {
-                alert('Producto no encontrado');
-            }
-        }
-
-        function agregarAlCarrito(item) {
-            if (item.unidad === 'KG') {
-                abrirModalPeso(item);
-            } else {
-                const existente = carrito.find(c => c.id === item.id);
-                if (existente) {
-                    existente.cantidad += 1;
+            const enCarrito = carrito.find(c => c.id === id);
+            if (enCarrito) {
+                if (enCarrito.cantidadCarrito < item.cantidad) {
+                    enCarrito.cantidadCarrito++;
                 } else {
-                    carrito.push({ ...item, cantidad: 1 });
+                    alert("No hay más stock disponible");
                 }
-                recalcularTotales();
-                renderCarrito();
+            } else {
+                carrito.push({ ...item, cantidadCarrito: 1 });
             }
+            actualizarTablaCarrito();
+            limpiarBusquedaVenta();
         }
 
-        function renderCarrito() {
-            const carritoDiv = document.getElementById('carritoVentas');
+        function actualizarTablaCarrito() {
+            const container = document.getElementById('carrito');
             if (carrito.length === 0) {
-                carritoDiv.innerHTML = '<div class="carrito-vacio">Carrito vacío</div>';
+                container.innerHTML = '<div class="carrito-vacio">El carrito está vacío</div>';
+                document.getElementById('ventaTotalGrande').innerText = 'Bs. 0,00';
+                document.getElementById('ventaTotalUSDGrande').innerText = '$ 0,00';
                 return;
             }
-            carritoDiv.innerHTML = carrito.map((item, idx) => {
-                const subtotalBs = item.precioVenta * item.cantidad;
-                const subtotalUSD = subtotalBs / tasaDolar;
-                return `
+
+            let html = '';
+            let totalBs = 0;
+            carrito.forEach((item, index) => {
+                const subtotal = item.precioVenta * item.cantidadCarrito;
+                totalBs += subtotal;
+                html += `
                     <div class="carrito-item">
                         <div class="carrito-item-info">
                             <div class="carrito-item-nombre">${item.nombre}</div>
-                            <div class="carrito-item-precio">Bs. ${subtotalBs.toFixed(2)} / $ ${subtotalUSD.toFixed(2)}</div>
+                            <div class="carrito-item-precio">Bs. ${item.precioVenta.toFixed(2)} x ${item.cantidadCarrito}</div>
                         </div>
                         <div class="carrito-item-cantidad">
-                            <button class="btn-qty" onclick="modificarCantidad(${idx}, -1)">−</button>
-                            <span class="qty-display">${item.cantidad}</span>
-                            <button class="btn-qty" onclick="modificarCantidad(${idx}, 1)">+</button>
-                            <button class="btn-remove-item" onclick="removerDelCarrito(${idx})">✕</button>
+                            <button class="btn-qty" onclick="cambiarCantidad(${index}, -1)">-</button>
+                            <span class="qty-display">${item.cantidadCarrito}</span>
+                            <button class="btn-qty" onclick="cambiarCantidad(${index}, 1)">+</button>
+                            <button class="btn-remove-item" onclick="eliminarDelCarrito(${index})">✕</button>
                         </div>
                     </div>
                 `;
-            }).join('');
-        }
-
-        function modificarCantidad(idx, delta) {
-            carrito[idx].cantidad += delta;
-            if (carrito[idx].cantidad <= 0) removerDelCarrito(idx);
-            else {
-                recalcularTotales();
-                renderCarrito();
-            }
-        }
-
-        function removerDelCarrito(idx) {
-            carrito.splice(idx, 1);
-            recalcularTotales();
-            renderCarrito();
-        }
-
-        function recalcularTotales() {
-            let subtotalGravable = 0, subtotalExento = 0, ivaTotal = 0;
-            const incluirIVA = document.getElementById('incluirIVAVentas').checked;
-            
-            carrito.forEach(item => {
-                const subtotal = item.precioVenta * item.cantidad;
-                if (item.exentoIVA) {
-                    subtotalExento += subtotal;
-                } else {
-                    subtotalGravable += subtotal;
-                    if (incluirIVA) ivaTotal += subtotal * (item.iva / 100);
-                }
-            });
-            
-            const totalFinal = subtotalGravable + subtotalExento + ivaTotal;
-            const totalFinalUSD = totalFinal / tasaDolar;
-            
-            document.getElementById('subtotalGravable').textContent = 'Bs. ' + subtotalGravable.toFixed(2);
-            document.getElementById('subtotalExento').textContent = 'Bs. ' + subtotalExento.toFixed(2);
-            document.getElementById('ivaTotal').textContent = 'Bs. ' + ivaTotal.toFixed(2);
-            document.getElementById('totalFinal').textContent = 'Bs. ' + totalFinal.toFixed(2);
-            document.getElementById('totalFinalUSD').textContent = '$ ' + totalFinalUSD.toFixed(2);
-        }
-
-        function limpiarCarrito() {
-            if (confirm('¿Vaciar carrito?')) {
-                carrito = [];
-                renderCarrito();
-                recalcularTotales();
-            }
-        }
-
-        function finalizarVentaContado() {
-            if (carrito.length === 0) return alert('Carrito vacío');
-            abrirModalPago();
-        }
-
-
-
-        function renderHistorial() {
-            const historialDiv = document.getElementById('historialVentas');
-            
-            // Obtener IDs de ventas ya cerradas
-            const idsCerrados = new Set();
-            cierres.forEach(c => {
-                if (c.ventasIds) c.ventasIds.forEach(id => idsCerrados.add(id));
             });
 
-            // Filtrar solo las ventas de hoy que NO estén cerradas
-            const d = new Date();
-            const hoy = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
-            const ventasHoy = ventas.filter(v => {
-                const f = (v.fecha || "").split(',')[0].trim();
-                return f === hoy && !idsCerrados.has(v.id);
-            });
+            container.innerHTML = html;
+            document.getElementById('ventaTotalGrande').innerText = `Bs. ${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}`;
+            document.getElementById('ventaTotalUSDGrande').innerText = `$ ${(totalBs / tasaDolar).toFixed(2)}`;
+        }
 
-            if (ventasHoy.length === 0) {
-                historialDiv.innerHTML = '<p style="text-align:center; color:#999;">Sin ventas hoy</p>';
+        function cambiarCantidad(index, delta) {
+            const itemCarrito = carrito[index];
+            const itemStock = items.find(i => i.id === itemCarrito.id);
+            
+            if (delta > 0 && itemCarrito.cantidadCarrito >= itemStock.cantidad) {
+                alert("Límite de stock alcanzado");
                 return;
             }
-
-            let totalAcumuladoDia = 0;
             
-            // Mostrar en orden inverso (más reciente primero)
-            const htmlVentas = [...ventasHoy].reverse().map(v => {
-                const esAnulada = v.anulada === true;
-                if (!esAnulada) totalAcumuladoDia += v.totalBs;
-                
-                const itemsDetalle = v.items.map(i =>
-                    `${i.nombre} x${i.cantidad} = Bs. ${(i.precioVenta * i.cantidad).toFixed(2)}`
-                ).join(' | ');
-
-                const colorTipo = v.tipo === 'CREDITO' ? '#e67e22' : (esAnulada ? 'var(--danger)' : 'var(--primary)');
-                const labelTipo = v.tipo === 'CREDITO' ? `💳 CRÉDITO (${v.clienteNombre})` : (v.metodoPago || 'CONTADO');
-
-                return `
-                <div class="historial-item${esAnulada ? ' anulada' : ''}" style="${v.tipo === 'CREDITO' ? 'border-left-color: #e67e22;' : ''}">
-                    <div class="historial-item-header">
-                        <span style="font-size:0.8rem;">${v.fechaCompleta || v.fecha}</span>
-                        <span style="color:${colorTipo}; font-size:1rem;">
-                            ${esAnulada ? '<span class="badge-anulada">ANULADA</span>' : 'Bs. ' + v.totalBs.toFixed(2)}
-                        </span>
-                    </div>
-                    <div class="historial-item-detalle" style="font-weight:bold; color:${colorTipo};">
-                        ${v.items.length} artículo(s) &mdash; ${labelTipo}
-                    </div>
-                    <div class="historial-item-items">${itemsDetalle}</div>
-                    ${!esAnulada ? `<button class="btn-anular-venta" onclick="abrirModalAnulacion('${v.id}')">&#128683; ANULAR</button>` : `<div style="font-size:0.75rem; color:var(--danger); margin-top:4px;">Motivo: ${v.motivoAnulacion || ''}</div>`}
-                </div>`;
-            }).join('');
-
-            historialDiv.innerHTML = `
-                ${htmlVentas}
-                <div style="background: var(--primary); color: white; padding: 15px; border-radius: 10px; margin-top: 15px; text-align: center;">
-                    <div style="font-size: 0.9rem; opacity: 0.9;">TOTAL ACUMULADO HOY:</div>
-                    <div style="font-size: 1.5rem; font-weight: bold;">Bs. ${totalAcumuladoDia.toFixed(2)}</div>
-                    <div style="font-size: 1rem; opacity: 0.8;">$ ${(totalAcumuladoDia / tasaDolar).toFixed(2)}</div>
-                </div>
-            `;
-        }
-
-        let html5QrCodeVentas = null;
-
-        async function toggleCameraVentas() {
-            const readerDiv = document.getElementById('qr-reader-ventas');
-            if (readerDiv.style.display === 'none' || !cameraVentasActive) {
-                readerDiv.style.display = 'block';
-                html5QrCodeVentas = new Html5Qrcode("qr-reader-ventas");
-                try {
-                    cameraVentasActive = true;
-                    document.getElementById('qr-status-ventas').textContent = 'Iniciando cámara...';
-                    await html5QrCodeVentas.start(
-                        { facingMode: "environment" }, 
-                        { fps: 10, qrbox: { width: 250, height: 150 } },
-                        (decodedText) => {
-                            document.getElementById('codigoBarrasVentas').value = decodedText;
-                            if (typeof buscarPorSKU === 'function') buscarPorSKU();
-                            closeCameraVentas();
-                        }
-                    );
-                    document.getElementById('qr-status-ventas').textContent = '✓ Cámara activa';
-                } catch (err) { 
-                    alert("Error cámara: " + err); 
-                    readerDiv.style.display = 'none'; 
-                    cameraVentasActive = false;
-                }
-            } else { 
-                closeCameraVentas(); 
+            itemCarrito.cantidadCarrito += delta;
+            if (itemCarrito.cantidadCarrito <= 0) {
+                carrito.splice(index, 1);
             }
+            actualizarTablaCarrito();
         }
 
-        function closeCameraVentas() {
-            if(html5QrCodeVentas && cameraVentasActive) {
-                html5QrCodeVentas.stop().then(() => {
-                    document.getElementById('qr-reader-ventas').style.display = 'none';
-                    document.getElementById('qr-status-ventas').textContent = '';
-                    cameraVentasActive = false;
-                }).catch(err => {
-                    console.error("Error al cerrar cámara:", err);
-                    document.getElementById('qr-reader-ventas').style.display = 'none';
-                    cameraVentasActive = false;
-                });
-            } else {
-                document.getElementById('qr-reader-ventas').style.display = 'none';
-                cameraVentasActive = false;
-            }
-        }
-
-        function onScanErrorVentas(err) { /* Silencio */ }
-
-        // ==================== MODAL DE PESO ====================
-        let itemPesoActual = null;
-
-        function abrirModalPeso(item) {
-            itemPesoActual = item;
-            document.getElementById('modalPesoProducto').textContent = `${item.nombre} (Bs. ${item.precioVenta}/Kg)`;
-            document.getElementById('inputPeso').value = '';
-            document.getElementById('inputPeso').focus();
-            calcularTotalPeso();
-            document.getElementById('modalPeso').classList.add('active');
-        }
-
-        function cerrarModalPeso() {
-            document.getElementById('modalPeso').classList.remove('active');
-            itemPesoActual = null;
-        }
-
-        function calcularTotalPeso() {
-            if (!itemPesoActual) return;
-            const peso = parseFloat(document.getElementById('inputPeso').value) || 0;
-            const totalBs = peso * itemPesoActual.precioVenta;
-            const totalUSD = totalBs / tasaDolar;
-            document.getElementById('modalPesoTotal').textContent = `Total: Bs. ${totalBs.toFixed(2)}`;
-            document.getElementById('modalPesoTotalUSD').textContent = `$ ${totalUSD.toFixed(2)}`;
-        }
-
-        function confirmarPeso() {
-            if (!itemPesoActual) return;
-            const peso = parseFloat(document.getElementById('inputPeso').value) || 0;
-            if (peso <= 0) return alert('Ingresa un peso válido');
-            const itemConPeso = { ...itemPesoActual, cantidad: peso };
-            const existente = carrito.find(c => c.id === itemConPeso.id);
-            if (existente) {
-                existente.cantidad += peso;
-            } else {
-                carrito.push(itemConPeso);
-            }
-            recalcularTotales();
-            renderCarrito();
-            cerrarModalPeso();
-        }
-
-        // ==================== MODAL DE PAGO Y VUELTO (MEJORADO) ====================
-        let metodoPagoActual = 'bs'; // 'bs' | 'dolar' | 'punto'
-        let ventaAnulacionId = null;
-
-        function seleccionarMetodo(metodo) {
-            metodoPagoActual = metodo;
-            // Actualizar botones
-            document.getElementById('btnMetodoBs').classList.toggle('selected', metodo === 'bs');
-            document.getElementById('btnMetodoDolar').classList.toggle('selected', metodo === 'dolar');
-            document.getElementById('btnMetodoPunto').classList.toggle('selected', metodo === 'punto');
-
-            const totalBs = parseFloat(document.getElementById('modalPagoTotal').textContent.replace('Bs. ', '')) || 0;
-            const totalUSD = totalBs / tasaDolar;
-            const input = document.getElementById('montoPagoInput');
-            const label = document.getElementById('labelMontoPago');
-
-            if (metodo === 'bs') {
-                label.textContent = 'Monto recibido en Bs.:';
-                input.placeholder = '0.00';
-                input.value = totalBs.toFixed(2);
-                calcularVuelto();
-            } else if (metodo === 'dolar') {
-                label.textContent = 'Monto recibido en Dólares ($):';
-                input.placeholder = '0.00';
-                input.value = totalUSD.toFixed(2);
-                calcularVuelto();
-            } else if (metodo === 'punto') {
-                label.textContent = 'Monto a cobrar por Punto / Pago Móvil (Bs.):';
-                input.value = totalBs.toFixed(2);
-                document.getElementById('vueltoSection').style.display = 'none';
-            }
-            setTimeout(() => input.select(), 100);
+        function eliminarDelCarrito(index) {
+            carrito.splice(index, 1);
+            actualizarTablaCarrito();
         }
 
         function abrirModalPago() {
-            const totalBs = parseFloat(document.getElementById('totalFinal').textContent.replace('Bs. ', '')) || 0;
-            const totalUSD = totalBs / tasaDolar;
-            document.getElementById('modalPagoTotal').textContent = `Bs. ${totalBs.toFixed(2)}`;
-            document.getElementById('modalPagoTotalUSD').textContent = `$ ${totalUSD.toFixed(2)}`;
-            
-            // Iniciar siempre con Bs. y monto precargado
-            metodoPagoActual = 'bs';
-            document.getElementById('btnMetodoBs').classList.add('selected');
-            document.getElementById('btnMetodoDolar').classList.remove('selected');
-            document.getElementById('btnMetodoPunto').classList.remove('selected');
-            document.getElementById('labelMontoPago').textContent = 'Monto recibido en Bs.:';
+            if (carrito.length === 0) return alert("Carrito vacío");
+            const totalBs = carrito.reduce((acc, i) => acc + (i.precioVenta * i.cantidadCarrito), 0);
+            document.getElementById('modalPagoTotal').innerText = `Bs. ${totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}`;
+            document.getElementById('modalPagoTotalUSD').innerText = `$ ${(totalBs / tasaDolar).toFixed(2)}`;
             document.getElementById('montoPagoInput').value = totalBs.toFixed(2);
-            document.getElementById('vueltoSection').style.display = 'none';
+            seleccionarMetodo('BS');
             document.getElementById('modalPago').classList.add('active');
-            
-            setTimeout(() => {
-                document.getElementById('montoPagoInput').focus();
-                document.getElementById('montoPagoInput').select();
-            }, 200);
+            setTimeout(() => document.getElementById('montoPagoInput').select(), 300);
         }
 
-        function cerrarModalPago() {
-            document.getElementById('modalPago').classList.remove('active');
+        function seleccionarMetodo(metodo) {
+            metodoPagoActual = metodo;
+            const totalBs = carrito.reduce((acc, i) => acc + (i.precioVenta * i.cantidadCarrito), 0);
+            
+            ['Bs', 'USD', 'Punto'].forEach(m => {
+                document.getElementById('btnMetodo' + m).style.background = '#eee';
+                document.getElementById('btnMetodo' + m).style.color = '#333';
+            });
+
+            const btn = document.getElementById('btnMetodo' + (metodo === 'BS' ? 'Bs' : metodo));
+            btn.style.background = 'var(--primary)';
+            btn.style.color = 'white';
+
+            const input = document.getElementById('montoPagoInput');
+            const label = document.getElementById('labelMontoPago');
+
+            if (metodo === 'USD') {
+                label.innerText = 'Monto Recibido ($)';
+                input.value = (totalBs / tasaDolar).toFixed(2);
+            } else {
+                label.innerText = 'Monto Recibido (Bs.)';
+                input.value = totalBs.toFixed(2);
+            }
+            calcularVuelto();
         }
 
         function calcularVuelto() {
-            const totalBs = parseFloat(document.getElementById('modalPagoTotal').textContent.replace('Bs. ', '')) || 0;
-            const montoIngresado = parseFloat(document.getElementById('montoPagoInput').value) || 0;
+            const totalBs = carrito.reduce((acc, i) => acc + (i.precioVenta * i.cantidadCarrito), 0);
+            const montoRecibido = parseFloat(document.getElementById('montoPagoInput').value) || 0;
+            const cuadro = document.getElementById('cuadroVuelto');
+            const error = document.getElementById('errorPago');
+            
+            let montoRecibidoBs = metodoPagoActual === 'USD' ? montoRecibido * tasaDolar : montoRecibido;
 
-            if (metodoPagoActual === 'punto') {
-                document.getElementById('vueltoSection').style.display = 'none';
+            if (montoRecibidoBs < totalBs - 0.01) {
+                cuadro.style.display = 'none';
+                error.style.display = 'block';
                 return;
             }
 
-            let pagoEnBs = 0;
-            let totalAComparar = 0;
-            
-            if (metodoPagoActual === 'bs') {
-                pagoEnBs = montoIngresado;
-                totalAComparar = totalBs;
-            } else if (metodoPagoActual === 'dolar') {
-                pagoEnBs = montoIngresado * tasaDolar;
-                totalAComparar = totalBs;
-            }
+            error.style.display = 'none';
+            const vueltoBs = montoRecibidoBs - totalBs;
 
-            const diferenciaBs = pagoEnBs - totalBs;
-
-            if (diferenciaBs > 0.01) {
-                const vueltoUSD = diferenciaBs / tasaDolar;
-                if (metodoPagoActual === 'bs') {
-                    document.getElementById('vueltoMonto').textContent = `Bs. ${diferenciaBs.toFixed(2)}`;
-                    document.getElementById('vueltoDual').textContent = `$ ${vueltoUSD.toFixed(2)}`;
+            if (vueltoBs > 0) {
+                cuadro.style.display = 'block';
+                if (metodoPagoActual === 'USD') {
+                    document.getElementById('vueltoPrincipal').innerText = `$ ${(vueltoBs / tasaDolar).toFixed(2)}`;
+                    document.getElementById('vueltoSecundario').innerText = `Eqv: Bs. ${vueltoBs.toFixed(2)}`;
                 } else {
-                    document.getElementById('vueltoMonto').textContent = `$ ${vueltoUSD.toFixed(2)}`;
-                    document.getElementById('vueltoDual').textContent = `Bs. ${diferenciaBs.toFixed(2)}`;
+                    document.getElementById('vueltoPrincipal').innerText = `Bs. ${vueltoBs.toFixed(2)}`;
+                    document.getElementById('vueltoSecundario').innerText = `Eqv: $ ${(vueltoBs / tasaDolar).toFixed(2)}`;
                 }
-                document.getElementById('vueltoSection').style.display = 'block';
             } else {
-                document.getElementById('vueltoSection').style.display = 'none';
+                cuadro.style.display = 'none';
             }
         }
 
         function finalizarPago() {
-            const totalBs = parseFloat(document.getElementById('modalPagoTotal').textContent.replace('Bs. ', '')) || 0;
-            const montoIngresado = parseFloat(document.getElementById('montoPagoInput').value) || 0;
+            if (!db || !configMaestra.pathCliente) return alert("Sin conexión");
+            
+            const totalBs = carrito.reduce((acc, i) => acc + (i.precioVenta * i.cantidadCarrito), 0);
+            const montoRecibido = parseFloat(document.getElementById('montoPagoInput').value) || 0;
+            let montoRecibidoBs = metodoPagoActual === 'USD' ? montoRecibido * tasaDolar : montoRecibido;
 
-            let pagoEnBs = 0;
-            let tipoPago = '';
-            if (metodoPagoActual === 'bs') {
-                pagoEnBs = montoIngresado;
-                tipoPago = 'Bs. Efectivo';
-            } else if (metodoPagoActual === 'dolar') {
-                pagoEnBs = montoIngresado * tasaDolar;
-                tipoPago = 'Dólares';
-            } else if (metodoPagoActual === 'punto') {
-                pagoEnBs = totalBs; // Pago exacto
-                tipoPago = 'Punto / Pago Móvil';
-            }
-
-            if (pagoEnBs < totalBs && metodoPagoActual !== 'punto') {
-                return alert('⚠️ El monto ingresado es insuficiente.');
-            }
+            if (montoRecibidoBs < totalBs - 0.01) return alert("Monto insuficiente");
 
             const ahora = new Date();
-            const soloFecha = `${ahora.getDate()}/${ahora.getMonth() + 1}/${ahora.getFullYear()}`;
-            const soloHora = ahora.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const fecha = ahora.toLocaleDateString('es-VE');
+            const hora = ahora.toLocaleTimeString('es-VE');
 
             const venta = {
-                id: 'VENTA-' + Date.now(),
-                fecha: soloFecha,
-                hora: soloHora,
-                fechaCompleta: soloFecha + ', ' + soloHora,
-                items: JSON.parse(JSON.stringify(carrito)),
-                totalBs: totalBs,
+                items: carrito.map(i => ({ nombre: i.nombre, cant: i.cantidadCarrito, sub: i.precioVenta * i.cantidadCarrito })),
+                totalBs,
                 totalUSD: totalBs / tasaDolar,
-                metodoPago: tipoPago,
-                montoRecibido: metodoPagoActual === 'dolar' ? montoIngresado + ' USD' : montoIngresado + ' Bs.',
+                metodo: metodoPagoActual,
+                montoRecibido: montoRecibidoBs,
+                fecha,
+                hora,
                 tipo: 'CONTADO',
-                anulada: false
+                archivado: false
             };
 
-            // Guardar en Firebase (usando la misma lógica que crédito)
-            if (db) {
-                db.ref(configMaestra.pathCliente + 'logs/ventas').push(venta).then(() => {
-                    // Descontar stock localmente y en DB
-                    carrito.forEach(ci => {
-                        const idx = items.findIndex(i => i.id === ci.id);
-                        if (idx !== -1) {
-                            items[idx].cantidad = Math.max(0, items[idx].cantidad - ci.cantidad);
-                        }
-                    });
-                    db.ref(configMaestra.pathCliente + 'data/items').set(items);
-
-                    log('✅ Venta registrada: Bs. ' + totalBs.toFixed(2) + ' - ' + tipoPago);
-                    carrito = [];
-                    renderCarrito();
-                    recalcularTotales();
-                    renderHistorial(); // Forzar renderizado inmediato
-                    cerrarModalPago();
-                    alert('✅ Venta confirmada\n' + tipoPago + '\nTotal: Bs. ' + totalBs.toFixed(2));
-                }).catch(err => alert('Error al guardar venta: ' + err));
-            } else {
-                // Fallback offline
-                ventas.push(venta);
-                carrito = [];
-                renderCarrito();
-                recalcularTotales();
-                renderHistorial();
-                cerrarModalPago();
-                alert('✅ Venta registrada localmente.');
-            }
-        }
-
-        // ==================== ANULACIÓN DE VENTAS ====================
-        function abrirModalAnulacion(ventaId) {
-            const venta = ventas.find(v => v.id === ventaId);
-            if (!venta) return;
-            ventaAnulacionId = ventaId;
-            document.getElementById('anulacionVentaInfo').textContent = `Bs. ${venta.totalBs.toFixed(2)} - ${venta.metodoPago || 'Contado'}`;
-            document.getElementById('anulacionVentaFecha').textContent = venta.fecha;
-            document.getElementById('motivoAnulacion').value = '';
-            document.getElementById('modalAnulacion').classList.add('active');
-        }
-
-        function cerrarModalAnulacion() {
-            document.getElementById('modalAnulacion').classList.remove('active');
-            ventaAnulacionId = null;
-        }
-
-        function confirmarAnulacion() {
-            const motivo = document.getElementById('motivoAnulacion').value.trim();
-            if (!motivo) return alert('⚠️ Debes ingresar el motivo de la anulación.');
-            const idx = ventas.findIndex(v => v.id === ventaAnulacionId);
-            if (idx === -1) return;
-            ventas[idx].anulada = true;
-            ventas[idx].motivoAnulacion = motivo;
-            ventas[idx].fechaAnulacion = new Date().toLocaleString('es-VE');
-            if (db) {
-                db.ref(configMaestra.pathCliente + 'logs/anulaciones').push({
-                    ventaId: ventaAnulacionId,
-                    motivo: motivo,
-                    fecha: ventas[idx].fechaAnulacion,
-                    totalBs: ventas[idx].totalBs
-                });
-            }
-            log('🚫 Venta anulada: ' + ventaAnulacionId + ' - ' + motivo);
-            renderHistorial();
-            cerrarModalAnulacion();
-            alert('🚫 Venta anulada correctamente.');
-        }
-
-        // ==================== MÓDULO DE CRÉDITOS (CLIENTES Y DEUDAS) ====================
-        let clienteSeleccionadoId = null;
-
-        function abrirModalCredito() {
-            if (carrito.length === 0) return alert('⚠️ El carrito está vacío.');
-            const totalBs = parseFloat(document.getElementById('totalFinal').textContent.replace('Bs. ', '')) || 0;
-            document.getElementById('modalCreditoTotal').textContent = `Bs. ${totalBs.toFixed(2)}`;
-            
-            // Resetear campos
-            document.getElementById('nombreClienteCredito').value = '';
-            document.getElementById('cedulaCliente').value = '';
-            document.getElementById('telefonoCliente').value = '';
-            document.getElementById('datosNuevoCliente').style.display = 'none';
-            document.getElementById('deudaActualCliente').style.display = 'none';
-            document.getElementById('sugerenciasClientes').style.display = 'none';
-            clienteSeleccionadoId = null;
-
-            document.getElementById('modalCredito').classList.add('active');
-            setTimeout(() => {
-                document.getElementById('nombreClienteCredito').focus();
-            }, 200);
-        }
-
-        function cerrarModalCredito() {
-            document.getElementById('modalCredito').classList.remove('active');
-        }
-
-        function buscarClienteExistente(valor) {
-            const sugerencias = document.getElementById('sugerenciasClientes');
-            if (valor.length < 2) {
-                sugerencias.style.display = 'none';
-                return;
-            }
-
-            const filtrados = clientes.filter(c => c.nombre.toLowerCase().includes(valor.toLowerCase()));
-            
-            if (filtrados.length > 0) {
-                sugerencias.innerHTML = filtrados.map(c => `
-                    <div style="padding: 10px; border-bottom: 1px solid #ddd; cursor: pointer;" onclick="seleccionarCliente('${c.id}', '${c.nombre}')">
-                        <strong>${c.nombre}</strong><br>
-                        <small>CI: ${c.cedula || 'N/A'} | Deuda: Bs. ${(c.deudaTotal || 0).toFixed(2)}</small>
-                    </div>
-                `).join('');
-                sugerencias.style.display = 'block';
-            } else {
-                sugerencias.style.display = 'none';
-                document.getElementById('datosNuevoCliente').style.display = 'block';
-                document.getElementById('deudaActualCliente').style.display = 'none';
-                clienteSeleccionadoId = 'NUEVO';
-            }
-        }
-
-        function seleccionarCliente(id, nombre) {
-            const cliente = clientes.find(c => c.id === id);
-            if (!cliente) return;
-            
-            clienteSeleccionadoId = id;
-            document.getElementById('nombreClienteCredito').value = nombre;
-            document.getElementById('sugerenciasClientes').style.display = 'none';
-            document.getElementById('datosNuevoCliente').style.display = 'none';
-            
-            // Mostrar deuda actual
-            const deudaTotal = cliente.deudaTotal || 0;
-            document.getElementById('montoDeudaActual').textContent = `Bs. ${deudaTotal.toFixed(2)}`;
-            document.getElementById('deudaActualCliente').style.display = 'block';
-        }
-
-        function confirmarCredito() {
-            const nombre = document.getElementById('nombreClienteCredito').value.trim();
-            const totalBs = parseFloat(document.getElementById('modalCreditoTotal').textContent.replace('Bs. ', '')) || 0;
-            
-            if (!nombre) return alert('⚠️ Ingresa el nombre del cliente.');
-
-            let clienteId = clienteSeleccionadoId;
-            
-            // Si es un cliente nuevo, registrarlo
-            if (clienteId === 'NUEVO' || !clienteId) {
-                clienteId = Date.now().toString();
-                const nuevoCliente = {
-                    id: clienteId,
-                    nombre: nombre,
-                    cedula: document.getElementById('cedulaCliente').value.trim(),
-                    telefono: document.getElementById('telefonoCliente').value.trim(),
-                    deudaTotal: totalBs
-                };
-                clientes.push(nuevoCliente);
-            } else {
-                // Actualizar deuda de cliente existente
-                const idx = clientes.findIndex(c => c.id === clienteId);
-                if (idx !== -1) {
-                    clientes[idx].deudaTotal = (clientes[idx].deudaTotal || 0) + totalBs;
-                }
-            }
-
-            // Registrar el crédito
-            const ahora = new Date();
-            const soloFecha = `${ahora.getDate()}/${ahora.getMonth() + 1}/${ahora.getFullYear()}`;
-            const soloHora = ahora.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-            const nuevoCredito = {
-                id: 'CRED-' + Date.now(),
-                clienteId: clienteId,
-                clienteNombre: nombre,
-                fecha: soloFecha,
-                hora: soloHora,
-                fechaCompleta: soloFecha + ', ' + soloHora,
-                items: JSON.parse(JSON.stringify(carrito)),
-                totalBs: totalBs,
-                saldo: totalBs,
-                pagada: false,
-                tipo: 'CREDITO'
-            };
-            
-            // Guardar en Firebase
-            if (db) {
-                Promise.all([
-                    db.ref(configMaestra.pathCliente + 'data/clientes').set(clientes),
-                    db.ref(configMaestra.pathCliente + 'data/creditos').push(nuevoCredito),
-                    db.ref(configMaestra.pathCliente + 'logs/ventas').push(nuevoCredito)
-                ]).then(() => {
-                    // Descontar stock
-                    carrito.forEach(ci => {
-                        const idx = items.findIndex(i => i.id === ci.id);
-                        if (idx !== -1) {
-                            items[idx].cantidad = Math.max(0, items[idx].cantidad - ci.cantidad);
-                        }
-                    });
-                    db.ref(configMaestra.pathCliente + 'data/items').set(items);
-
-                    log('💳 Crédito asignado a ' + nombre + ': Bs. ' + totalBs.toFixed(2));
-                    carrito = [];
-                    renderCarrito();
-                    recalcularTotales();
-                    cerrarModalCredito();
-                    alert('✅ Crédito registrado correctamente.');
-                }).catch(err => alert('Error al guardar crédito: ' + err));
-            } else {
-                // Fallback offline
-                carrito = [];
-                renderCarrito();
-                recalcularTotales();
-                cerrarModalCredito();
-                alert('✅ Crédito registrado localmente.');
-            }
-        }
-
-        function filtrarCreditos() {
-            const filtro = document.getElementById('buscarClienteCredito').value.toLowerCase();
-            const lista = document.getElementById('listaCreditos');
-            
-            if (creditos.length === 0) {
-                lista.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">No hay créditos registrados.</div>';
-                return;
-            }
-
-            // Agrupar por cliente para mostrar total general
-            const deudasPorCliente = {};
-            creditos.filter(c => !c.pagada).forEach(c => {
-                if (!deudasPorCliente[c.clienteId]) {
-                    deudasPorCliente[c.clienteId] = {
-                        nombre: c.clienteNombre,
-                        totalDeuda: 0,
-                        detalles: []
-                    };
-                }
-                deudasPorCliente[c.clienteId].totalDeuda += c.saldo;
-                deudasPorCliente[c.clienteId].detalles.push(c);
+            // Descontar Stock
+            carrito.forEach(c => {
+                const item = items.find(i => i.id === c.id);
+                if (item) item.cantidad -= c.cantidadCarrito;
             });
 
-            const clientesConDeuda = Object.keys(deudasPorCliente).filter(id => 
-                deudasPorCliente[id].nombre.toLowerCase().includes(filtro)
-            );
+            // Guardar en Firebase
+            const batch = {};
+            batch[configMaestra.pathCliente + 'data/items'] = items;
+            const newVentaKey = db.ref(configMaestra.pathCliente + 'logs/ventas').push().key;
+            batch[configMaestra.pathCliente + 'logs/ventas/' + newVentaKey] = venta;
 
-            if (clientesConDeuda.length === 0) {
-                lista.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">No se encontraron clientes con deuda.</div>';
-                return;
-            }
-
-            lista.innerHTML = clientesConDeuda.map(id => {
-                const c = deudasPorCliente[id];
-                return `
-                    <div class="historial-item" style="border-left-color: var(--danger); margin-bottom: 15px; padding: 12px;">
-                        <div class="historial-item-header">
-                            <span style="font-size: 1.1rem; color: var(--text);">${c.nombre}</span>
-                            <span style="color: var(--danger); font-size: 1.2rem; font-weight: bold;">TOTAL: Bs. ${c.totalDeuda.toFixed(2)}</span>
-                        </div>
-                        <div style="margin-top: 8px;">
-                            ${c.detalles.map(d => `
-                                <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 5px; font-size: 0.8rem; border: 1px solid #eee;">
-                                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                                        <span>📅 ${d.fecha}</span>
-                                        <span style="color: var(--danger);">Bs. ${d.saldo.toFixed(2)}</span>
-                                    </div>
-                                    <div style="color: #777; font-size: 0.75rem; margin-top: 2px;">
-                                        ${d.items.map(i => `${i.nombre} (x${i.cantidad})`).join(', ')}
-                                    </div>
-                                    <div style="display: flex; gap: 10px; margin-top: 8px;">
-                                        <button onclick="abrirModalAbono('${d.id}')" style="background: var(--primary); color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.75rem; flex: 1;">💰 ABONAR / PAGAR</button>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            db.ref().update(batch).then(() => {
+                alert("✅ Venta confirmada");
+                carrito = [];
+                actualizarTablaCarrito();
+                cerrarModalPago();
+            }).catch(err => alert("Error al guardar: " + err.message));
         }
 
-        // ==================== ABONOS Y PAGOS ====================
-        let creditoAbonoId = null;
-
-        function abrirModalAbono(id) {
-            const credito = creditos.find(c => c.id === id);
-            if (!credito) return;
-            
-            creditoAbonoId = id;
-            document.getElementById('abonoClienteNombre').textContent = credito.clienteNombre;
-            document.getElementById('abonoDeudaTotal').textContent = `Saldo pendiente: Bs. ${credito.saldo.toFixed(2)}`;
-            document.getElementById('montoAbono').value = credito.saldo.toFixed(2);
-            document.getElementById('modalAbono').classList.add('active');
-            setTimeout(() => {
-                document.getElementById('montoAbono').focus();
-                document.getElementById('montoAbono').select();
-            }, 200);
+        // ==================== FUNCIONES DE INTERFAZ ====================
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            if (tabId === 'reportes') renderReportes();
         }
 
-        function cerrarModalAbono() {
-            document.getElementById('modalAbono').classList.remove('active');
-            creditoAbonoId = null;
-        }
-
-        function confirmarAbono() {
-            const monto = parseFloat(document.getElementById('montoAbono').value) || 0;
-            if (monto <= 0) return alert('⚠️ Ingresa un monto válido.');
-
-            const idx = creditos.findIndex(c => c.id === creditoAbonoId);
-            if (idx === -1) return;
-
-            const credito = creditos[idx];
-            if (monto > credito.saldo + 0.01) {
-                return alert('⚠️ El abono no puede ser mayor a la deuda (Bs. ' + credito.saldo.toFixed(2) + ').');
-            }
-
-            // Actualizar saldo del crédito
-            credito.saldo -= monto;
-            if (credito.saldo <= 0.01) {
-                credito.saldo = 0;
-                credito.pagada = true;
-            }
-
-            // Actualizar deuda total del cliente
-            const cIdx = clientes.findIndex(c => c.id === credito.clienteId);
-            if (cIdx !== -1) {
-                clientes[cIdx].deudaTotal = Math.max(0, (clientes[cIdx].deudaTotal || 0) - monto);
-            }
-
-            // Registrar log de abono
-            if (db) {
-                db.ref(configMaestra.pathCliente + 'data/clientes').set(clientes);
-                // Si el crédito tiene ID de Firebase (key), actualizar esa entrada específica
-                const creditoKey = creditos[idx].id;
-                if (creditoKey && !creditoKey.startsWith('CRED-')) {
-                    db.ref(configMaestra.pathCliente + 'data/creditos/' + creditoKey).update({
-                        saldo: credito.saldo,
-                        pagada: credito.pagada
-                    });
-                } else {
-                    // Si no tiene key, actualizar todo el nodo (fallback)
-                    db.ref(configMaestra.pathCliente + 'data/creditos').set(creditos);
-                }
-                
-                db.ref(configMaestra.pathCliente + 'logs/abonos').push({
-                    creditoId: credito.id,
-                    clienteNombre: credito.clienteNombre,
-                    monto: monto,
-                    fecha: new Date().toLocaleString('es-VE')
-                });
-            }
-
-            log('💰 Abono registrado: ' + credito.clienteNombre + ' - Bs. ' + monto.toFixed(2));
-            filtrarCreditos();
-            cerrarModalAbono();
-            alert('✅ Abono registrado correctamente.');
-        }
-
-        // ==================== REPORTES Y CIERRES ====================
         function toggleAccordion(id) {
-            const content = document.getElementById('content' + id.charAt(0).toUpperCase() + id.slice(1));
-            const icon = document.getElementById('icon' + id.charAt(0).toUpperCase() + id.slice(1));
+            const content = document.getElementById(id + 'Content');
+            const icon = document.getElementById(id + 'Icon');
             if (content.style.display === 'none') {
                 content.style.display = 'block';
-                icon.textContent = '➖';
+                icon.innerText = '➖';
             } else {
                 content.style.display = 'none';
-                icon.textContent = '➕';
+                icon.innerText = '➕';
             }
         }
 
-        function renderReportes() {
-            const container = document.getElementById('diasPendientesCierre');
-            const archivados = document.getElementById('historialCierresArchivados');
-            if (!container || !archivados) return;
+        function cerrarModalPago() { document.getElementById('modalPago').classList.remove('active'); }
+        function cerrarModalCredito() { document.getElementById('modalCredito').classList.remove('active'); }
 
-            // 1. Cálculos para el Dashboard (Ventas de HOY activas)
-            const d = new Date();
-            const hoy = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
-            
-            const idsCerrados = new Set();
-            cierres.forEach(c => {
-                if (c.ventasIds) c.ventasIds.forEach(id => idsCerrados.add(id));
-            });
+        // Iniciar el sistema al cargar
+        window.onload = iniciarSistema;
 
-            const ventasHoyActivas = ventas.filter(v => 
-                (v.fecha || "").split(',')[0].trim() === hoy && 
-                !v.anulada && 
-                !idsCerrados.has(v.id)
-            );
-
-            let totalBruto = 0;
-            let totalIVA = 0;
-            let totalCosto = 0;
-
-            ventasHoyActivas.forEach(v => {
-                totalBruto += v.totalBs;
-                // Calcular IVA si aplica (asumiendo 16% en los items que no son exentos)
-                v.items.forEach(item => {
-                    const subtotalItem = item.precioVenta * item.cantidad;
-                    if (!item.exentoIVA) {
-                        totalIVA += subtotalItem * (ivaPercentaje / 100);
-                    }
-                    // Ganancia Neta: Precio Venta - Precio Compra
-                    const itemOriginal = items.find(i => i.id === item.id);
-                    const precioCompra = itemOriginal ? (itemOriginal.precioCompra || 0) : 0;
-                    totalCosto += precioCompra * item.cantidad;
-                });
-            });
-
-            document.getElementById('dashVentasBrutas').textContent = `Bs. ${totalBruto.toFixed(2)}`;
-            document.getElementById('dashVentasBrutasUSD').textContent = `$ ${(totalBruto / tasaDolar).toFixed(2)}`;
-            document.getElementById('dashIvaRecaudado').textContent = `Bs. ${totalIVA.toFixed(2)}`;
-            const gananciaNeta = totalBruto - totalIVA - totalCosto;
-            document.getElementById('dashGananciaNeta').textContent = `Bs. ${gananciaNeta.toFixed(2)}`;
-
-            // 2. Productos en Falla
-            const productosFalla = items.filter(i => i.cantidad <= 5); // Umbral de falla
-            const listaFalla = document.getElementById('listaProductosFalla');
-            if (productosFalla.length === 0) {
-                listaFalla.innerHTML = '<p style="color: #999;">No hay productos en falla.</p>';
-            } else {
-                listaFalla.innerHTML = '<ul style="padding-left: 20px; margin: 0;">' + 
-                    productosFalla.map(i => {
-                        const status = i.cantidad <= 0 ? '<span class="badge-agotado">AGOTADO</span>' : '<span class="badge-bajo">BAJO</span>';
-                        return `<li>${i.nombre}: <strong>${i.cantidad}</strong> ${status}</li>`;
-                    }).join('') + '</ul>';
-            }
-
-            // 3. Agrupar ventas por día para Cierre
-            const ventasPorDia = {};
-            const ventasPendientes = ventas.filter(v => !idsCerrados.has(v.id) && !v.anulada);
-            
-            ventasPendientes.forEach(v => {
-                const dia = (v.fecha || "").split(',')[0].trim();
-                if (!dia) return;
-                if (!ventasPorDia[dia]) ventasPorDia[dia] = { total: 0, cant: 0, ids: [] };
-                ventasPorDia[dia].total += v.totalBs;
-                ventasPorDia[dia].cant += 1;
-                ventasPorDia[dia].ids.push(v.id);
-            });
-
-            const dias = Object.keys(ventasPorDia).sort((a,b) => b.localeCompare(a));
-            if (dias.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#999; padding:10px;">No hay ventas pendientes de cierre.</p>';
-            } else {
-                container.innerHTML = dias.map(dia => `
-                    <div style="border: 1px solid #eee; padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; background: #fff;">
-                        <div>
-                            <div style="font-weight: bold;">${dia}</div>
-                            <div style="font-size: 0.85rem; color: #666;">${ventasPorDia[dia].cant} ventas - Bs. ${ventasPorDia[dia].total.toFixed(2)}</div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            // 4. Renderizar archivados (Diarios y Mensuales)
-            if (cierres.length === 0 && (!window.cierresMensuales || window.cierresMensuales.length === 0)) {
-                archivados.innerHTML = '<p style="text-align:center; color:#999; padding:10px;">No hay cierres registrados.</p>';
-            } else {
-                let html = '';
-                
-                // Mostrar Cierres Mensuales Primero (si existen)
-                if (window.cierresMensuales && window.cierresMensuales.length > 0) {
-                    html += '<h4 style="margin: 10px 0 5px 0; font-size: 0.8rem; color: #e74c3c;">🗓️ CIERRES MENSUALES</h4>';
-                    html += [...window.cierresMensuales].reverse().map(cm => `
-                        <div style="border-left: 4px solid #e74c3c; background: #fff5f5; padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 0.9rem; border: 1px solid #fed7d7;">
-                            <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                                <span>Mes: ${cm.mes}</span>
-                                <span style="color: #e74c3c;">Bs. ${cm.totalVentas.toFixed(2)}</span>
-                            </div>
-                            <div style="font-size: 0.8rem; color: #777; display: flex; justify-content: space-between;">
-                                <span>Días cerrados: ${cm.cantCierres}</span>
-                                <span style="color: #c53030;">IVA: Bs. ${(cm.totalIVA || 0).toFixed(2)}</span>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-
-                // Mostrar Cierres Diarios
-                html += '<h4 style="margin: 10px 0 5px 0; font-size: 0.8rem; color: #27ae60;">☀️ CIERRES DIARIOS</h4>';
-                html += [...cierres].reverse().map(c => `
-                    <div style="border-left: 4px solid #27ae60; background: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 0.9rem; border: 1px solid #eee;">
-                        <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                            <span>Día: ${c.fecha}</span>
-                            <span style="color: #27ae60;">Bs. ${c.totalBs.toFixed(2)}</span>
-                        </div>
-                        <div style="font-size: 0.8rem; color: #777; display: flex; justify-content: space-between;">
-                            <span>Cerrado: ${c.fechaCierre || 'N/A'}</span>
-                            <span style="color: #7f8c8d;">IVA: Bs. ${(c.totalIVA || 0).toFixed(2)}</span>
-                        </div>
-                        <div style="font-size: 0.8rem; color: #777;">Ventas: ${c.cantVentas}</div>
-                    </div>
-                `).join('');
-                
-                archivados.innerHTML = html;
-            }
-        }
-
-        function descargarCSVVentas() {
-            if (ventas.length === 0) return alert('No hay ventas para descargar.');
-            
-            let csv = 'ID,Fecha,Tipo,Metodo Pago,Total Bs,Items\n';
-            ventas.forEach(v => {
-                const itemsStr = v.items.map(i => `${i.nombre}(${i.cantidad})`).join(' | ');
-                csv += `${v.id},${v.fechaCompleta || v.fecha},${v.tipo},${v.metodoPago},${v.totalBs},"${itemsStr}"\n`;
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", `ventas_${new Date().toLocaleDateString()}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function realizarCierreGlobal() {
-            // 1. Agrupar ventas por día que NO estén en un cierre archivado
-            const idsCerrados = new Set();
-            cierres.forEach(c => {
-                if (c.ventasIds) c.ventasIds.forEach(id => idsCerrados.add(id));
-            });
-
-            const ventasPendientes = ventas.filter(v => !idsCerrados.has(v.id) && !v.anulada);
-            
-            if (ventasPendientes.length === 0) {
-                return alert('⚠️ No hay ventas pendientes para cerrar.');
-            }
-
-            // Agrupar por día
-            const ventasPorDia = {};
-            ventasPendientes.forEach(v => {
-                const dia = (v.fecha || "").split(',')[0].trim();
-                if (!dia) return;
-                if (!ventasPorDia[dia]) ventasPorDia[dia] = [];
-                ventasPorDia[dia].push(v);
-            });
-
-            const dias = Object.keys(ventasPorDia);
-            if (!confirm(`Se procederá a cerrar ${dias.length} día(s) con un total de ${ventasPendientes.length} ventas. ¿Continuar?`)) return;
-
-            const promesas = [];
-            dias.forEach(dia => {
-                const ventasDia = ventasPorDia[dia];
-                const totalBs = ventasDia.reduce((sum, v) => sum + v.totalBs, 0);
-                
-                // Calcular IVA acumulado del día
-                let totalIVA = 0;
-                ventasDia.forEach(v => {
-                    v.items.forEach(item => {
-                        if (!item.exentoIVA) {
-                            totalIVA += (item.precioVenta * item.cantidad) * (ivaPercentaje / 100);
-                        }
-                    });
-                });
-
-                const nuevoCierre = {
-                    id: 'CIERRE-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-                    fecha: dia,
-                    fechaCierre: new Date().toLocaleString('es-VE'),
-                    totalBs: totalBs,
-                    totalIVA: totalIVA,
-                    totalUSD: totalBs / tasaDolar,
-                    cantVentas: ventasDia.length,
-                    ventasIds: ventasDia.map(v => v.id)
-                };
-
-                if (db) {
-                    promesas.push(db.ref(configMaestra.pathCliente + 'data/cierres').push(nuevoCierre));
-                } else {
-                    cierres.push(nuevoCierre);
-                }
-            });
-
-            if (db) {
-                Promise.all(promesas).then(() => {
-                    alert('✅ Cierres realizados con éxito.\nEl historial de ventas se ha limpiado.');
-                    // Forzar recarga local de cierres para que renderHistorial filtre correctamente
-                    db.ref(configMaestra.pathCliente + 'data/cierres').once('value', snap => {
-                        const cData = snap.val();
-                        if (cData) {
-                            cierres = Array.isArray(cData) ? cData : Object.keys(cData).map(k => ({...cData[k], id: k}));
-                        }
-                        renderHistorial();
-                        renderReportes();
-                    });
-                });
-            } else {
-                renderHistorial();
-                renderReportes();
-                alert('✅ Cierres realizados localmente.');
-            }
-        }
-
-        function realizarCierreMensual() {
-            if (cierres.length === 0) return alert('⚠️ No hay cierres diarios para generar el cierre mensual.');
-
-            const d = new Date();
-            const mesActual = `${d.getMonth() + 1}/${d.getFullYear()}`;
-            
-            if (!confirm(`¿Desea generar el Cierre Mensual para el periodo ${mesActual}?`)) return;
-
-            // Agrupar cierres por mes
-            let totalVentas = 0;
-            let totalIVA = 0;
-            let cantCierres = 0;
-
-            cierres.forEach(c => {
-                const f = c.fecha.split('/');
-                const mesCierre = `${f[1]}/${f[2]}`;
-                if (mesCierre === mesActual) {
-                    totalVentas += c.totalBs;
-                    totalIVA += (c.totalIVA || 0);
-                    cantCierres++;
-                }
-            });
-
-            if (cantCierres === 0) return alert('⚠️ No se encontraron cierres diarios para el mes actual.');
-
-            const resumen = `Resumen Mensual (${mesActual}):\n- Ventas Totales: Bs. ${totalVentas.toFixed(2)}\n- IVA Recaudado: Bs. ${totalIVA.toFixed(2)}\n- Días cerrados: ${cantCierres}`;
-            alert(resumen);
-            
-            // Aquí se podría guardar en un nodo 'data/cierresMensuales' si se desea persistencia
-            if (db) {
-                db.ref(configMaestra.pathCliente + 'logs/cierresMensuales').push({
-                    mes: mesActual,
-                    totalVentas: totalVentas,
-                    totalIVA: totalIVA,
-                    cantCierres: cantCierres,
-                    fechaGeneracion: new Date().toLocaleString('es-VE')
-                });
-            }
-        }
-
-        verificarLibrerias();
-
-        // Registro de Service Worker para PWA
+        // Registrar Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW registrado', reg))
-                    .catch(err => console.error('Error SW', err));
+                navigator.serviceWorker.register('./sw.js').catch(err => console.error('SW Error:', err));
             });
         }
     </script>
