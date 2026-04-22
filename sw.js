@@ -1,4 +1,4 @@
-const CACHE_NAME = 'inverteca-v-final-21-04';
+const CACHE_NAME = 'inverteca-v-actualizada-final';
 const ASSETS = [
   './',
   './index.html',

@@ -923,6 +923,10 @@
                 <span class="status-badge" id="estadoServicio">ABIERTO</span>
                 <span id="connectionStatus" class="connection-status">DESCONECTADO</span>
             </div>
+            <div id="syncIndicator" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; font-size: 0.85rem; background: rgba(0,0,0,0.2); padding: 5px 10px; border-radius: 10px;">
+                <div id="statusDot" style="width: 10px; height: 10px; border-radius: 50%; background-color: #e74c3c;"></div>
+                <span id="statusText" style="color: white;">Esperando conexión...</span>
+            </div>
             <div style="font-size: 0.8rem; margin-top: 8px; cursor: pointer;" onclick="toggleDebug()">
                 (Toca aquí para configurar o ver QR)
             </div>
@@ -1364,7 +1368,7 @@
 
         function verificarLibrerias() {
             const firebaseCargado = typeof firebase !== 'undefined';
-            const scannerCargado = typeof Html5QrcodeScanner !== 'undefined';
+            const scannerCargado = typeof Html5Qrcode !== 'undefined';
 
             if(firebaseCargado && scannerCargado) {
                 libreriasListas = true;
@@ -1379,29 +1383,50 @@
             const urlParams = new URLSearchParams(window.location.search);
             let clienteId = urlParams.get('id') || "c001angeles";
             configMaestra.idActual = clienteId;
-            configMaestra.pathCliente = 'clientes/' + clienteId + '/';
 
-            // 1. INICIALIZACIÓN SECUENCIAL
+            // 1. INICIALIZACIÓN SECUENCIAL (PASO 2)
             if (!firebase.apps.length) {
                 firebase.initializeApp(firebaseConfig);
             }
-
-            // 2. DEFINICIÓN INMEDIATA DE DB
+            
+            // DEFINICIÓN GLOBAL INMEDIATA
             db = firebase.database();
-            log("🔗 Conexión inmediata establecida.");
+            log("🔗 Conexión global establecida.");
 
-            // 3. PERSISTENCIA EN SEGUNDO PLANO
+            // PERSISTENCIA EN SEGUNDO PLANO
             firebase.database().enablePersistence().catch(err => {
-                log("⚠️ Persistencia desactivada (modo solo online): " + err.code);
+                console.warn("Persistencia desactivada (modo solo online):", err.code);
             });
 
-            // 4. VERIFICACIÓN DE SESIÓN Y CARGA
+            // 2. SINCRONIZACIÓN DE INTERFAZ (PASO 3)
             firebase.auth().onAuthStateChanged((user) => {
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+                
                 if (user) {
-                    log("👤 Usuario conectado: " + user.uid);
+                    configMaestra.pathCliente = `clientes/${user.uid}/`;
+                    if (statusDot) statusDot.style.backgroundColor = '#27ae60'; // Verde
+                    if (statusText) statusText.innerHTML = `<b>Conectado:</b> ${user.email || 'Anónimo'}`;
+                    
+                    const connStatus = document.getElementById('connectionStatus');
+                    if (connStatus) {
+                        connStatus.textContent = 'CONECTADO';
+                        connStatus.classList.add('online');
+                    }
+
+                    console.log("Cargando datos para path:", configMaestra.pathCliente);
                     escucharConfig();
                     escucharDatos();
                 } else {
+                    if (statusDot) statusDot.style.backgroundColor = '#e74c3c'; // Rojo
+                    if (statusText) statusText.innerText = 'Sesión no iniciada';
+                    
+                    const connStatus = document.getElementById('connectionStatus');
+                    if (connStatus) {
+                        connStatus.textContent = 'DESCONECTADO';
+                        connStatus.classList.remove('online');
+                    }
+
                     log("🔑 Autenticando...");
                     firebase.auth().signInAnonymously()
                         .catch(e => log("❌ Error Auth: " + e.message));
@@ -1605,61 +1630,53 @@
         }
 
         // ==================== LÓGICA DEL ESCÁNER (COPIADA DEL OPERATIVO) ====================
-        function toggleCameraInventario() {
-            if(!libreriasListas) return alert('Cargando librerías...');
-            if(cameraInventarioActive) closeCameraInventario();
-            else openCameraInventario();
-        }
+        // REPARAR EL ESCÁNER (PASO 4)
+        let html5QrCodeInventario = null;
 
-        function openCameraInventario() {
+        async function toggleCameraInventario() {
             const readerDiv = document.getElementById('qr-reader-inventario');
-            const statusDiv = document.getElementById('qr-status-inventario');
-            readerDiv.style.display = 'block';
-            readerDiv.innerHTML = '';
-            statusDiv.textContent = 'Inicializando cámara...';
-            
-            if(scannerInventario) {
-                try { scannerInventario.clear(); } catch(e) {}
-                scannerInventario = null;
-            }
-            
-            try {
-                scannerInventario = new Html5QrcodeScanner(
-                    "qr-reader-inventario",
-                    { 
-                        fps: 10, 
-                        qrbox: { width: 250, height: 250 }, 
-                        rememberLastUsedCamera: true, 
-                        showTorchButtonIfSupported: true,
-                        aspectRatio: 1.0,
-                        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE, Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39, Html5QrcodeSupportedFormats.EAN_13]
-                    },
-                    false
-                );
-                scannerInventario.render(onScanSuccessInventario, onScanErrorInventario);
-                cameraInventarioActive = true;
-                statusDiv.textContent = '✓ Cámara activa';
-                document.querySelector('.btn-camera').textContent = '❌ CERRAR';
-            } catch(err) {
-                statusDiv.textContent = 'Error: ' + err.message;
+            if (readerDiv.style.display === 'none' || !cameraInventarioActive) {
+                readerDiv.style.display = 'block';
+                html5QrCodeInventario = new Html5Qrcode("qr-reader-inventario");
+                try {
+                    cameraInventarioActive = true;
+                    document.getElementById('qr-status-inventario').textContent = 'Iniciando cámara...';
+                    await html5QrCodeInventario.start(
+                        { facingMode: "environment" }, 
+                        { fps: 10, qrbox: { width: 250, height: 150 } },
+                        (decodedText) => {
+                            document.getElementById('codigoBarras').value = decodedText;
+                            closeCameraInventario();
+                        }
+                    );
+                    document.getElementById('qr-status-inventario').textContent = '✓ Cámara activa';
+                    document.querySelector('.btn-camera').textContent = '❌ CERRAR';
+                } catch (err) { 
+                    alert("Error cámara: " + err); 
+                    readerDiv.style.display = 'none'; 
+                    cameraInventarioActive = false;
+                }
+            } else { 
+                closeCameraInventario(); 
             }
         }
 
         function closeCameraInventario() {
-            if(scannerInventario) {
-                scannerInventario.clear().then(() => {
+            if(html5QrCodeInventario && cameraInventarioActive) {
+                html5QrCodeInventario.stop().then(() => {
                     document.getElementById('qr-reader-inventario').style.display = 'none';
                     document.getElementById('qr-status-inventario').textContent = '';
+                    cameraInventarioActive = false;
                     document.querySelector('.btn-camera').textContent = '📷 ESCANEAR';
+                }).catch(err => {
+                    console.error("Error al cerrar cámara:", err);
+                    document.getElementById('qr-reader-inventario').style.display = 'none';
                     cameraInventarioActive = false;
                 });
+            } else {
+                document.getElementById('qr-reader-inventario').style.display = 'none';
+                cameraInventarioActive = false;
             }
-        }
-
-        function onScanSuccessInventario(decodedText) {
-            document.getElementById('codigoBarras').value = decodedText;
-            log("✅ SKU: " + decodedText);
-            closeCameraInventario();
         }
 
         function onScanErrorInventario(err) { /* Silencio */ }
@@ -1897,52 +1914,51 @@
             `;
         }
 
-        function toggleCameraVentas() {
-            if(!libreriasListas) return alert('Cargando librerías...');
-            if(cameraVentasActive) closeCameraVentas();
-            else openCameraVentas();
-        }
+        let html5QrCodeVentas = null;
 
-        function openCameraVentas() {
+        async function toggleCameraVentas() {
             const readerDiv = document.getElementById('qr-reader-ventas');
-            const statusDiv = document.getElementById('qr-status-ventas');
-            readerDiv.style.display = 'block';
-            readerDiv.innerHTML = '';
-            statusDiv.textContent = 'Inicializando cámara...';
-            
-            if(scannerVentas) {
-                try { scannerVentas.clear(); } catch(e) {}
-                scannerVentas = null;
-            }
-            
-            try {
-                scannerVentas = new Html5QrcodeScanner(
-                    "qr-reader-ventas",
-                    { fps: 10, qrbox: { width: 250, height: 250 }, rememberLastUsedCamera: true, showTorchButtonIfSupported: true, aspectRatio: 1.0, formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE, Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39, Html5QrcodeSupportedFormats.EAN_13] },
-                    false
-                );
-                scannerVentas.render(onScanSuccessVentas, onScanErrorVentas);
-                cameraVentasActive = true;
-                statusDiv.textContent = '✓ Cámara activa';
-            } catch(err) {
-                statusDiv.textContent = 'Error: ' + err.message;
+            if (readerDiv.style.display === 'none' || !cameraVentasActive) {
+                readerDiv.style.display = 'block';
+                html5QrCodeVentas = new Html5Qrcode("qr-reader-ventas");
+                try {
+                    cameraVentasActive = true;
+                    document.getElementById('qr-status-ventas').textContent = 'Iniciando cámara...';
+                    await html5QrCodeVentas.start(
+                        { facingMode: "environment" }, 
+                        { fps: 10, qrbox: { width: 250, height: 150 } },
+                        (decodedText) => {
+                            document.getElementById('codigoBarrasVentas').value = decodedText;
+                            if (typeof buscarPorSKU === 'function') buscarPorSKU();
+                            closeCameraVentas();
+                        }
+                    );
+                    document.getElementById('qr-status-ventas').textContent = '✓ Cámara activa';
+                } catch (err) { 
+                    alert("Error cámara: " + err); 
+                    readerDiv.style.display = 'none'; 
+                    cameraVentasActive = false;
+                }
+            } else { 
+                closeCameraVentas(); 
             }
         }
 
         function closeCameraVentas() {
-            if(scannerVentas) {
-                scannerVentas.clear().then(() => {
+            if(html5QrCodeVentas && cameraVentasActive) {
+                html5QrCodeVentas.stop().then(() => {
                     document.getElementById('qr-reader-ventas').style.display = 'none';
                     document.getElementById('qr-status-ventas').textContent = '';
                     cameraVentasActive = false;
+                }).catch(err => {
+                    console.error("Error al cerrar cámara:", err);
+                    document.getElementById('qr-reader-ventas').style.display = 'none';
+                    cameraVentasActive = false;
                 });
+            } else {
+                document.getElementById('qr-reader-ventas').style.display = 'none';
+                cameraVentasActive = false;
             }
-        }
-
-        function onScanSuccessVentas(decodedText) {
-            document.getElementById('codigoBarrasVentas').value = decodedText;
-            buscarPorSKU();
-            closeCameraVentas();
         }
 
         function onScanErrorVentas(err) { /* Silencio */ }
