@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Inverteca Core - Módulo Stock</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#27ae60">
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-app.js"></script>
@@ -1352,16 +1350,6 @@
         }
 
         // ==================== INICIALIZACIÓN ====================
-        const firebaseConfig = {
-            apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Zdp-7lwUSFc",
-            authDomain: "inverteca-core.firebaseapp.com",
-            databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
-            projectId: "inverteca-core",
-            storageBucket: "inverteca-core.firebasestorage.app",
-            messagingSenderId: "647568711575",
-            appId: "1:647568711575:web:d09efc868294c96b0aeed2"
-        };
-
         function verificarLibrerias() {
             const firebaseCargado = typeof firebase !== 'undefined';
             const scannerCargado = typeof Html5QrcodeScanner !== 'undefined';
@@ -1369,44 +1357,44 @@
             if(firebaseCargado && scannerCargado) {
                 libreriasListas = true;
                 log('✓ Librerías cargadas correctamente');
-                iniciarSistema();
+                init();
             } else {
                 setTimeout(verificarLibrerias, 100);
             }
         }
 
-        function iniciarSistema() {
+        function init() {
             const urlParams = new URLSearchParams(window.location.search);
             let clienteId = urlParams.get('id') || "c001angeles";
+            
             configMaestra.idActual = clienteId;
             configMaestra.pathCliente = 'clientes/' + clienteId + '/';
+            
+            inicializarFirebase();
+        }
 
-            // 1. INICIALIZACIÓN SECUENCIAL
-            if (!firebase.apps.length) {
+        function inicializarFirebase() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Zdp-7lwUSFc",
+                authDomain: "inverteca-core.firebaseapp.com",
+                databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
+                projectId: "inverteca-core",
+                storageBucket: "inverteca-core.firebasestorage.app",
+                messagingSenderId: "647568711575",
+                appId: "1:647568711575:web:d09efc868294c96b0aeed2"
+            };
+
+            try {
                 firebase.initializeApp(firebaseConfig);
-            }
-
-            // 2. DEFINICIÓN INMEDIATA DE DB
-            db = firebase.database();
-            log("🔗 Conexión inmediata establecida.");
-
-            // 3. PERSISTENCIA EN SEGUNDO PLANO
-            firebase.database().enablePersistence().catch(err => {
-                log("⚠️ Persistencia desactivada (modo solo online): " + err.code);
-            });
-
-            // 4. VERIFICACIÓN DE SESIÓN Y CARGA
-            firebase.auth().onAuthStateChanged((user) => {
-                if (user) {
-                    log("👤 Usuario conectado: " + user.uid);
+                firebase.auth().signInAnonymously().then(() => {
+                    log("🔐 Conexión Firebase OK.");
+                    db = firebase.database();
                     escucharConfig();
                     escucharDatos();
-                } else {
-                    log("🔑 Autenticando...");
-                    firebase.auth().signInAnonymously()
-                        .catch(e => log("❌ Error Auth: " + e.message));
-                }
-            });
+                }).catch(e => log("❌ Error Auth: " + e.message));
+            } catch (e) {
+                log("❌ Error Init: " + e.message);
+            }
         }
 
         function escucharConfig() {
@@ -2759,15 +2747,6 @@
         }
 
         verificarLibrerias();
-
-        // Registro de Service Worker para PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW registrado', reg))
-                    .catch(err => console.error('Error SW', err));
-            });
-        }
     </script>
 </body>
 </html>
