@@ -259,7 +259,78 @@
         }  font-weight: bold;
         }
         
-        /* Estilos para html5-qrcode del operativo */
+            /* Estilos para html5-qrcode del operativo */
+            .accordion-container {
+                margin-top: 20px;
+            }
+
+            .accordion-item {
+                background: var(--card);
+                border-radius: 10px;
+                margin-bottom: 10px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+                overflow: hidden;
+            }
+
+            .accordion-header {
+                background: var(--light-gray);
+                color: var(--text);
+                padding: 15px;
+                border: none;
+                width: 100%;
+                text-align: left;
+                font-weight: bold;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-size: 1rem;
+                transition: background 0.3s;
+            }
+
+            .accordion-header:hover {
+                background: var(--border-gray);
+            }
+
+            .accordion-header i {
+                margin-right: 10px;
+            }
+
+            .accordion-content {
+                padding: 15px;
+                border-top: 1px solid var(--light-gray);
+                display: none;
+            }
+
+            .accordion-content.active {
+                display: block;
+            }
+
+            .search-bar {
+                position: relative;
+                margin-bottom: 15px;
+            }
+
+            .search-bar input {
+                padding-right: 40px; /* Espacio para el botón de limpiar */
+            }
+
+            .search-bar .clear-search {
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: none;
+                border: none;
+                color: #999;
+                cursor: pointer;
+                font-size: 1rem;
+                display: none; /* Ocultar por defecto */
+            }
+
+            .search-bar input:valid + .clear-search {
+                display: block; /* Mostrar solo cuando hay texto */
+            }
         .html5-qrcode-element { width: 100% !important; background: transparent !important; }
         .html5-qrcode { width: 100% !important; background: transparent !important; }
         .html5-qrcode video { width: 100% !important; height: auto !important; border-radius: 10px; }
@@ -931,8 +1002,8 @@
             <button class="tab-btn active" onclick="switchTab('stock')">📦 Stock</button>
             <button class="tab-btn" onclick="switchTab('venta')">🛒 Venta</button>
             <button class="tab-btn" onclick="switchTab('creditos')">💳 Créditos</button>
-            <button class="tab-btn" onclick="switchTab('reportes')">🏢 Reportes</button>
-        </div>
+            <button class="tab-btn" onclick="changeTab('reports-tab')">Reportes</button>
+            <button class="tab-btn" onclick="changeTab('proveedores-tab')">Proveedores</button>        </div>
 
         <!-- TAB: STOCK -->
         <div id="stock" class="tab-content active">
@@ -1075,8 +1146,147 @@
                 <div style="text-align: center; padding: 20px; color: #999;">Cargando créditos...</div>
             </div>
         </div>
-        <div id="reportes" class="tab-content">
-            <h2 style="display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #27ae60; padding-bottom: 10px;">
+       <div id="reports-tab" class="tab-content">
+            <!-- Contenido del módulo de Reportes -->
+            <!-- ... (contenido existente de reportes) ... -->
+        </div>
+
+        <!-- TAB: PROVEEDORES -->
+        <div id="proveedores-tab" class="tab-content">
+            <h2><i class="fas fa-truck"></i> Gestión de Proveedores</h2>
+
+            <!-- Sección de Registro/Edición de Proveedores -->
+            <div class="card">
+                <h3>Datos del Proveedor</h3>
+                <div class="input-group">
+                    <label for="proveedor-nombre">Nombre de la Empresa</label>
+                    <input type="text" id="proveedor-nombre" placeholder="Ej: Suministros S.A.">
+                </div>
+                <div class="input-row">
+                    <div>
+                        <label for="proveedor-rif">RIF</label>
+                        <input type="text" id="proveedor-rif" placeholder="Ej: J-12345678-9">
+                    </div>
+                    <div>
+                        <label for="proveedor-telefono">Teléfono</label>
+                        <input type="tel" id="proveedor-telefono" placeholder="Ej: +584123456789">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="proveedor-direccion">Dirección</label>
+                    <input type="text" id="proveedor-direccion" placeholder="Ej: Av. Principal, Edif. Centro, Piso 5">
+                </div>
+                <div class="input-group">
+                    <label for="proveedor-correo">Correo Electrónico</label>
+                    <input type="email" id="proveedor-correo" placeholder="Ej: contacto@suministros.com">
+                </div>
+                <div class="btn-grid">
+                    <button class="btn-add" id="btn-guardar-proveedor"><i class="fas fa-save"></i> Guardar Proveedor</button>
+                    <button class="btn-danger" id="btn-cancelar-proveedor"><i class="fas fa-times"></i> Cancelar</button>
+                </div>
+            </div>
+
+            <!-- Sección de Facturas de Compra -->
+            <div class="card">
+                <h3>Factura de Compra</h3>
+                <div class="input-row">
+                    <div>
+                        <label for="factura-numero">Número de Factura</label>
+                        <input type="text" id="factura-numero" placeholder="Ej: 001-0000123">
+                    </div>
+                    <div>
+                        <label for="factura-fecha">Fecha de Factura</label>
+                        <input type="date" id="factura-fecha">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="factura-vencimiento">Fecha de Vencimiento</label>
+                    <input type="date" id="factura-vencimiento">
+                </div>
+
+                <!-- Carga de Ítems de Producto -->
+                <h4>Cargar Productos</h4>
+                <div class="input-row">
+                    <div>
+                        <label for="factura-producto-codigo">Código de Producto</label>
+                        <input type="text" id="factura-producto-codigo" placeholder="Escanear o Ingresar">
+                    </div>
+                    <button class="btn-camera" id="btn-scan-factura-producto"><i class="fas fa-barcode"></i> Escanear</button>
+                </div>
+                <div id="qr-reader-factura-producto" class="qr-reader"></div>
+                <div class="input-row">
+                    <div>
+                        <label for="factura-producto-nombre">Producto</label>
+                        <input type="text" id="factura-producto-nombre" readonly>
+                    </div>
+                    <div>
+                        <label for="factura-producto-cantidad">Cantidad</label>
+                        <input type="number" id="factura-producto-cantidad" value="1" min="1">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div>
+                        <label for="factura-producto-costo-unitario">Costo Unitario</label>
+                        <input type="number" id="factura-producto-costo-unitario" step="0.01" min="0">
+                    </div>
+                    <div>
+                        <label for="factura-producto-costo-total">Costo Total Ítem</label>
+                        <input type="number" id="factura-producto-costo-total" step="0.01" min="0" readonly>
+                    </div>
+                </div>
+                <button class="btn-add" id="btn-agregar-producto-factura"><i class="fas fa-plus"></i> Agregar Producto a Factura</button>
+
+                <div class="list-container">
+                    <h4>Ítems de Factura</h4>
+                    <ul id="factura-items-list" class="item-list"></ul>
+                </div>
+
+                <div class="input-group">
+                    <label for="factura-total-general">Total General Factura</label>
+                    <input type="number" id="factura-total-general" step="0.01" min="0" readonly>
+                </div>
+                <button class="btn-add" id="btn-guardar-factura"><i class="fas fa-file-invoice"></i> Guardar Factura</button>
+            </div>
+
+            <!-- Vistas de Persiana (Acordeón) -->
+            <div class="accordion-container">
+                <!-- Facturas Pendientes -->
+                <div class="accordion-item">
+                    <button class="accordion-header"><i class="fas fa-exclamation-triangle"></i> Facturas Pendientes</button>
+                    <div class="accordion-content">
+                        <div class="search-bar">
+                            <input type="text" id="search-facturas-pendientes" class="search-input" placeholder="Buscar factura o proveedor...">
+                            <button class="clear-search" data-target="search-facturas-pendientes"><i class="fas fa-times"></i></button>
+                        </div>
+                        <ul id="facturas-pendientes-list" class="item-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Todos los Proveedores -->
+                <div class="accordion-item">
+                    <button class="accordion-header"><i class="fas fa-users"></i> Todos los Proveedores</button>
+                    <div class="accordion-content">
+                        <div class="search-bar">
+                            <input type="text" id="search-proveedores" class="search-input" placeholder="Buscar proveedor...">
+                            <button class="clear-search" data-target="search-proveedores"><i class="fas fa-times"></i></button>
+                        </div>
+                        <ul id="proveedores-list" class="item-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Historial de Facturas Pagadas -->
+                <div class="accordion-item">
+                    <button class="accordion-header"><i class="fas fa-history"></i> Historial de Facturas Pagadas</button>
+                    <div class="accordion-content">
+                        <div class="search-bar">
+                            <input type="text" id="search-facturas-pagadas" class="search-input" placeholder="Buscar factura o proveedor...">
+                            <button class="clear-search" data-target="search-facturas-pagadas"><i class="fas fa-times"></i></button>
+                        </div>
+                        <ul id="facturas-pagadas-list" class="item-list"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>           <h2 style="display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #27ae60; padding-bottom: 10px;">
                 📊 Dashboard Control Diario
             </h2>
             
@@ -1313,6 +1523,8 @@
         let creditos = []; // {id, clienteId, fecha, items, totalBs, saldo, pagada}
         let cierres = []; // {fecha, totalBs, totalUSD, cantVentas, ventasIds}
         let cierresMensuales = [];
+        let proveedores = []; // {id, nombre, rif, telefono, direccion, correo}
+        let facturasCompra = []; // {id, proveedorId, numero, fecha, vencimiento, items, totalBs, pagada}
         let tasaDolar = 36.50;
         let ivaPercentaje = 16;
         let db = null;
@@ -1346,7 +1558,390 @@
             const target = document.getElementById(tabId);
             if (target) target.classList.add('active');
             const btn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
-            if (btn) btn.classList.add('active');
+            if (btn) btn.classList.add("active");
+
+            // Lógica específica para el tab de proveedores
+            if (tabId === 'proveedores-tab') {
+                cargarProveedores();
+                cargarFacturasCompra();
+            }
+        }
+
+        // ==================== FUNCIONES MÓDULO PROVEEDORES ====================
+        let facturaItems = []; // Items temporales para la factura de compra actual
+        let scannerFacturaProducto = null;
+        let cameraFacturaProductoActive = false;
+
+        function generarIdUnico() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        async function guardarProveedor() {
+            const id = document.getElementById('proveedor-id') ? document.getElementById('proveedor-id').value : generarIdUnico();
+            const nombre = document.getElementById('proveedor-nombre').value;
+            const rif = document.getElementById('proveedor-rif').value;
+            const telefono = document.getElementById('proveedor-telefono').value;
+            const direccion = document.getElementById('proveedor-direccion').value;
+            const correo = document.getElementById('proveedor-correo').value;
+
+            if (!nombre || !rif) {
+                alert('El nombre y el RIF del proveedor son obligatorios.');
+                return;
+            }
+
+            const nuevoProveedor = {
+                id,
+                nombre,
+                rif,
+                telefono,
+                direccion,
+                correo
+            };
+
+            try {
+                await db.ref(configMaestra.pathCliente + 'proveedores/' + id).set(nuevoProveedor);
+                log('Proveedor guardado: ' + nombre);
+                limpiarFormularioProveedor();
+                cargarProveedores(); // Recargar la lista de proveedores
+            } catch (error) {
+                log('Error al guardar proveedor: ' + error.message);
+            }
+        }
+
+        function limpiarFormularioProveedor() {
+            document.getElementById('proveedor-nombre').value = '';
+            document.getElementById('proveedor-rif').value = '';
+            document.getElementById('proveedor-telefono').value = '';
+            document.getElementById('proveedor-direccion').value = '';
+            document.getElementById('proveedor-correo').value = '';
+            if (document.getElementById('proveedor-id')) {
+                document.getElementById('proveedor-id').remove();
+            }
+        }
+
+        function cargarProveedores() {
+            // Los proveedores se cargan automáticamente con el listener de Firebase
+            renderProveedoresList();
+        }
+
+        function renderProveedoresList(proveedoresFiltrados = proveedores) {
+            const listElement = document.getElementById('proveedores-list');
+            listElement.innerHTML = '';
+            if (proveedoresFiltrados.length === 0) {
+                listElement.innerHTML = '<li class="empty-list">No hay proveedores registrados.</li>';
+                return;
+            }
+            proveedoresFiltrados.forEach(p => {
+                const li = document.createElement('li');
+                li.className = 'item';
+                li.dataset.id = p.id;
+                li.innerHTML = `
+                    <div class="item-header">
+                        <span><strong>${p.nombre}</strong></span>
+                        <div class="item-actions">
+                            <button class="btn-edit btn-small" onclick="editarProveedor('${p.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-danger btn-small" onclick="eliminarProveedor('${p.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="item-details">
+                        <span>RIF: ${p.rif}</span>
+                        <span>Teléfono: ${p.telefono || 'N/A'}</span>
+                    </div>
+                `;
+                listElement.appendChild(li);
+            });
+        }
+
+        function editarProveedor(id) {
+            const proveedor = proveedores.find(p => p.id === id);
+            if (proveedor) {
+                document.getElementById('proveedor-nombre').value = proveedor.nombre;
+                document.getElementById('proveedor-rif').value = proveedor.rif;
+                document.getElementById('proveedor-telefono').value = proveedor.telefono;
+                document.getElementById('proveedor-direccion').value = proveedor.direccion;
+                document.getElementById('proveedor-correo').value = proveedor.correo;
+                // Añadir un campo oculto para el ID si estamos editando
+                let idInput = document.getElementById('proveedor-id');
+                if (!idInput) {
+                    idInput = document.createElement('input');
+                    idInput.type = 'hidden';
+                    idInput.id = 'proveedor-id';
+                    document.getElementById('btn-guardar-proveedor').parentNode.prepend(idInput);
+                }
+                idInput.value = proveedor.id;
+            }
+        }
+
+        async function eliminarProveedor(id) {
+            if (confirm('¿Estás seguro de eliminar este proveedor?')) {
+                try {
+                    await db.ref(configMaestra.pathCliente + 'proveedores/' + id).remove();
+                    log('Proveedor eliminado: ' + id);
+                } catch (error) {
+                    log('Error al eliminar proveedor: ' + error.message);
+                }
+            }
+        }
+
+        function calcularCostoTotalItemFactura() {
+            const cantidad = parseFloat(document.getElementById('factura-producto-cantidad').value) || 0;
+            const costoUnitario = parseFloat(document.getElementById('factura-producto-costo-unitario').value) || 0;
+            document.getElementById('factura-producto-costo-total').value = (cantidad * costoUnitario).toFixed(2);
+        }
+
+        function agregarProductoAFactura() {
+            const codigo = document.getElementById('factura-producto-codigo').value;
+            const nombre = document.getElementById('factura-producto-nombre').value;
+            const cantidad = parseFloat(document.getElementById('factura-producto-cantidad').value);
+            const costoUnitario = parseFloat(document.getElementById('factura-producto-costo-unitario').value);
+            const costoTotalItem = parseFloat(document.getElementById('factura-producto-costo-total').value);
+
+            if (!codigo || !nombre || cantidad <= 0 || costoUnitario <= 0) {
+                alert('Por favor, completa todos los campos del producto y asegúrate de que la cantidad y el costo sean válidos.');
+                return;
+            }
+
+            const productoExistenteIndex = facturaItems.findIndex(item => item.codigo === codigo);
+            if (productoExistenteIndex > -1) {
+                facturaItems[productoExistenteIndex].cantidad += cantidad;
+                facturaItems[productoExistenteIndex].costoTotalItem += costoTotalItem;
+            } else {
+                facturaItems.push({
+                    id: generarIdUnico(),
+                    codigo,
+                    nombre,
+                    cantidad,
+                    costoUnitario,
+                    costoTotalItem
+                });
+            }
+
+            renderFacturaItems();
+            calcularTotalGeneralFactura();
+            // Limpiar campos del producto
+            document.getElementById('factura-producto-codigo').value = '';
+            document.getElementById('factura-producto-nombre').value = '';
+            document.getElementById('factura-producto-cantidad').value = '1';
+            document.getElementById('factura-producto-costo-unitario').value = '';
+            document.getElementById('factura-producto-costo-total').value = '';
+        }
+
+        function renderFacturaItems() {
+            const listElement = document.getElementById('factura-items-list');
+            listElement.innerHTML = '';
+            if (facturaItems.length === 0) {
+                listElement.innerHTML = '<li class="empty-list">No hay productos en la factura.</li>';
+                return;
+            }
+            facturaItems.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'item';
+                li.innerHTML = `
+                    <div class="item-header">
+                        <span>${item.nombre} (${item.cantidad} x Bs. ${item.costoUnitario.toFixed(2)})</span>
+                        <div class="item-actions">
+                            <button class="btn-danger btn-small delete-item" data-id="${item.id}"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="item-details">
+                        <span>Total: Bs. ${item.costoTotalItem.toFixed(2)}</span>
+                    </div>
+                `;
+                listElement.appendChild(li);
+            });
+        }
+
+        function calcularTotalGeneralFactura() {
+            const total = facturaItems.reduce((sum, item) => sum + item.costoTotalItem, 0);
+            document.getElementById('factura-total-general').value = total.toFixed(2);
+        }
+
+        async function guardarFacturaCompra() {
+            const proveedorNombre = document.getElementById('proveedor-nombre').value;
+            const facturaNumero = document.getElementById('factura-numero').value;
+            const facturaFecha = document.getElementById('factura-fecha').value;
+            const facturaVencimiento = document.getElementById('factura-vencimiento').value;
+            const totalGeneral = parseFloat(document.getElementById('factura-total-general').value);
+
+            if (!proveedorNombre || !facturaNumero || !facturaFecha || facturaItems.length === 0) {
+                alert('Por favor, selecciona un proveedor, ingresa el número y fecha de factura, y añade al menos un producto.');
+                return;
+            }
+
+            const proveedorSeleccionado = proveedores.find(p => p.nombre === proveedorNombre);
+            if (!proveedorSeleccionado) {
+                alert('El proveedor seleccionado no existe. Por favor, regístralo primero.');
+                return;
+            }
+
+            const nuevaFactura = {
+                id: generarIdUnico(),
+                proveedorId: proveedorSeleccionado.id,
+                numero: facturaNumero,
+                fecha: facturaFecha,
+                vencimiento: facturaVencimiento,
+                items: facturaItems,
+                totalBs: totalGeneral,
+                pagada: false,
+                fechaRegistro: new Date().toISOString()
+            };
+
+            try {
+                await db.ref(configMaestra.pathCliente + 'facturasCompra/' + nuevaFactura.id).set(nuevaFactura);
+                log('Factura de compra guardada: ' + facturaNumero);
+                limpiarFormularioFacturaCompra();
+                cargarFacturasCompra();
+            } catch (error) {
+                log('Error al guardar factura de compra: ' + error.message);
+            }
+        }
+
+        function limpiarFormularioFacturaCompra() {
+            document.getElementById('factura-numero').value = '';
+            document.getElementById('factura-fecha').value = '';
+            document.getElementById('factura-vencimiento').value = '';
+            facturaItems = [];
+            renderFacturaItems();
+            document.getElementById('factura-total-general').value = '0.00';
+            document.getElementById('proveedor-nombre').value = ''; // Limpiar el proveedor seleccionado
+        }
+
+        function cargarFacturasCompra() {
+            // Las facturas se cargan automáticamente con el listener de Firebase
+            renderFacturasPendientes();
+            renderFacturasPagadas();
+        }
+
+        function renderFacturasPendientes(facturasFiltradas = facturasCompra.filter(f => !f.pagada)) {
+            const listElement = document.getElementById('facturas-pendientes-list');
+            listElement.innerHTML = '';
+            if (facturasFiltradas.length === 0) {
+                listElement.innerHTML = '<li class="empty-list">No hay facturas pendientes.</li>';
+                return;
+            }
+            facturasFiltradas.forEach(f => {
+                const proveedor = proveedores.find(p => p.id === f.proveedorId);
+                const li = document.createElement('li');
+                li.className = 'item';
+                li.innerHTML = `
+                    <div class="item-header">
+                        <span><strong>${f.numero}</strong> - ${proveedor ? proveedor.nombre : 'Proveedor Desconocido'}</span>
+                        <div class="item-actions">
+                            <button class="btn-add btn-small mark-as-paid" data-id="${f.id}"><i class="fas fa-check"></i> Pagar</button>
+                        </div>
+                    </div>
+                    <div class="item-details">
+                        <span>Total: Bs. ${f.totalBs.toFixed(2)}</span>
+                        <span>Vence: ${f.vencimiento}</span>
+                    </div>
+                `;
+                listElement.appendChild(li);
+            });
+        }
+
+        function renderFacturasPagadas(facturasFiltradas = facturasCompra.filter(f => f.pagada)) {
+            const listElement = document.getElementById('facturas-pagadas-list');
+            listElement.innerHTML = '';
+            if (facturasFiltradas.length === 0) {
+                listElement.innerHTML = '<li class="empty-list">No hay historial de facturas pagadas.</li>';
+                return;
+            }
+            facturasFiltradas.forEach(f => {
+                const proveedor = proveedores.find(p => p.id === f.proveedorId);
+                const li = document.createElement('li');
+                li.className = 'item';
+                li.innerHTML = `
+                    <div class="item-header">
+                        <span><strong>${f.numero}</strong> - ${proveedor ? proveedor.nombre : 'Proveedor Desconocido'}</span>
+                        <div class="item-actions">
+                            <button class="btn-info btn-small view-details" data-id="${f.id}"><i class="fas fa-eye"></i> Ver</button>
+                        </div>
+                    </div>
+                    <div class="item-details">
+                        <span>Total: Bs. ${f.totalBs.toFixed(2)}</span>
+                        <span>Pagada: ${new Date(f.fechaRegistro).toLocaleDateString()}</span>
+                    </div>
+                `;
+                listElement.appendChild(li);
+            });
+        }
+
+        async function marcarFacturaComoPagada(id) {
+            if (confirm('¿Marcar esta factura como pagada?')) {
+                try {
+                    await db.ref(configMaestra.pathCliente + 'facturasCompra/' + id).update({ pagada: true });
+                    log('Factura marcada como pagada: ' + id);
+                } catch (error) {
+                    log('Error al marcar factura como pagada: ' + error.message);
+                }
+            }
+        }
+
+        function verDetallesFacturaPagada(id) {
+            const factura = facturasCompra.find(f => f.id === id);
+            if (factura) {
+                let detailsHtml = `
+                    <h3>Detalles de Factura #${factura.numero}</h3>
+                    <p><strong>Proveedor:</strong> ${proveedores.find(p => p.id === factura.proveedorId)?.nombre || 'Desconocido'}</p>
+                    <p><strong>Fecha Factura:</strong> ${factura.fecha}</p>
+                    <p><strong>Fecha Vencimiento:</strong> ${factura.vencimiento}</p>
+                    <p><strong>Total:</strong> Bs. ${factura.totalBs.toFixed(2)}</p>
+                    <h4>Productos:</h4>
+                    <ul>
+                `;
+                factura.items.forEach(item => {
+                    detailsHtml += `<li>${item.nombre} (${item.cantidad} x Bs. ${item.costoUnitario.toFixed(2)}) - Total: Bs. ${item.costoTotalItem.toFixed(2)}</li>`;
+                });
+                detailsHtml += `</ul>`;
+                alert(detailsHtml); // Podríamos usar un modal más bonito aquí
+            }
+        }
+
+        async function toggleScannerFacturaProducto() {
+            const qrReaderElement = document.getElementById('qr-reader-factura-producto');
+            if (!scannerFacturaProducto) {
+                scannerFacturaProducto = new Html5QrcodeScanner(
+                    "qr-reader-factura-producto", { fps: 10, qrbox: 250, rememberLastUsedCamera: true });
+                scannerFacturaProducto.render(onScanSuccessFacturaProducto, onScanErrorFacturaProducto);
+                cameraFacturaProductoActive = true;
+                document.getElementById('btn-scan-factura-producto').innerHTML = '<i class="fas fa-stop-circle"></i> Detener Escáner';
+            } else if (cameraFacturaProductoActive) {
+                await scannerFacturaProducto.stop();
+                scannerFacturaProducto.clear();
+                scannerFacturaProducto = null;
+                cameraFacturaProductoActive = false;
+                qrReaderElement.innerHTML = ''; // Limpiar el contenido del lector
+                document.getElementById('btn-scan-factura-producto').innerHTML = '<i class="fas fa-barcode"></i> Escanear';
+            } else {
+                scannerFacturaProducto.render(onScanSuccessFacturaProducto, onScanErrorFacturaProducto);
+                cameraFacturaProductoActive = true;
+                document.getElementById('btn-scan-factura-producto').innerHTML = '<i class="fas fa-stop-circle"></i> Detener Escáner';
+            }
+        }
+
+        function onScanSuccessFacturaProducto(decodedText, decodedResult) {
+            document.getElementById('factura-producto-codigo').value = decodedText;
+            const producto = items.find(item => item.codigo === decodedText);
+            if (producto) {
+                document.getElementById('factura-producto-nombre').value = producto.nombre;
+                calcularCostoTotalItemFactura();
+            } else {
+                document.getElementById('factura-producto-nombre').value = 'Producto no encontrado';
+            }
+            // Detener el escáner después de un escaneo exitoso
+            toggleScannerFacturaProducto();
+        }
+
+        function onScanErrorFacturaProducto(errorMessage) {
+            // console.warn(`Code scan error = ${errorMessage}`);
+        }
+
+            // Lógica específica para el tab de proveedores
+            if (tabId === 'proveedores-tab') {
+                cargarProveedores();
+                cargarFacturasCompra();
+            }
+        }
         }
 
         // ==================== INICIALIZACIÓN ====================
@@ -1439,7 +2034,153 @@
                     }
 
                     // Escuchar cierres mensuales
-                    db.ref(configMaestra.pathCliente + 'logs/cierresMensuales').on('value', snap => {
+                    db.ref(configMaestra.pathCliente + 'cierresMensuales').on('value', snapshot => {
+                    cierresMensuales = snapshot.val() ? Object.values(snapshot.val()) : [];
+                    log('Datos de cierres mensuales cargados.');
+                });
+
+                db.ref(configMaestra.pathCliente + 'proveedores').on('value', snapshot => {
+                    proveedores = snapshot.val() ? Object.values(snapshot.val()) : [];
+                    renderProveedoresList();
+                    log('Datos de proveedores cargados.');
+                });
+
+                db.ref(configMaestra.pathCliente + 'facturasCompra').on('value', snapshot => {
+                    facturasCompra = snapshot.val() ? Object.values(snapshot.val()) : [];
+                    renderFacturasPendientes();
+                    renderFacturasPagadas();
+                    log('Datos de facturas de compra cargados.');
+                });
+
+                // Inicializar listeners para los botones de limpiar búsqueda
+                document.querySelectorAll('.clear-search').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const targetId = e.target.dataset.target;
+                        const input = document.getElementById(targetId);
+                        if (input) {
+                            input.value = '';
+                            input.dispatchEvent(new Event('input')); // Disparar evento para actualizar la búsqueda
+                        }
+                    });
+                });
+
+                // Inicializar acordeones
+                document.querySelectorAll('.accordion-header').forEach(header => {
+                    header.addEventListener('click', () => {
+                        const content = header.nextElementSibling;
+                        content.classList.toggle('active');
+                    });
+                });
+
+                // Event listeners para el módulo de proveedores
+                document.getElementById('btn-guardar-proveedor').addEventListener('click', guardarProveedor);
+                document.getElementById('btn-cancelar-proveedor').addEventListener('click', limpiarFormularioProveedor);
+                document.getElementById('btn-agregar-producto-factura').addEventListener('click', agregarProductoAFactura);
+                document.getElementById('btn-guardar-factura').addEventListener('click', guardarFacturaCompra);
+
+                // Event listeners para búsqueda en proveedores
+                document.getElementById('search-proveedores').addEventListener('input', renderProveedoresList);
+                document.getElementById('search-facturas-pendientes').addEventListener('input', renderFacturasPendientes);
+                document.getElementById('search-facturas-pagadas').addEventListener('input', renderFacturasPagadas);
+
+                // Event listeners para cálculo de costo total de ítem en factura
+                document.getElementById('factura-producto-cantidad').addEventListener('input', calcularCostoTotalItemFactura);
+                document.getElementById('factura-producto-costo-unitario').addEventListener('input', calcularCostoTotalItemFactura);
+
+                // Event listener para escaner de código de barras en factura de compra
+                document.getElementById('btn-scan-factura-producto').addEventListener('click', toggleScannerFacturaProducto);
+
+                // Event listener para seleccionar proveedor de la lista
+                document.getElementById('proveedores-list').addEventListener('click', (e) => {
+                    if (e.target.tagName === 'LI') {
+                        const proveedorId = e.target.dataset.id;
+                        const proveedorSeleccionado = proveedores.find(p => p.id === proveedorId);
+                        if (proveedorSeleccionado) {
+                            document.getElementById('proveedor-nombre').value = proveedorSeleccionado.nombre;
+                            document.getElementById('proveedor-rif').value = proveedorSeleccionado.rif;
+                            document.getElementById('proveedor-telefono').value = proveedorSeleccionado.telefono;
+                            document.getElementById('proveedor-direccion').value = proveedorSeleccionado.direccion;
+                            document.getElementById('proveedor-correo').value = proveedorSeleccionado.correo;
+                        }
+                    }
+                });
+
+                // Listener para el input de código de producto en factura de compra
+                document.getElementById('factura-producto-codigo').addEventListener('change', (e) => {
+                    const codigo = e.target.value;
+                    const producto = items.find(item => item.codigo === codigo);
+                    if (producto) {
+                        document.getElementById('factura-producto-nombre').value = producto.nombre;
+                        calcularCostoTotalItemFactura();
+                    } else {
+                        document.getElementById('factura-producto-nombre').value = 'Producto no encontrado';
+                    }
+                });
+
+                // Listener para actualizar el total general de la factura al eliminar ítems
+                document.getElementById('factura-items-list').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('delete-item')) {
+                        const itemId = e.target.dataset.id;
+                        facturaItems = facturaItems.filter(item => item.id !== itemId);
+                        renderFacturaItems();
+                        calcularTotalGeneralFactura();
+                    }
+                });
+
+                // Listener para marcar factura como pagada
+                document.getElementById('facturas-pendientes-list').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('mark-as-paid')) {
+                        const facturaId = e.target.dataset.id;
+                        marcarFacturaComoPagada(facturaId);
+                    }
+                });
+
+                // Listener para ver detalles de factura pagada
+                document.getElementById('facturas-pagadas-list').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('view-details')) {
+                        const facturaId = e.target.dataset.id;
+                        verDetallesFacturaPagada(facturaId);
+                    }
+                });
+
+                // Listener para filtrar proveedores por RIF
+                document.getElementById('search-proveedores').addEventListener('input', (e) => {
+                    const filtro = e.target.value.toLowerCase();
+                    const proveedoresFiltrados = proveedores.filter(p => p.rif.toLowerCase().includes(filtro) || p.nombre.toLowerCase().includes(filtro));
+                    renderProveedoresList(proveedoresFiltrados);
+                });
+
+                // Listener para filtrar facturas pendientes
+                document.getElementById('search-facturas-pendientes').addEventListener('input', (e) => {
+                    const filtro = e.target.value.toLowerCase();
+                    const facturasFiltradas = facturasCompra.filter(f => !f.pagada && (f.numero.toLowerCase().includes(filtro) || proveedores.find(p => p.id === f.proveedorId)?.nombre.toLowerCase().includes(filtro)));
+                    renderFacturasPendientes(facturasFiltradas);
+                });
+
+                // Listener para filtrar facturas pagadas
+                document.getElementById('search-facturas-pagadas').addEventListener('input', (e) => {
+                    const filtro = e.target.value.toLowerCase();
+                    const facturasFiltradas = facturasCompra.filter(f => f.pagada && (f.numero.toLowerCase().includes(filtro) || proveedores.find(p => p.id === f.proveedorId)?.nombre.toLowerCase().includes(filtro)));
+                    renderFacturasPagadas(facturasFiltradas);
+                });
+
+                // Inicializar el estado de los botones de limpiar búsqueda
+                document.querySelectorAll('.search-input').forEach(input => {
+                    input.addEventListener('input', (e) => {
+                        const clearButton = e.target.nextElementSibling;
+                        if (e.target.value.length > 0) {
+                            clearButton.style.display = 'block';
+                        } else {
+                            clearButton.style.display = 'none';
+                        }
+                    });
+                });
+
+            } catch (error) {
+                log("❌ Error inicializando Firebase: " + error.message);
+                document.getElementById("connection-status").textContent = "Error";
+                document.getElementById("connection-status").classList.remove("online");
+            }{
                         const cmData = snap.val();
                         window.cierresMensuales = [];
                         if (cmData) {
