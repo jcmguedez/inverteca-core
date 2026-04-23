@@ -259,78 +259,7 @@
         }  font-weight: bold;
         }
         
-            /* Estilos para html5-qrcode del operativo */
-            .accordion-container {
-                margin-top: 20px;
-            }
-
-            .accordion-item {
-                background: var(--card);
-                border-radius: 10px;
-                margin-bottom: 10px;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-                overflow: hidden;
-            }
-
-            .accordion-header {
-                background: var(--light-gray);
-                color: var(--text);
-                padding: 15px;
-                border: none;
-                width: 100%;
-                text-align: left;
-                font-weight: bold;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                font-size: 1rem;
-                transition: background 0.3s;
-            }
-
-            .accordion-header:hover {
-                background: var(--border-gray);
-            }
-
-            .accordion-header i {
-                margin-right: 10px;
-            }
-
-            .accordion-content {
-                padding: 15px;
-                border-top: 1px solid var(--light-gray);
-                display: none;
-            }
-
-            .accordion-content.active {
-                display: block;
-            }
-
-            .search-bar {
-                position: relative;
-                margin-bottom: 15px;
-            }
-
-            .search-bar input {
-                padding-right: 40px; /* Espacio para el botón de limpiar */
-            }
-
-            .search-bar .clear-search {
-                position: absolute;
-                right: 10px;
-                top: 50%;
-                transform: translateY(-50%);
-                background: none;
-                border: none;
-                color: #999;
-                cursor: pointer;
-                font-size: 1rem;
-                display: none; /* Ocultar por defecto */
-            }
-
-            .search-bar input:valid + .clear-search {
-                display: block; /* Mostrar solo cuando hay texto */
-            }
+        /* Estilos para html5-qrcode del operativo */
         .html5-qrcode-element { width: 100% !important; background: transparent !important; }
         .html5-qrcode { width: 100% !important; background: transparent !important; }
         .html5-qrcode video { width: 100% !important; height: auto !important; border-radius: 10px; }
@@ -766,7 +695,7 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 20px;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: bold;
             color: var(--text);
         }
@@ -844,142 +773,150 @@
             color: white;
         }
         
-        .pago-row {
+        /* ESTILOS PARA MÓDULO DE PROVEEDORES */
+        .accordion-header {
+            padding: 15px;
+            cursor: pointer;
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            background: #fdfdfd;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .accordion-header:hover {
+            background: #f5f5f5;
+        }
+        
+        .accordion-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .accordion-content {
+            display: none;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 10px;
             margin-bottom: 10px;
         }
         
-        .pago-row > div {
-            flex: 1;
+        .accordion-content.active {
+            display: block;
         }
         
-        .pago-row label {
+        .proveedor-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .proveedor-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateX(2px);
+        }
+        
+        .proveedor-item.selected {
+            background: #fff3cd;
+            border-left-color: var(--primary);
+        }
+        
+        .proveedor-nombre {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+        
+        .proveedor-detalle {
             font-size: 0.8rem;
+            color: #666;
+            margin-top: 3px;
         }
         
-        .pago-row input {
-            font-size: 0.9rem;
-            padding: 10px;
-        }
-        
-        .vuelto-section {
-            background: #f0f8ff;
-            border: 2px solid var(--info);
+        .factura-items-container {
+            background: #f9f9f9;
             border-radius: 10px;
             padding: 15px;
             margin: 15px 0;
-            text-align: center;
+            min-height: 80px;
+            max-height: 250px;
+            overflow-y: auto;
+            border: 2px dashed #eee;
         }
         
-        .vuelto-label {
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 5px;
-        }
-        
-        .vuelto-amount {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--info);
-            margin-bottom: 5px;
-        }
-        
-        .vuelto-dual {
-            font-size: 0.85rem;
-            color: #999;
-        }
-
-        /* ===== NUEVO MODAL PAGO MEJORADO ===== */
-        .metodo-pago-selector {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .metodo-btn {
-            flex: 1;
-            min-width: 90px;
-            padding: 10px 8px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
+        .factura-item {
             background: white;
-            color: #555;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .factura-item-info {
+            flex: 1;
+        }
+        
+        .factura-item-nombre {
             font-weight: 600;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-        }
-
-        .metodo-btn.selected {
-            border-color: var(--info);
-            background: var(--info);
-            color: white;
-        }
-
-        .monto-pago-group {
-            margin-bottom: 15px;
-        }
-
-        .monto-pago-group label {
-            font-weight: 600;
-            color: #555;
             font-size: 0.9rem;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .monto-pago-group input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid var(--info);
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            outline: none;
-            text-align: center;
             color: var(--text);
         }
-
-        .monto-pago-group input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(39,174,96,0.15);
+        
+        .factura-item-precio {
+            font-size: 0.8rem;
+            color: #666;
         }
-
-        /* ===== HISTORIAL MEJORADO ===== */
-        .historial-item.anulada {
-            border-left-color: var(--danger) !important;
-            opacity: 0.7;
+        
+        .factura-item-actions {
+            display: flex;
+            gap: 5px;
         }
-
-        .historial-item-items {
-            margin-top: 3px;
-            font-size: 0.75rem;
-            color: #777;
-            border-top: 1px solid #eee;
-            padding-top: 3px;
-        }
-
-        .btn-anular-venta {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-size: 0.72rem;
-            cursor: pointer;
-            margin-top: 3px;
-        }
-
-        .badge-anulada {
-            background: var(--danger);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
+        
+        .btn-small {
+            padding: 4px 8px;
             font-size: 0.7rem;
-            font-weight: bold;
+            border-radius: 5px;
+        }
+        
+        .empresa-info-box {
+            background: linear-gradient(135deg, var(--primary), var(--info));
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .empresa-info-box h3 {
+            margin: 0 0 10px 0;
+            font-size: 1rem;
+        }
+        
+        .empresa-info-item {
+            font-size: 0.85rem;
+            margin: 4px 0;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .empresa-info-label {
+            font-weight: 600;
+            min-width: 80px;
         }
     </style>
 </head>
@@ -1002,8 +939,9 @@
             <button class="tab-btn active" onclick="switchTab('stock')">📦 Stock</button>
             <button class="tab-btn" onclick="switchTab('venta')">🛒 Venta</button>
             <button class="tab-btn" onclick="switchTab('creditos')">💳 Créditos</button>
-            <button class="tab-btn" onclick="changeTab('reports-tab')">Reportes</button>
-            <button class="tab-btn" onclick="changeTab('proveedores-tab')">Proveedores</button>        </div>
+            <button class="tab-btn" onclick="switchTab('proveedores')">🏭 Proveedores</button>
+            <button class="tab-btn" onclick="switchTab('reportes')">🏢 Reportes</button>
+        </div>
 
         <!-- TAB: STOCK -->
         <div id="stock" class="tab-content active">
@@ -1146,147 +1084,149 @@
                 <div style="text-align: center; padding: 20px; color: #999;">Cargando créditos...</div>
             </div>
         </div>
-       <div id="reports-tab" class="tab-content">
-            <!-- Contenido del módulo de Reportes -->
-            <!-- ... (contenido existente de reportes) ... -->
+
+        <!-- TAB: PROVEEDORES (NUEVO) -->
+        <div id="proveedores" class="tab-content">
+            <h2>🏭 Datos de la Empresa</h2>
+            <div class="empresa-info-box">
+                <h3 id="empresaNombreDisplay">Cargando...</h3>
+                <div class="empresa-info-item">
+                    <span class="empresa-info-label">RIF:</span>
+                    <span id="empresaRIFDisplay">-</span>
+                </div>
+                <div class="empresa-info-item">
+                    <span class="empresa-info-label">Dirección:</span>
+                    <span id="empresaDireccionDisplay">-</span>
+                </div>
+                <div class="empresa-info-item">
+                    <span class="empresa-info-label">Teléfono:</span>
+                    <span id="empresaTelefonoDisplay">-</span>
+                </div>
+                <div class="empresa-info-item">
+                    <span class="empresa-info-label">Correo:</span>
+                    <span id="empresaCorreoDisplay">-</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>🔍 Buscar Proveedor</label>
+                <input type="text" id="buscarProveedor" class="search-input" placeholder="Nombre del proveedor..." oninput="filtrarProveedores()">
+            </div>
+
+            <h2>📋 Datos de Factura</h2>
+            <div class="input-row">
+                <div>
+                    <label>Número de Factura</label>
+                    <input type="text" id="numeroFactura" placeholder="Ej: FAC-001">
+                </div>
+                <div>
+                    <label>Fecha de Factura</label>
+                    <input type="date" id="fechaFactura">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Fecha de Vencimiento</label>
+                <input type="date" id="fechaVencimiento">
+            </div>
+
+            <div class="input-group">
+                <label>Proveedor Seleccionado</label>
+                <div style="background: #f0f8ff; padding: 12px; border-radius: 10px; border-left: 4px solid var(--info); min-height: 40px; display: flex; align-items: center;">
+                    <span id="proveedorSeleccionadoDisplay" style="font-weight: 600; color: var(--text);">Selecciona un proveedor...</span>
+                </div>
+            </div>
+
+            <h2>📦 Items de Factura</h2>
+            <div class="input-row">
+                <div style="flex: 1;">
+                    <label>Código de Producto</label>
+                    <div class="camera-container">
+                        <input type="text" id="codigoProductoFactura" placeholder="Código o SKU...">
+                        <button class="btn-camera" onclick="toggleCameraProveedores()">📷</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="qr-reader-proveedores" style="display: none;"></div>
+            <div class="qr-reader-status" id="qr-status-proveedores"></div>
+
+            <div class="input-row">
+                <div>
+                    <label>Cantidad</label>
+                    <input type="number" id="cantidadFactura" value="1" step="0.001" min="0">
+                </div>
+                <div>
+                    <label>Costo Unitario (Bs.)</label>
+                    <input type="number" id="costoUnitarioFactura" step="0.01" min="0">
+                </div>
+            </div>
+
+            <div class="switch-container">
+                <span style="font-size: 0.9rem; font-weight: bold;">Leer Códigos de Barras</span>
+                <label class="switch">
+                    <input type="checkbox" id="activarLectorFactura">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <button class="btn-add" onclick="agregarItemFactura()" style="grid-column: 1 / -1; margin-bottom: 15px;">➕ AGREGAR ITEM</button>
+
+            <h2>Items Agregados</h2>
+            <div id="facturaItemsContainer" class="factura-items-container">
+                <div style="text-align: center; color: #999; padding: 20px;">Sin items agregados</div>
+            </div>
+
+            <div class="totales-section">
+                <div class="totales-row"><span>Costo Total:</span><span id="costoTotalFactura">Bs. 0,00</span></div>
+                <div class="totales-row total-final"><span>TOTAL FACTURA</span><span id="totalFactura">Bs. 0,00</span></div>
+            </div>
+
+            <div class="btn-grid">
+                <button class="btn-add" onclick="cerrarFactura()" style="grid-column: 1 / -1;">✅ CERRAR FACTURA (Agregar al Stock)</button>
+                <button class="btn-danger" onclick="limpiarFormularioFactura()" style="grid-column: 1 / -1;">🗑️ LIMPIAR</button>
+            </div>
+
+            <!-- ACORDEONES PARA VENTANAS TIPO PERSIANA -->
+            <div style="background: #fff; border-radius: 12px; margin-top: 20px; border: 1px solid #eee; overflow: hidden;">
+                <div class="accordion-header" onclick="toggleAccordion('pendientes')">
+                    <h3>⏳ Facturas Pendientes</h3>
+                    <span id="iconPendientes">➕</span>
+                </div>
+                <div id="contentPendientes" class="accordion-content">
+                    <div id="listaFacturasPendientes" style="font-size: 0.9rem;">
+                        <p style="color: #999; text-align: center;">No hay facturas pendientes</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: #fff; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; overflow: hidden;">
+                <div class="accordion-header" onclick="toggleAccordion('proveedoresLista')">
+                    <h3>🏢 Todos los Proveedores</h3>
+                    <span id="iconProveedoresLista">➕</span>
+                </div>
+                <div id="contentProveedoresLista" class="accordion-content">
+                    <div id="listaProveedoresCompleta" style="font-size: 0.9rem;">
+                        <p style="color: #999; text-align: center;">Cargando proveedores...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: #fff; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; overflow: hidden;">
+                <div class="accordion-header" onclick="toggleAccordion('historialFacturas')">
+                    <h3>📂 Historial de Facturas Pagadas</h3>
+                    <span id="iconHistorialFacturas">➕</span>
+                </div>
+                <div id="contentHistorialFacturas" class="accordion-content">
+                    <div id="listaHistorialFacturas" style="font-size: 0.9rem;">
+                        <p style="color: #999; text-align: center;">No hay facturas pagadas</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- TAB: PROVEEDORES -->
-        <div id="proveedores-tab" class="tab-content">
-            <h2><i class="fas fa-truck"></i> Gestión de Proveedores</h2>
-
-            <!-- Sección de Registro/Edición de Proveedores -->
-            <div class="card">
-                <h3>Datos del Proveedor</h3>
-                <div class="input-group">
-                    <label for="proveedor-nombre">Nombre de la Empresa</label>
-                    <input type="text" id="proveedor-nombre" placeholder="Ej: Suministros S.A.">
-                </div>
-                <div class="input-row">
-                    <div>
-                        <label for="proveedor-rif">RIF</label>
-                        <input type="text" id="proveedor-rif" placeholder="Ej: J-12345678-9">
-                    </div>
-                    <div>
-                        <label for="proveedor-telefono">Teléfono</label>
-                        <input type="tel" id="proveedor-telefono" placeholder="Ej: +584123456789">
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="proveedor-direccion">Dirección</label>
-                    <input type="text" id="proveedor-direccion" placeholder="Ej: Av. Principal, Edif. Centro, Piso 5">
-                </div>
-                <div class="input-group">
-                    <label for="proveedor-correo">Correo Electrónico</label>
-                    <input type="email" id="proveedor-correo" placeholder="Ej: contacto@suministros.com">
-                </div>
-                <div class="btn-grid">
-                    <button class="btn-add" id="btn-guardar-proveedor"><i class="fas fa-save"></i> Guardar Proveedor</button>
-                    <button class="btn-danger" id="btn-cancelar-proveedor"><i class="fas fa-times"></i> Cancelar</button>
-                </div>
-            </div>
-
-            <!-- Sección de Facturas de Compra -->
-            <div class="card">
-                <h3>Factura de Compra</h3>
-                <div class="input-row">
-                    <div>
-                        <label for="factura-numero">Número de Factura</label>
-                        <input type="text" id="factura-numero" placeholder="Ej: 001-0000123">
-                    </div>
-                    <div>
-                        <label for="factura-fecha">Fecha de Factura</label>
-                        <input type="date" id="factura-fecha">
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="factura-vencimiento">Fecha de Vencimiento</label>
-                    <input type="date" id="factura-vencimiento">
-                </div>
-
-                <!-- Carga de Ítems de Producto -->
-                <h4>Cargar Productos</h4>
-                <div class="input-row">
-                    <div>
-                        <label for="factura-producto-codigo">Código de Producto</label>
-                        <input type="text" id="factura-producto-codigo" placeholder="Escanear o Ingresar">
-                    </div>
-                    <button class="btn-camera" id="btn-scan-factura-producto"><i class="fas fa-barcode"></i> Escanear</button>
-                </div>
-                <div id="qr-reader-factura-producto" class="qr-reader"></div>
-                <div class="input-row">
-                    <div>
-                        <label for="factura-producto-nombre">Producto</label>
-                        <input type="text" id="factura-producto-nombre" readonly>
-                    </div>
-                    <div>
-                        <label for="factura-producto-cantidad">Cantidad</label>
-                        <input type="number" id="factura-producto-cantidad" value="1" min="1">
-                    </div>
-                </div>
-                <div class="input-row">
-                    <div>
-                        <label for="factura-producto-costo-unitario">Costo Unitario</label>
-                        <input type="number" id="factura-producto-costo-unitario" step="0.01" min="0">
-                    </div>
-                    <div>
-                        <label for="factura-producto-costo-total">Costo Total Ítem</label>
-                        <input type="number" id="factura-producto-costo-total" step="0.01" min="0" readonly>
-                    </div>
-                </div>
-                <button class="btn-add" id="btn-agregar-producto-factura"><i class="fas fa-plus"></i> Agregar Producto a Factura</button>
-
-                <div class="list-container">
-                    <h4>Ítems de Factura</h4>
-                    <ul id="factura-items-list" class="item-list"></ul>
-                </div>
-
-                <div class="input-group">
-                    <label for="factura-total-general">Total General Factura</label>
-                    <input type="number" id="factura-total-general" step="0.01" min="0" readonly>
-                </div>
-                <button class="btn-add" id="btn-guardar-factura"><i class="fas fa-file-invoice"></i> Guardar Factura</button>
-            </div>
-
-            <!-- Vistas de Persiana (Acordeón) -->
-            <div class="accordion-container">
-                <!-- Facturas Pendientes -->
-                <div class="accordion-item">
-                    <button class="accordion-header"><i class="fas fa-exclamation-triangle"></i> Facturas Pendientes</button>
-                    <div class="accordion-content">
-                        <div class="search-bar">
-                            <input type="text" id="search-facturas-pendientes" class="search-input" placeholder="Buscar factura o proveedor...">
-                            <button class="clear-search" data-target="search-facturas-pendientes"><i class="fas fa-times"></i></button>
-                        </div>
-                        <ul id="facturas-pendientes-list" class="item-list"></ul>
-                    </div>
-                </div>
-
-                <!-- Todos los Proveedores -->
-                <div class="accordion-item">
-                    <button class="accordion-header"><i class="fas fa-users"></i> Todos los Proveedores</button>
-                    <div class="accordion-content">
-                        <div class="search-bar">
-                            <input type="text" id="search-proveedores" class="search-input" placeholder="Buscar proveedor...">
-                            <button class="clear-search" data-target="search-proveedores"><i class="fas fa-times"></i></button>
-                        </div>
-                        <ul id="proveedores-list" class="item-list"></ul>
-                    </div>
-                </div>
-
-                <!-- Historial de Facturas Pagadas -->
-                <div class="accordion-item">
-                    <button class="accordion-header"><i class="fas fa-history"></i> Historial de Facturas Pagadas</button>
-                    <div class="accordion-content">
-                        <div class="search-bar">
-                            <input type="text" id="search-facturas-pagadas" class="search-input" placeholder="Buscar factura o proveedor...">
-                            <button class="clear-search" data-target="search-facturas-pagadas"><i class="fas fa-times"></i></button>
-                        </div>
-                        <ul id="facturas-pagadas-list" class="item-list"></ul>
-                    </div>
-                </div>
-            </div>
-        </div>           <h2 style="display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #27ae60; padding-bottom: 10px;">
+        <div id="reportes" class="tab-content">
+            <h2 style="display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #27ae60; padding-bottom: 10px;">
                 📊 Dashboard Control Diario
             </h2>
             
@@ -1389,23 +1329,22 @@
             <div class="modal-body">
                 <!-- Total a cobrar (cuadro verde) -->
                 <div style="background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 0.85rem; opacity: 0.9;">Total a Cobrar:</div>
-                    <div style="font-size: 1.8rem; font-weight: bold;" id="modalPagoTotal">Bs. 0,00</div>
-                    <div style="font-size: 0.9rem; opacity: 0.9;" id="modalPagoTotalUSD">$ 0,00</div>
+                    <div style="font-size: 0.8rem; opacity: 0.9;">Total a Cobrar:</div>
+                    <div style="font-size: 1.5rem; font-weight: bold;" id="modalPagoTotal">Bs. 0,00</div>
+                    <div style="font-size: 0.9rem; opacity: 0.8;" id="modalPagoTotalUSD">$ 0,00</div>
                 </div>
 
                 <!-- Selector de método de pago -->
-                <div style="font-weight: bold; margin-bottom: 10px; color: #555;">¿Cómo paga el cliente?</div>
                 <div class="metodo-pago-selector">
-                    <button class="metodo-btn selected" id="btnMetodoBs" onclick="seleccionarMetodo('bs')">💵 Bs. Efectivo</button>
-                    <button class="metodo-btn" id="btnMetodoDolar" onclick="seleccionarMetodo('dolar')">💲 Dólares</button>
-                    <button class="metodo-btn" id="btnMetodoPunto" onclick="seleccionarMetodo('punto')">📱 Punto / Pago Móvil</button>
+                    <button class="metodo-btn selected" id="btnMetodoBs" onclick="seleccionarMetodo('bs')">💵 Bolívares</button>
+                    <button class="metodo-btn" id="btnMetodoDolar" onclick="seleccionarMetodo('dolar')">💵 Dólares</button>
+                    <button class="metodo-btn" id="btnMetodoPunto" onclick="seleccionarMetodo('punto')">📱 Punto/Móvil</button>
                 </div>
 
-                <!-- Casilla única de monto -->
+                <!-- Monto a recibir -->
                 <div class="monto-pago-group">
                     <label id="labelMontoPago">Monto recibido en Bs.:</label>
-                    <input type="number" id="montoPagoInput" placeholder="0.00" step="0.01" min="0" oninput="calcularVuelto()">
+                    <input type="number" id="montoPagoInput" placeholder="0.00" step="0.01" oninput="calcularVuelto()">
                 </div>
 
                 <!-- Sección de vuelto (cuadro azul) -->
@@ -1519,23 +1458,37 @@
     <script>
         // ==================== CONFIGURACIÓN GLOBAL ====================
         let items = [];
-        let clientes = []; // {id, nombre, cedula, telefono, deudaTotal}
-        let creditos = []; // {id, clienteId, fecha, items, totalBs, saldo, pagada}
-        let cierres = []; // {fecha, totalBs, totalUSD, cantVentas, ventasIds}
+        let clientes = [];
+        let creditos = [];
+        let cierres = [];
         let cierresMensuales = [];
-        let proveedores = []; // {id, nombre, rif, telefono, direccion, correo}
-        let facturasCompra = []; // {id, proveedorId, numero, fecha, vencimiento, items, totalBs, pagada}
+        let proveedores = [];
+        let facturas = [];
         let tasaDolar = 36.50;
         let ivaPercentaje = 16;
         let db = null;
         let scannerInventario = null;
         let cameraInventarioActive = false;
+        let scannerProveedores = null;
+        let cameraProveedoresActive = false;
         let libreriasListas = false;
+        let facturaActual = {
+            items: [],
+            proveedorId: null,
+            proveedorNombre: '',
+            numeroFactura: '',
+            fechaFactura: '',
+            fechaVencimiento: ''
+        };
         
         const configMaestra = {
             idActual: '',
             pathCliente: '',
-            nombreNegocio: 'Inverteca Core'
+            nombreNegocio: 'Inverteca Core',
+            empresaRIF: '',
+            empresaDireccion: '',
+            empresaTelefono: '',
+            empresaCorreo: ''
         };
 
         // ==================== FUNCIONES UTILITARIAS ====================
@@ -1558,390 +1511,24 @@
             const target = document.getElementById(tabId);
             if (target) target.classList.add('active');
             const btn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
-            if (btn) btn.classList.add("active");
-
-            // Lógica específica para el tab de proveedores
-            if (tabId === 'proveedores-tab') {
-                cargarProveedores();
-                cargarFacturasCompra();
+            if (btn) btn.classList.add('active');
+            
+            // Renderizar datos cuando se abre el tab de proveedores
+            if (tabId === 'proveedores') {
+                renderProveedoresLista();
+                renderFacturasPendientes();
+                renderHistorialFacturas();
+                actualizarEmpresaInfo();
             }
         }
 
-        // ==================== FUNCIONES MÓDULO PROVEEDORES ====================
-        let facturaItems = []; // Items temporales para la factura de compra actual
-        let scannerFacturaProducto = null;
-        let cameraFacturaProductoActive = false;
-
-        function generarIdUnico() {
-            return Date.now().toString(36) + Math.random().toString(36).substr(2);
-        }
-
-        async function guardarProveedor() {
-            const id = document.getElementById('proveedor-id') ? document.getElementById('proveedor-id').value : generarIdUnico();
-            const nombre = document.getElementById('proveedor-nombre').value;
-            const rif = document.getElementById('proveedor-rif').value;
-            const telefono = document.getElementById('proveedor-telefono').value;
-            const direccion = document.getElementById('proveedor-direccion').value;
-            const correo = document.getElementById('proveedor-correo').value;
-
-            if (!nombre || !rif) {
-                alert('El nombre y el RIF del proveedor son obligatorios.');
-                return;
+        function toggleAccordion(id) {
+            const content = document.getElementById('content' + id.charAt(0).toUpperCase() + id.slice(1));
+            const icon = document.getElementById('icon' + id.charAt(0).toUpperCase() + id.slice(1));
+            if (content) {
+                content.classList.toggle('active');
+                if (icon) icon.textContent = content.classList.contains('active') ? '➖' : '➕';
             }
-
-            const nuevoProveedor = {
-                id,
-                nombre,
-                rif,
-                telefono,
-                direccion,
-                correo
-            };
-
-            try {
-                await db.ref(configMaestra.pathCliente + 'proveedores/' + id).set(nuevoProveedor);
-                log('Proveedor guardado: ' + nombre);
-                limpiarFormularioProveedor();
-                cargarProveedores(); // Recargar la lista de proveedores
-            } catch (error) {
-                log('Error al guardar proveedor: ' + error.message);
-            }
-        }
-
-        function limpiarFormularioProveedor() {
-            document.getElementById('proveedor-nombre').value = '';
-            document.getElementById('proveedor-rif').value = '';
-            document.getElementById('proveedor-telefono').value = '';
-            document.getElementById('proveedor-direccion').value = '';
-            document.getElementById('proveedor-correo').value = '';
-            if (document.getElementById('proveedor-id')) {
-                document.getElementById('proveedor-id').remove();
-            }
-        }
-
-        function cargarProveedores() {
-            // Los proveedores se cargan automáticamente con el listener de Firebase
-            renderProveedoresList();
-        }
-
-        function renderProveedoresList(proveedoresFiltrados = proveedores) {
-            const listElement = document.getElementById('proveedores-list');
-            listElement.innerHTML = '';
-            if (proveedoresFiltrados.length === 0) {
-                listElement.innerHTML = '<li class="empty-list">No hay proveedores registrados.</li>';
-                return;
-            }
-            proveedoresFiltrados.forEach(p => {
-                const li = document.createElement('li');
-                li.className = 'item';
-                li.dataset.id = p.id;
-                li.innerHTML = `
-                    <div class="item-header">
-                        <span><strong>${p.nombre}</strong></span>
-                        <div class="item-actions">
-                            <button class="btn-edit btn-small" onclick="editarProveedor('${p.id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn-danger btn-small" onclick="eliminarProveedor('${p.id}')"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                    <div class="item-details">
-                        <span>RIF: ${p.rif}</span>
-                        <span>Teléfono: ${p.telefono || 'N/A'}</span>
-                    </div>
-                `;
-                listElement.appendChild(li);
-            });
-        }
-
-        function editarProveedor(id) {
-            const proveedor = proveedores.find(p => p.id === id);
-            if (proveedor) {
-                document.getElementById('proveedor-nombre').value = proveedor.nombre;
-                document.getElementById('proveedor-rif').value = proveedor.rif;
-                document.getElementById('proveedor-telefono').value = proveedor.telefono;
-                document.getElementById('proveedor-direccion').value = proveedor.direccion;
-                document.getElementById('proveedor-correo').value = proveedor.correo;
-                // Añadir un campo oculto para el ID si estamos editando
-                let idInput = document.getElementById('proveedor-id');
-                if (!idInput) {
-                    idInput = document.createElement('input');
-                    idInput.type = 'hidden';
-                    idInput.id = 'proveedor-id';
-                    document.getElementById('btn-guardar-proveedor').parentNode.prepend(idInput);
-                }
-                idInput.value = proveedor.id;
-            }
-        }
-
-        async function eliminarProveedor(id) {
-            if (confirm('¿Estás seguro de eliminar este proveedor?')) {
-                try {
-                    await db.ref(configMaestra.pathCliente + 'proveedores/' + id).remove();
-                    log('Proveedor eliminado: ' + id);
-                } catch (error) {
-                    log('Error al eliminar proveedor: ' + error.message);
-                }
-            }
-        }
-
-        function calcularCostoTotalItemFactura() {
-            const cantidad = parseFloat(document.getElementById('factura-producto-cantidad').value) || 0;
-            const costoUnitario = parseFloat(document.getElementById('factura-producto-costo-unitario').value) || 0;
-            document.getElementById('factura-producto-costo-total').value = (cantidad * costoUnitario).toFixed(2);
-        }
-
-        function agregarProductoAFactura() {
-            const codigo = document.getElementById('factura-producto-codigo').value;
-            const nombre = document.getElementById('factura-producto-nombre').value;
-            const cantidad = parseFloat(document.getElementById('factura-producto-cantidad').value);
-            const costoUnitario = parseFloat(document.getElementById('factura-producto-costo-unitario').value);
-            const costoTotalItem = parseFloat(document.getElementById('factura-producto-costo-total').value);
-
-            if (!codigo || !nombre || cantidad <= 0 || costoUnitario <= 0) {
-                alert('Por favor, completa todos los campos del producto y asegúrate de que la cantidad y el costo sean válidos.');
-                return;
-            }
-
-            const productoExistenteIndex = facturaItems.findIndex(item => item.codigo === codigo);
-            if (productoExistenteIndex > -1) {
-                facturaItems[productoExistenteIndex].cantidad += cantidad;
-                facturaItems[productoExistenteIndex].costoTotalItem += costoTotalItem;
-            } else {
-                facturaItems.push({
-                    id: generarIdUnico(),
-                    codigo,
-                    nombre,
-                    cantidad,
-                    costoUnitario,
-                    costoTotalItem
-                });
-            }
-
-            renderFacturaItems();
-            calcularTotalGeneralFactura();
-            // Limpiar campos del producto
-            document.getElementById('factura-producto-codigo').value = '';
-            document.getElementById('factura-producto-nombre').value = '';
-            document.getElementById('factura-producto-cantidad').value = '1';
-            document.getElementById('factura-producto-costo-unitario').value = '';
-            document.getElementById('factura-producto-costo-total').value = '';
-        }
-
-        function renderFacturaItems() {
-            const listElement = document.getElementById('factura-items-list');
-            listElement.innerHTML = '';
-            if (facturaItems.length === 0) {
-                listElement.innerHTML = '<li class="empty-list">No hay productos en la factura.</li>';
-                return;
-            }
-            facturaItems.forEach(item => {
-                const li = document.createElement('li');
-                li.className = 'item';
-                li.innerHTML = `
-                    <div class="item-header">
-                        <span>${item.nombre} (${item.cantidad} x Bs. ${item.costoUnitario.toFixed(2)})</span>
-                        <div class="item-actions">
-                            <button class="btn-danger btn-small delete-item" data-id="${item.id}"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                    <div class="item-details">
-                        <span>Total: Bs. ${item.costoTotalItem.toFixed(2)}</span>
-                    </div>
-                `;
-                listElement.appendChild(li);
-            });
-        }
-
-        function calcularTotalGeneralFactura() {
-            const total = facturaItems.reduce((sum, item) => sum + item.costoTotalItem, 0);
-            document.getElementById('factura-total-general').value = total.toFixed(2);
-        }
-
-        async function guardarFacturaCompra() {
-            const proveedorNombre = document.getElementById('proveedor-nombre').value;
-            const facturaNumero = document.getElementById('factura-numero').value;
-            const facturaFecha = document.getElementById('factura-fecha').value;
-            const facturaVencimiento = document.getElementById('factura-vencimiento').value;
-            const totalGeneral = parseFloat(document.getElementById('factura-total-general').value);
-
-            if (!proveedorNombre || !facturaNumero || !facturaFecha || facturaItems.length === 0) {
-                alert('Por favor, selecciona un proveedor, ingresa el número y fecha de factura, y añade al menos un producto.');
-                return;
-            }
-
-            const proveedorSeleccionado = proveedores.find(p => p.nombre === proveedorNombre);
-            if (!proveedorSeleccionado) {
-                alert('El proveedor seleccionado no existe. Por favor, regístralo primero.');
-                return;
-            }
-
-            const nuevaFactura = {
-                id: generarIdUnico(),
-                proveedorId: proveedorSeleccionado.id,
-                numero: facturaNumero,
-                fecha: facturaFecha,
-                vencimiento: facturaVencimiento,
-                items: facturaItems,
-                totalBs: totalGeneral,
-                pagada: false,
-                fechaRegistro: new Date().toISOString()
-            };
-
-            try {
-                await db.ref(configMaestra.pathCliente + 'facturasCompra/' + nuevaFactura.id).set(nuevaFactura);
-                log('Factura de compra guardada: ' + facturaNumero);
-                limpiarFormularioFacturaCompra();
-                cargarFacturasCompra();
-            } catch (error) {
-                log('Error al guardar factura de compra: ' + error.message);
-            }
-        }
-
-        function limpiarFormularioFacturaCompra() {
-            document.getElementById('factura-numero').value = '';
-            document.getElementById('factura-fecha').value = '';
-            document.getElementById('factura-vencimiento').value = '';
-            facturaItems = [];
-            renderFacturaItems();
-            document.getElementById('factura-total-general').value = '0.00';
-            document.getElementById('proveedor-nombre').value = ''; // Limpiar el proveedor seleccionado
-        }
-
-        function cargarFacturasCompra() {
-            // Las facturas se cargan automáticamente con el listener de Firebase
-            renderFacturasPendientes();
-            renderFacturasPagadas();
-        }
-
-        function renderFacturasPendientes(facturasFiltradas = facturasCompra.filter(f => !f.pagada)) {
-            const listElement = document.getElementById('facturas-pendientes-list');
-            listElement.innerHTML = '';
-            if (facturasFiltradas.length === 0) {
-                listElement.innerHTML = '<li class="empty-list">No hay facturas pendientes.</li>';
-                return;
-            }
-            facturasFiltradas.forEach(f => {
-                const proveedor = proveedores.find(p => p.id === f.proveedorId);
-                const li = document.createElement('li');
-                li.className = 'item';
-                li.innerHTML = `
-                    <div class="item-header">
-                        <span><strong>${f.numero}</strong> - ${proveedor ? proveedor.nombre : 'Proveedor Desconocido'}</span>
-                        <div class="item-actions">
-                            <button class="btn-add btn-small mark-as-paid" data-id="${f.id}"><i class="fas fa-check"></i> Pagar</button>
-                        </div>
-                    </div>
-                    <div class="item-details">
-                        <span>Total: Bs. ${f.totalBs.toFixed(2)}</span>
-                        <span>Vence: ${f.vencimiento}</span>
-                    </div>
-                `;
-                listElement.appendChild(li);
-            });
-        }
-
-        function renderFacturasPagadas(facturasFiltradas = facturasCompra.filter(f => f.pagada)) {
-            const listElement = document.getElementById('facturas-pagadas-list');
-            listElement.innerHTML = '';
-            if (facturasFiltradas.length === 0) {
-                listElement.innerHTML = '<li class="empty-list">No hay historial de facturas pagadas.</li>';
-                return;
-            }
-            facturasFiltradas.forEach(f => {
-                const proveedor = proveedores.find(p => p.id === f.proveedorId);
-                const li = document.createElement('li');
-                li.className = 'item';
-                li.innerHTML = `
-                    <div class="item-header">
-                        <span><strong>${f.numero}</strong> - ${proveedor ? proveedor.nombre : 'Proveedor Desconocido'}</span>
-                        <div class="item-actions">
-                            <button class="btn-info btn-small view-details" data-id="${f.id}"><i class="fas fa-eye"></i> Ver</button>
-                        </div>
-                    </div>
-                    <div class="item-details">
-                        <span>Total: Bs. ${f.totalBs.toFixed(2)}</span>
-                        <span>Pagada: ${new Date(f.fechaRegistro).toLocaleDateString()}</span>
-                    </div>
-                `;
-                listElement.appendChild(li);
-            });
-        }
-
-        async function marcarFacturaComoPagada(id) {
-            if (confirm('¿Marcar esta factura como pagada?')) {
-                try {
-                    await db.ref(configMaestra.pathCliente + 'facturasCompra/' + id).update({ pagada: true });
-                    log('Factura marcada como pagada: ' + id);
-                } catch (error) {
-                    log('Error al marcar factura como pagada: ' + error.message);
-                }
-            }
-        }
-
-        function verDetallesFacturaPagada(id) {
-            const factura = facturasCompra.find(f => f.id === id);
-            if (factura) {
-                let detailsHtml = `
-                    <h3>Detalles de Factura #${factura.numero}</h3>
-                    <p><strong>Proveedor:</strong> ${proveedores.find(p => p.id === factura.proveedorId)?.nombre || 'Desconocido'}</p>
-                    <p><strong>Fecha Factura:</strong> ${factura.fecha}</p>
-                    <p><strong>Fecha Vencimiento:</strong> ${factura.vencimiento}</p>
-                    <p><strong>Total:</strong> Bs. ${factura.totalBs.toFixed(2)}</p>
-                    <h4>Productos:</h4>
-                    <ul>
-                `;
-                factura.items.forEach(item => {
-                    detailsHtml += `<li>${item.nombre} (${item.cantidad} x Bs. ${item.costoUnitario.toFixed(2)}) - Total: Bs. ${item.costoTotalItem.toFixed(2)}</li>`;
-                });
-                detailsHtml += `</ul>`;
-                alert(detailsHtml); // Podríamos usar un modal más bonito aquí
-            }
-        }
-
-        async function toggleScannerFacturaProducto() {
-            const qrReaderElement = document.getElementById('qr-reader-factura-producto');
-            if (!scannerFacturaProducto) {
-                scannerFacturaProducto = new Html5QrcodeScanner(
-                    "qr-reader-factura-producto", { fps: 10, qrbox: 250, rememberLastUsedCamera: true });
-                scannerFacturaProducto.render(onScanSuccessFacturaProducto, onScanErrorFacturaProducto);
-                cameraFacturaProductoActive = true;
-                document.getElementById('btn-scan-factura-producto').innerHTML = '<i class="fas fa-stop-circle"></i> Detener Escáner';
-            } else if (cameraFacturaProductoActive) {
-                await scannerFacturaProducto.stop();
-                scannerFacturaProducto.clear();
-                scannerFacturaProducto = null;
-                cameraFacturaProductoActive = false;
-                qrReaderElement.innerHTML = ''; // Limpiar el contenido del lector
-                document.getElementById('btn-scan-factura-producto').innerHTML = '<i class="fas fa-barcode"></i> Escanear';
-            } else {
-                scannerFacturaProducto.render(onScanSuccessFacturaProducto, onScanErrorFacturaProducto);
-                cameraFacturaProductoActive = true;
-                document.getElementById('btn-scan-factura-producto').innerHTML = '<i class="fas fa-stop-circle"></i> Detener Escáner';
-            }
-        }
-
-        function onScanSuccessFacturaProducto(decodedText, decodedResult) {
-            document.getElementById('factura-producto-codigo').value = decodedText;
-            const producto = items.find(item => item.codigo === decodedText);
-            if (producto) {
-                document.getElementById('factura-producto-nombre').value = producto.nombre;
-                calcularCostoTotalItemFactura();
-            } else {
-                document.getElementById('factura-producto-nombre').value = 'Producto no encontrado';
-            }
-            // Detener el escáner después de un escaneo exitoso
-            toggleScannerFacturaProducto();
-        }
-
-        function onScanErrorFacturaProducto(errorMessage) {
-            // console.warn(`Code scan error = ${errorMessage}`);
-        }
-
-            // Lógica específica para el tab de proveedores
-            if (tabId === 'proveedores-tab') {
-                cargarProveedores();
-                cargarFacturasCompra();
-            }
-        }
         }
 
         // ==================== INICIALIZACIÓN ====================
@@ -1997,17 +1584,21 @@
                 const config = snap.val();
                 if (config) {
                     configMaestra.nombreNegocio = config.nombre_negocio || config.nombre || "Inverteca";
+                    configMaestra.empresaRIF = config.rif || '';
+                    configMaestra.empresaDireccion = config.direccion || '';
+                    configMaestra.empresaTelefono = config.telefono || '';
+                    configMaestra.empresaCorreo = config.correo || '';
                     document.getElementById('nombreNegocioDisplay').textContent = configMaestra.nombreNegocio;
                     document.getElementById('estadoServicio').textContent = (config.estado_servicio || "activo").toUpperCase();
                     const statusEl = document.getElementById('connectionStatus');
                     statusEl.textContent = 'Online (' + (config.nivel_plan || "basico").toUpperCase() + ')';
                     statusEl.className = 'connection-status online';
+                    actualizarEmpresaInfo();
                 }
             });
         }
 
         function escucharDatos() {
-            // Escuchar cambios en data (items, clientes, tasa)
             db.ref(configMaestra.pathCliente + 'data').on('value', snap => {
                 const data = snap.val();
                 if (data) {
@@ -2018,6 +1609,7 @@
                     if (data.iva_porcentaje) ivaPercentaje = data.iva_porcentaje;
                     items = data.items || [];
                     clientes = data.clientes || [];
+                    proveedores = data.proveedores || [];
                     
                     const creditosData = data.creditos;
                     if (creditosData) {
@@ -2033,212 +1625,86 @@
                         cierres = [];
                     }
 
-                    // Escuchar cierres mensuales
-                    db.ref(configMaestra.pathCliente + 'cierresMensuales').on('value', snapshot => {
-                    cierresMensuales = snapshot.val() ? Object.values(snapshot.val()) : [];
-                    log('Datos de cierres mensuales cargados.');
-                });
-
-                db.ref(configMaestra.pathCliente + 'proveedores').on('value', snapshot => {
-                    proveedores = snapshot.val() ? Object.values(snapshot.val()) : [];
-                    renderProveedoresList();
-                    log('Datos de proveedores cargados.');
-                });
-
-                db.ref(configMaestra.pathCliente + 'facturasCompra').on('value', snapshot => {
-                    facturasCompra = snapshot.val() ? Object.values(snapshot.val()) : [];
-                    renderFacturasPendientes();
-                    renderFacturasPagadas();
-                    log('Datos de facturas de compra cargados.');
-                });
-
-                // Inicializar listeners para los botones de limpiar búsqueda
-                document.querySelectorAll('.clear-search').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const targetId = e.target.dataset.target;
-                        const input = document.getElementById(targetId);
-                        if (input) {
-                            input.value = '';
-                            input.dispatchEvent(new Event('input')); // Disparar evento para actualizar la búsqueda
-                        }
-                    });
-                });
-
-                // Inicializar acordeones
-                document.querySelectorAll('.accordion-header').forEach(header => {
-                    header.addEventListener('click', () => {
-                        const content = header.nextElementSibling;
-                        content.classList.toggle('active');
-                    });
-                });
-
-                // Event listeners para el módulo de proveedores
-                document.getElementById('btn-guardar-proveedor').addEventListener('click', guardarProveedor);
-                document.getElementById('btn-cancelar-proveedor').addEventListener('click', limpiarFormularioProveedor);
-                document.getElementById('btn-agregar-producto-factura').addEventListener('click', agregarProductoAFactura);
-                document.getElementById('btn-guardar-factura').addEventListener('click', guardarFacturaCompra);
-
-                // Event listeners para búsqueda en proveedores
-                document.getElementById('search-proveedores').addEventListener('input', renderProveedoresList);
-                document.getElementById('search-facturas-pendientes').addEventListener('input', renderFacturasPendientes);
-                document.getElementById('search-facturas-pagadas').addEventListener('input', renderFacturasPagadas);
-
-                // Event listeners para cálculo de costo total de ítem en factura
-                document.getElementById('factura-producto-cantidad').addEventListener('input', calcularCostoTotalItemFactura);
-                document.getElementById('factura-producto-costo-unitario').addEventListener('input', calcularCostoTotalItemFactura);
-
-                // Event listener para escaner de código de barras en factura de compra
-                document.getElementById('btn-scan-factura-producto').addEventListener('click', toggleScannerFacturaProducto);
-
-                // Event listener para seleccionar proveedor de la lista
-                document.getElementById('proveedores-list').addEventListener('click', (e) => {
-                    if (e.target.tagName === 'LI') {
-                        const proveedorId = e.target.dataset.id;
-                        const proveedorSeleccionado = proveedores.find(p => p.id === proveedorId);
-                        if (proveedorSeleccionado) {
-                            document.getElementById('proveedor-nombre').value = proveedorSeleccionado.nombre;
-                            document.getElementById('proveedor-rif').value = proveedorSeleccionado.rif;
-                            document.getElementById('proveedor-telefono').value = proveedorSeleccionado.telefono;
-                            document.getElementById('proveedor-direccion').value = proveedorSeleccionado.direccion;
-                            document.getElementById('proveedor-correo').value = proveedorSeleccionado.correo;
-                        }
-                    }
-                });
-
-                // Listener para el input de código de producto en factura de compra
-                document.getElementById('factura-producto-codigo').addEventListener('change', (e) => {
-                    const codigo = e.target.value;
-                    const producto = items.find(item => item.codigo === codigo);
-                    if (producto) {
-                        document.getElementById('factura-producto-nombre').value = producto.nombre;
-                        calcularCostoTotalItemFactura();
+                    const facturasData = data.facturas;
+                    if (facturasData) {
+                        facturas = Array.isArray(facturasData) ? facturasData : Object.keys(facturasData).map(k => ({...facturasData[k], id: k}));
                     } else {
-                        document.getElementById('factura-producto-nombre').value = 'Producto no encontrado';
+                        facturas = [];
                     }
-                });
 
-                // Listener para actualizar el total general de la factura al eliminar ítems
-                document.getElementById('factura-items-list').addEventListener('click', (e) => {
-                    if (e.target.classList.contains('delete-item')) {
-                        const itemId = e.target.dataset.id;
-                        facturaItems = facturaItems.filter(item => item.id !== itemId);
-                        renderFacturaItems();
-                        calcularTotalGeneralFactura();
-                    }
-                });
-
-                // Listener para marcar factura como pagada
-                document.getElementById('facturas-pendientes-list').addEventListener('click', (e) => {
-                    if (e.target.classList.contains('mark-as-paid')) {
-                        const facturaId = e.target.dataset.id;
-                        marcarFacturaComoPagada(facturaId);
-                    }
-                });
-
-                // Listener para ver detalles de factura pagada
-                document.getElementById('facturas-pagadas-list').addEventListener('click', (e) => {
-                    if (e.target.classList.contains('view-details')) {
-                        const facturaId = e.target.dataset.id;
-                        verDetallesFacturaPagada(facturaId);
-                    }
-                });
-
-                // Listener para filtrar proveedores por RIF
-                document.getElementById('search-proveedores').addEventListener('input', (e) => {
-                    const filtro = e.target.value.toLowerCase();
-                    const proveedoresFiltrados = proveedores.filter(p => p.rif.toLowerCase().includes(filtro) || p.nombre.toLowerCase().includes(filtro));
-                    renderProveedoresList(proveedoresFiltrados);
-                });
-
-                // Listener para filtrar facturas pendientes
-                document.getElementById('search-facturas-pendientes').addEventListener('input', (e) => {
-                    const filtro = e.target.value.toLowerCase();
-                    const facturasFiltradas = facturasCompra.filter(f => !f.pagada && (f.numero.toLowerCase().includes(filtro) || proveedores.find(p => p.id === f.proveedorId)?.nombre.toLowerCase().includes(filtro)));
-                    renderFacturasPendientes(facturasFiltradas);
-                });
-
-                // Listener para filtrar facturas pagadas
-                document.getElementById('search-facturas-pagadas').addEventListener('input', (e) => {
-                    const filtro = e.target.value.toLowerCase();
-                    const facturasFiltradas = facturasCompra.filter(f => f.pagada && (f.numero.toLowerCase().includes(filtro) || proveedores.find(p => p.id === f.proveedorId)?.nombre.toLowerCase().includes(filtro)));
-                    renderFacturasPagadas(facturasFiltradas);
-                });
-
-                // Inicializar el estado de los botones de limpiar búsqueda
-                document.querySelectorAll('.search-input').forEach(input => {
-                    input.addEventListener('input', (e) => {
-                        const clearButton = e.target.nextElementSibling;
-                        if (e.target.value.length > 0) {
-                            clearButton.style.display = 'block';
-                        } else {
-                            clearButton.style.display = 'none';
-                        }
-                    });
-                });
-
-            } catch (error) {
-                log("❌ Error inicializando Firebase: " + error.message);
-                document.getElementById("connection-status").textContent = "Error";
-                document.getElementById("connection-status").classList.remove("online");
-            }{
+                    db.ref(configMaestra.pathCliente + 'logs/cierresMensuales').on('value', snap => {
                         const cmData = snap.val();
                         window.cierresMensuales = [];
                         if (cmData) {
-                            Object.keys(cmData).forEach(key => {
-                                window.cierresMensuales.push({ ...cmData[key], id: key });
+                            Object.keys(cmData).forEach(k => {
+                                window.cierresMensuales.push({...cmData[k], id: k});
                             });
                         }
+                    });
+
+                    db.ref(configMaestra.pathCliente + 'logs/ventas').on('value', snap => {
+                        const ventasData = snap.val();
+                        ventas = [];
+                        if (ventasData) {
+                            Object.keys(ventasData).forEach(k => {
+                                ventas.push({...ventasData[k], id: k});
+                            });
+                        }
+                        renderHistorial();
                         renderReportes();
                     });
 
                     render();
-                    filtrarCreditos();
-                    renderReportes();
+                    renderCreditos();
+                    renderProveedoresLista();
+                    renderFacturasPendientes();
+                    renderHistorialFacturas();
                 }
-            });
-
-            // Escuchar todas las ventas para el historial y reportes
-            db.ref(configMaestra.pathCliente + 'logs/ventas').on('value', snap => {
-                const logs = snap.val();
-                ventas = [];
-                if (logs) {
-                    Object.keys(logs).forEach(key => {
-                        ventas.push({ ...logs[key], id: key });
-                    });
-                }
-                renderHistorial();
-                renderReportes();
             });
         }
 
-        // ==================== GESTIÓN DE PRODUCTOS ====================
+        function actualizarEmpresaInfo() {
+            document.getElementById('empresaNombreDisplay').textContent = configMaestra.nombreNegocio;
+            document.getElementById('empresaRIFDisplay').textContent = configMaestra.empresaRIF || '-';
+            document.getElementById('empresaDireccionDisplay').textContent = configMaestra.empresaDireccion || '-';
+            document.getElementById('empresaTelefonoDisplay').textContent = configMaestra.empresaTelefono || '-';
+            document.getElementById('empresaCorreoDisplay').textContent = configMaestra.empresaCorreo || '-';
+        }
+
+        // ==================== FUNCIONES DE STOCK ====================
         function addItem() {
             const nombre = document.getElementById('nombre').value.trim();
             const sku = document.getElementById('codigoBarras').value.trim();
             const costo = parseFloat(document.getElementById('costo').value) || 0;
-            const monedaCosto = document.getElementById('monedaCosto').value;
+            const moneda = document.getElementById('monedaCosto').value;
             const beneficio = parseFloat(document.getElementById('beneficio').value) || 0;
-            const cantidad = parseFloat(document.getElementById('cantidad').value) || 1;
+            const cantidad = parseFloat(document.getElementById('cantidad').value) || 0;
             const unidad = document.getElementById('unidad').value;
             const exentoIVA = document.getElementById('exentoIVA').checked;
             const editId = document.getElementById('editId').value;
 
-            if (!nombre) return alert("Ingresa el nombre");
+            if (!nombre || costo <= 0 || cantidad <= 0) return alert('Completa los campos requeridos');
 
-            let costoBs = monedaCosto === "USD" ? costo * tasaDolar : costo;
-            const precioVenta = costoBs * (1 + beneficio / 100);
+            const costoEnBs = moneda === "USD" ? costo * tasaDolar : costo;
+            const precioVenta = costoEnBs * (1 + beneficio / 100);
             const precioVentaUSD = precioVenta / tasaDolar;
-
-            const nuevoItem = {
-                id: editId || Date.now().toString(),
-                nombre, sku, costo: costoBs, precioVenta, precioVentaUSD,
-                beneficio, cantidad, unidad, exentoIVA, iva: exentoIVA ? 0 : ivaPercentaje
-            };
+            const precioCompra = costoEnBs;
 
             if (editId) {
                 const idx = items.findIndex(i => i.id === editId);
-                if (idx !== -1) items[idx] = nuevoItem;
+                if (idx !== -1) {
+                    items[idx] = {
+                        ...items[idx],
+                        nombre, sku, costo: costoEnBs, beneficio, cantidad, unidad, exentoIVA,
+                        precioVenta, precioVentaUSD, precioCompra
+                    };
+                }
             } else {
+                const nuevoItem = {
+                    id: 'ITEM-' + Date.now(),
+                    nombre, sku, costo: costoEnBs, beneficio, cantidad, unidad, exentoIVA,
+                    precioVenta, precioVentaUSD, precioCompra
+                };
                 items.push(nuevoItem);
             }
 
@@ -2333,7 +1799,6 @@
             document.getElementById('totalDisplayUSD').textContent = "$ " + totalUSD.toLocaleString('es-VE', { minimumFractionDigits: 2 });
         }
 
-        // ==================== LÓGICA DEL ESCÁNER (COPIADA DEL OPERATIVO) ====================
         function toggleCameraInventario() {
             if(!libreriasListas) return alert('Cargando librerías...');
             if(cameraInventarioActive) closeCameraInventario();
@@ -2368,7 +1833,6 @@
                 scannerInventario.render(onScanSuccessInventario, onScanErrorInventario);
                 cameraInventarioActive = true;
                 statusDiv.textContent = '✓ Cámara activa';
-                document.querySelector('.btn-camera').textContent = '❌ CERRAR';
             } catch(err) {
                 statusDiv.textContent = 'Error: ' + err.message;
             }
@@ -2379,7 +1843,6 @@
                 scannerInventario.clear().then(() => {
                     document.getElementById('qr-reader-inventario').style.display = 'none';
                     document.getElementById('qr-status-inventario').textContent = '';
-                    document.querySelector('.btn-camera').textContent = '📷 ESCANEAR';
                     cameraInventarioActive = false;
                 });
             }
@@ -2391,7 +1854,7 @@
             closeCameraInventario();
         }
 
-        function onScanErrorInventario(err) { /* Silencio */ }
+        function onScanErrorInventario(err) { }
 
         function renderStockConBoton() {
             const input = document.getElementById('filtroStock');
@@ -2430,7 +1893,6 @@
             const lista = document.getElementById('listaProductosVentas');
             lista.innerHTML = '';
             
-            // Si el filtro está vacío, no mostrar ningún producto para mantener la interfaz limpia
             if (!filtro) {
                 return;
             }
@@ -2470,75 +1932,74 @@
         }
 
         function agregarAlCarrito(item) {
-            if (item.unidad === 'KG') {
+            if (item.cantidad <= 0) return alert('Stock insuficiente');
+            
+            if (item.unidad === 'KG' || item.unidad === 'LIT') {
                 abrirModalPeso(item);
             } else {
                 const existente = carrito.find(c => c.id === item.id);
                 if (existente) {
+                    if (existente.cantidad + 1 > item.cantidad) return alert('Stock insuficiente');
                     existente.cantidad += 1;
                 } else {
                     carrito.push({ ...item, cantidad: 1 });
                 }
-                recalcularTotales();
                 renderCarrito();
+                recalcularTotales();
             }
         }
 
         function renderCarrito() {
-            const carritoDiv = document.getElementById('carritoVentas');
+            const div = document.getElementById('carritoVentas');
             if (carrito.length === 0) {
-                carritoDiv.innerHTML = '<div class="carrito-vacio">Carrito vacío</div>';
+                div.innerHTML = '<div class="carrito-vacio">Carrito vacío</div>';
                 return;
             }
-            carritoDiv.innerHTML = carrito.map((item, idx) => {
-                const subtotalBs = item.precioVenta * item.cantidad;
-                const subtotalUSD = subtotalBs / tasaDolar;
-                return `
-                    <div class="carrito-item">
-                        <div class="carrito-item-info">
-                            <div class="carrito-item-nombre">${item.nombre}</div>
-                            <div class="carrito-item-precio">Bs. ${subtotalBs.toFixed(2)} / $ ${subtotalUSD.toFixed(2)}</div>
-                        </div>
-                        <div class="carrito-item-cantidad">
-                            <button class="btn-qty" onclick="modificarCantidad(${idx}, -1)">−</button>
-                            <span class="qty-display">${item.cantidad}</span>
-                            <button class="btn-qty" onclick="modificarCantidad(${idx}, 1)">+</button>
-                            <button class="btn-remove-item" onclick="removerDelCarrito(${idx})">✕</button>
-                        </div>
+            div.innerHTML = carrito.map((item, idx) => `
+                <div class="carrito-item">
+                    <div class="carrito-item-info">
+                        <div class="carrito-item-nombre">${item.nombre}</div>
+                        <div class="carrito-item-precio">Bs. ${item.precioVenta.toFixed(2)} c/u</div>
                     </div>
-                `;
-            }).join('');
+                    <div class="carrito-item-cantidad">
+                        <button class="btn-qty" onclick="cambiarCantidad(${idx}, -1)">−</button>
+                        <span class="qty-display">${item.cantidad.toFixed(3)}</span>
+                        <button class="btn-qty" onclick="cambiarCantidad(${idx}, 1)">+</button>
+                        <button class="btn-remove-item" onclick="removerDelCarrito(${idx})">✕</button>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function modificarCantidad(idx, delta) {
-            carrito[idx].cantidad += delta;
-            if (carrito[idx].cantidad <= 0) removerDelCarrito(idx);
-            else {
-                recalcularTotales();
+        function cambiarCantidad(idx, cambio) {
+            const item = carrito[idx];
+            const original = items.find(i => i.id === item.id);
+            const nuevaCantidad = item.cantidad + cambio;
+            if (nuevaCantidad > 0 && nuevaCantidad <= original.cantidad) {
+                item.cantidad = nuevaCantidad;
                 renderCarrito();
+                recalcularTotales();
             }
         }
 
         function removerDelCarrito(idx) {
             carrito.splice(idx, 1);
-            recalcularTotales();
             renderCarrito();
+            recalcularTotales();
         }
 
         function recalcularTotales() {
-            let subtotalGravable = 0, subtotalExento = 0, ivaTotal = 0;
-            const incluirIVA = document.getElementById('incluirIVAVentas').checked;
-            
+            let subtotalGravable = 0, subtotalExento = 0;
             carrito.forEach(item => {
                 const subtotal = item.precioVenta * item.cantidad;
                 if (item.exentoIVA) {
                     subtotalExento += subtotal;
                 } else {
                     subtotalGravable += subtotal;
-                    if (incluirIVA) ivaTotal += subtotal * (item.iva / 100);
                 }
             });
             
+            const ivaTotal = subtotalGravable * (ivaPercentaje / 100);
             const totalFinal = subtotalGravable + subtotalExento + ivaTotal;
             const totalFinalUSD = totalFinal / tasaDolar;
             
@@ -2562,18 +2023,14 @@
             abrirModalPago();
         }
 
-
-
         function renderHistorial() {
             const historialDiv = document.getElementById('historialVentas');
             
-            // Obtener IDs de ventas ya cerradas
             const idsCerrados = new Set();
             cierres.forEach(c => {
                 if (c.ventasIds) c.ventasIds.forEach(id => idsCerrados.add(id));
             });
 
-            // Filtrar solo las ventas de hoy que NO estén cerradas
             const d = new Date();
             const hoy = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
             const ventasHoy = ventas.filter(v => {
@@ -2588,7 +2045,6 @@
 
             let totalAcumuladoDia = 0;
             
-            // Mostrar en orden inverso (más reciente primero)
             const htmlVentas = [...ventasHoy].reverse().map(v => {
                 const esAnulada = v.anulada === true;
                 if (!esAnulada) totalAcumuladoDia += v.totalBs;
@@ -2674,7 +2130,7 @@
             closeCameraVentas();
         }
 
-        function onScanErrorVentas(err) { /* Silencio */ }
+        function onScanErrorVentas(err) { }
 
         // ==================== MODAL DE PESO ====================
         let itemPesoActual = null;
@@ -2719,12 +2175,11 @@
         }
 
         // ==================== MODAL DE PAGO Y VUELTO (MEJORADO) ====================
-        let metodoPagoActual = 'bs'; // 'bs' | 'dolar' | 'punto'
+        let metodoPagoActual = 'bs';
         let ventaAnulacionId = null;
 
         function seleccionarMetodo(metodo) {
             metodoPagoActual = metodo;
-            // Actualizar botones
             document.getElementById('btnMetodoBs').classList.toggle('selected', metodo === 'bs');
             document.getElementById('btnMetodoDolar').classList.toggle('selected', metodo === 'dolar');
             document.getElementById('btnMetodoPunto').classList.toggle('selected', metodo === 'punto');
@@ -2758,7 +2213,6 @@
             document.getElementById('modalPagoTotal').textContent = `Bs. ${totalBs.toFixed(2)}`;
             document.getElementById('modalPagoTotalUSD').textContent = `$ ${totalUSD.toFixed(2)}`;
             
-            // Iniciar siempre con Bs. y monto precargado
             metodoPagoActual = 'bs';
             document.getElementById('btnMetodoBs').classList.add('selected');
             document.getElementById('btnMetodoDolar').classList.remove('selected');
@@ -2798,18 +2252,11 @@
                 totalAComparar = totalBs;
             }
 
-            const diferenciaBs = pagoEnBs - totalBs;
-
-            if (diferenciaBs > 0.01) {
-                const vueltoUSD = diferenciaBs / tasaDolar;
-                if (metodoPagoActual === 'bs') {
-                    document.getElementById('vueltoMonto').textContent = `Bs. ${diferenciaBs.toFixed(2)}`;
-                    document.getElementById('vueltoDual').textContent = `$ ${vueltoUSD.toFixed(2)}`;
-                } else {
-                    document.getElementById('vueltoMonto').textContent = `$ ${vueltoUSD.toFixed(2)}`;
-                    document.getElementById('vueltoDual').textContent = `Bs. ${diferenciaBs.toFixed(2)}`;
-                }
+            const vuelto = pagoEnBs - totalAComparar;
+            if (vuelto >= 0) {
                 document.getElementById('vueltoSection').style.display = 'block';
+                document.getElementById('vueltoMonto').textContent = `Bs. ${vuelto.toFixed(2)}`;
+                document.getElementById('vueltoDual').textContent = `$ ${(vuelto / tasaDolar).toFixed(2)}`;
             } else {
                 document.getElementById('vueltoSection').style.display = 'none';
             }
@@ -2819,21 +2266,13 @@
             const totalBs = parseFloat(document.getElementById('modalPagoTotal').textContent.replace('Bs. ', '')) || 0;
             const montoIngresado = parseFloat(document.getElementById('montoPagoInput').value) || 0;
 
-            let pagoEnBs = 0;
-            let tipoPago = '';
-            if (metodoPagoActual === 'bs') {
-                pagoEnBs = montoIngresado;
-                tipoPago = 'Bs. Efectivo';
-            } else if (metodoPagoActual === 'dolar') {
-                pagoEnBs = montoIngresado * tasaDolar;
-                tipoPago = 'Dólares';
-            } else if (metodoPagoActual === 'punto') {
-                pagoEnBs = totalBs; // Pago exacto
-                tipoPago = 'Punto / Pago Móvil';
-            }
+            if (montoIngresado <= 0) return alert('Ingresa un monto válido');
 
-            if (pagoEnBs < totalBs && metodoPagoActual !== 'punto') {
-                return alert('⚠️ El monto ingresado es insuficiente.');
+            let tipoPago = 'CONTADO - Bs.';
+            if (metodoPagoActual === 'dolar') {
+                tipoPago = 'CONTADO - USD';
+            } else if (metodoPagoActual === 'punto') {
+                tipoPago = 'PUNTO/PAGO MÓVIL';
             }
 
             const ahora = new Date();
@@ -2854,10 +2293,8 @@
                 anulada: false
             };
 
-            // Guardar en Firebase (usando la misma lógica que crédito)
             if (db) {
                 db.ref(configMaestra.pathCliente + 'logs/ventas').push(venta).then(() => {
-                    // Descontar stock localmente y en DB
                     carrito.forEach(ci => {
                         const idx = items.findIndex(i => i.id === ci.id);
                         if (idx !== -1) {
@@ -2870,12 +2307,11 @@
                     carrito = [];
                     renderCarrito();
                     recalcularTotales();
-                    renderHistorial(); // Forzar renderizado inmediato
+                    renderHistorial();
                     cerrarModalPago();
                     alert('✅ Venta confirmada\n' + tipoPago + '\nTotal: Bs. ' + totalBs.toFixed(2));
                 }).catch(err => alert('Error al guardar venta: ' + err));
             } else {
-                // Fallback offline
                 ventas.push(venta);
                 carrito = [];
                 renderCarrito();
@@ -2924,7 +2360,7 @@
             alert('🚫 Venta anulada correctamente.');
         }
 
-        // ==================== MÓDULO DE CRÉDITOS (CLIENTES Y DEUDAS) ====================
+        // ==================== MÓDULO DE CRÉDITOS ====================
         let clienteSeleccionadoId = null;
 
         function abrirModalCredito() {
@@ -2932,7 +2368,6 @@
             const totalBs = parseFloat(document.getElementById('totalFinal').textContent.replace('Bs. ', '')) || 0;
             document.getElementById('modalCreditoTotal').textContent = `Bs. ${totalBs.toFixed(2)}`;
             
-            // Resetear campos
             document.getElementById('nombreClienteCredito').value = '';
             document.getElementById('cedulaCliente').value = '';
             document.getElementById('telefonoCliente').value = '';
@@ -2985,7 +2420,6 @@
             document.getElementById('sugerenciasClientes').style.display = 'none';
             document.getElementById('datosNuevoCliente').style.display = 'none';
             
-            // Mostrar deuda actual
             const deudaTotal = cliente.deudaTotal || 0;
             document.getElementById('montoDeudaActual').textContent = `Bs. ${deudaTotal.toFixed(2)}`;
             document.getElementById('deudaActualCliente').style.display = 'block';
@@ -2999,7 +2433,6 @@
 
             let clienteId = clienteSeleccionadoId;
             
-            // Si es un cliente nuevo, registrarlo
             if (clienteId === 'NUEVO' || !clienteId) {
                 clienteId = Date.now().toString();
                 const nuevoCliente = {
@@ -3011,14 +2444,12 @@
                 };
                 clientes.push(nuevoCliente);
             } else {
-                // Actualizar deuda de cliente existente
                 const idx = clientes.findIndex(c => c.id === clienteId);
                 if (idx !== -1) {
                     clientes[idx].deudaTotal = (clientes[idx].deudaTotal || 0) + totalBs;
                 }
             }
 
-            // Registrar el crédito
             const ahora = new Date();
             const soloFecha = `${ahora.getDate()}/${ahora.getMonth() + 1}/${ahora.getFullYear()}`;
             const soloHora = ahora.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -3037,14 +2468,9 @@
                 tipo: 'CREDITO'
             };
             
-            // Guardar en Firebase
             if (db) {
-                Promise.all([
-                    db.ref(configMaestra.pathCliente + 'data/clientes').set(clientes),
-                    db.ref(configMaestra.pathCliente + 'data/creditos').push(nuevoCredito),
-                    db.ref(configMaestra.pathCliente + 'logs/ventas').push(nuevoCredito)
-                ]).then(() => {
-                    // Descontar stock
+                db.ref(configMaestra.pathCliente + 'data/clientes').set(clientes);
+                db.ref(configMaestra.pathCliente + 'logs/ventas').push(nuevoCredito).then(() => {
                     carrito.forEach(ci => {
                         const idx = items.findIndex(i => i.id === ci.id);
                         if (idx !== -1) {
@@ -3053,100 +2479,57 @@
                     });
                     db.ref(configMaestra.pathCliente + 'data/items').set(items);
 
-                    log('💳 Crédito asignado a ' + nombre + ': Bs. ' + totalBs.toFixed(2));
+                    log('✅ Crédito registrado: ' + nombre + ' - Bs. ' + totalBs.toFixed(2));
                     carrito = [];
                     renderCarrito();
                     recalcularTotales();
+                    renderHistorial();
                     cerrarModalCredito();
-                    alert('✅ Crédito registrado correctamente.');
-                }).catch(err => alert('Error al guardar crédito: ' + err));
-            } else {
-                // Fallback offline
-                carrito = [];
-                renderCarrito();
-                recalcularTotales();
-                cerrarModalCredito();
-                alert('✅ Crédito registrado localmente.');
+                    alert('✅ Crédito asignado a ' + nombre + '\nTotal: Bs. ' + totalBs.toFixed(2));
+                });
             }
+        }
+
+        function renderCreditos() {
+            const div = document.getElementById('listaCreditos');
+            const filtro = document.getElementById('buscarClienteCredito').value.toLowerCase();
+            
+            const creditosFiltrados = creditos.filter(c => 
+                !c.pagada && (c.clienteNombre.toLowerCase().includes(filtro) || (c.clienteId && c.clienteId.includes(filtro)))
+            );
+
+            if (creditosFiltrados.length === 0) {
+                div.innerHTML = '<p style="text-align:center; padding:20px; color:#999;">Sin créditos pendientes</p>';
+                return;
+            }
+
+            div.innerHTML = creditosFiltrados.map(c => `
+                <div class="historial-item" style="border-left-color: #e67e22;">
+                    <div class="historial-item-header">
+                        <span style="font-size:0.8rem;">${c.fechaCompleta || c.fecha}</span>
+                        <span style="color:#e67e22; font-size:1rem;">Bs. ${c.saldo.toFixed(2)}</span>
+                    </div>
+                    <div class="historial-item-detalle" style="font-weight:bold; color:#e67e22;">
+                        👤 ${c.clienteNombre} | ${c.items.length} artículo(s)
+                    </div>
+                    <button class="btn-anular-venta" style="background: var(--info);" onclick="abrirModalAbono('${c.id}', '${c.clienteNombre}', ${c.saldo})">💰 ABONO</button>
+                </div>
+            `).join('');
         }
 
         function filtrarCreditos() {
-            const filtro = document.getElementById('buscarClienteCredito').value.toLowerCase();
-            const lista = document.getElementById('listaCreditos');
-            
-            if (creditos.length === 0) {
-                lista.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">No hay créditos registrados.</div>';
-                return;
-            }
-
-            // Agrupar por cliente para mostrar total general
-            const deudasPorCliente = {};
-            creditos.filter(c => !c.pagada).forEach(c => {
-                if (!deudasPorCliente[c.clienteId]) {
-                    deudasPorCliente[c.clienteId] = {
-                        nombre: c.clienteNombre,
-                        totalDeuda: 0,
-                        detalles: []
-                    };
-                }
-                deudasPorCliente[c.clienteId].totalDeuda += c.saldo;
-                deudasPorCliente[c.clienteId].detalles.push(c);
-            });
-
-            const clientesConDeuda = Object.keys(deudasPorCliente).filter(id => 
-                deudasPorCliente[id].nombre.toLowerCase().includes(filtro)
-            );
-
-            if (clientesConDeuda.length === 0) {
-                lista.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">No se encontraron clientes con deuda.</div>';
-                return;
-            }
-
-            lista.innerHTML = clientesConDeuda.map(id => {
-                const c = deudasPorCliente[id];
-                return `
-                    <div class="historial-item" style="border-left-color: var(--danger); margin-bottom: 15px; padding: 12px;">
-                        <div class="historial-item-header">
-                            <span style="font-size: 1.1rem; color: var(--text);">${c.nombre}</span>
-                            <span style="color: var(--danger); font-size: 1.2rem; font-weight: bold;">TOTAL: Bs. ${c.totalDeuda.toFixed(2)}</span>
-                        </div>
-                        <div style="margin-top: 8px;">
-                            ${c.detalles.map(d => `
-                                <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 5px; font-size: 0.8rem; border: 1px solid #eee;">
-                                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                                        <span>📅 ${d.fecha}</span>
-                                        <span style="color: var(--danger);">Bs. ${d.saldo.toFixed(2)}</span>
-                                    </div>
-                                    <div style="color: #777; font-size: 0.75rem; margin-top: 2px;">
-                                        ${d.items.map(i => `${i.nombre} (x${i.cantidad})`).join(', ')}
-                                    </div>
-                                    <div style="display: flex; gap: 10px; margin-top: 8px;">
-                                        <button onclick="abrirModalAbono('${d.id}')" style="background: var(--primary); color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.75rem; flex: 1;">💰 ABONAR / PAGAR</button>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            renderCreditos();
         }
 
-        // ==================== ABONOS Y PAGOS ====================
         let creditoAbonoId = null;
 
-        function abrirModalAbono(id) {
-            const credito = creditos.find(c => c.id === id);
-            if (!credito) return;
-            
-            creditoAbonoId = id;
-            document.getElementById('abonoClienteNombre').textContent = credito.clienteNombre;
-            document.getElementById('abonoDeudaTotal').textContent = `Saldo pendiente: Bs. ${credito.saldo.toFixed(2)}`;
-            document.getElementById('montoAbono').value = credito.saldo.toFixed(2);
+        function abrirModalAbono(creditoId, clienteNombre, deuda) {
+            creditoAbonoId = creditoId;
+            document.getElementById('abonoClienteNombre').textContent = clienteNombre;
+            document.getElementById('abonoDeudaTotal').textContent = `Deuda: Bs. ${deuda.toFixed(2)}`;
+            document.getElementById('montoAbono').value = '';
+            document.getElementById('montoAbono').focus();
             document.getElementById('modalAbono').classList.add('active');
-            setTimeout(() => {
-                document.getElementById('montoAbono').focus();
-                document.getElementById('montoAbono').select();
-            }, 200);
         }
 
         function cerrarModalAbono() {
@@ -3156,90 +2539,355 @@
 
         function confirmarAbono() {
             const monto = parseFloat(document.getElementById('montoAbono').value) || 0;
-            if (monto <= 0) return alert('⚠️ Ingresa un monto válido.');
+            if (monto <= 0) return alert('Ingresa un monto válido');
+            
+            const creditoIdx = creditos.findIndex(c => c.id === creditoAbonoId);
+            if (creditoIdx === -1) return;
 
-            const idx = creditos.findIndex(c => c.id === creditoAbonoId);
-            if (idx === -1) return;
+            const credito = creditos[creditoIdx];
+            credito.saldo = Math.max(0, credito.saldo - monto);
+            if (credito.saldo === 0) credito.pagada = true;
 
-            const credito = creditos[idx];
-            if (monto > credito.saldo + 0.01) {
-                return alert('⚠️ El abono no puede ser mayor a la deuda (Bs. ' + credito.saldo.toFixed(2) + ').');
-            }
-
-            // Actualizar saldo del crédito
-            credito.saldo -= monto;
-            if (credito.saldo <= 0.01) {
-                credito.saldo = 0;
-                credito.pagada = true;
-            }
-
-            // Actualizar deuda total del cliente
-            const cIdx = clientes.findIndex(c => c.id === credito.clienteId);
-            if (cIdx !== -1) {
-                clientes[cIdx].deudaTotal = Math.max(0, (clientes[cIdx].deudaTotal || 0) - monto);
-            }
-
-            // Registrar log de abono
             if (db) {
-                db.ref(configMaestra.pathCliente + 'data/clientes').set(clientes);
-                // Si el crédito tiene ID de Firebase (key), actualizar esa entrada específica
-                const creditoKey = creditos[idx].id;
-                if (creditoKey && !creditoKey.startsWith('CRED-')) {
-                    db.ref(configMaestra.pathCliente + 'data/creditos/' + creditoKey).update({
-                        saldo: credito.saldo,
-                        pagada: credito.pagada
-                    });
-                } else {
-                    // Si no tiene key, actualizar todo el nodo (fallback)
-                    db.ref(configMaestra.pathCliente + 'data/creditos').set(creditos);
-                }
-                
                 db.ref(configMaestra.pathCliente + 'logs/abonos').push({
-                    creditoId: credito.id,
-                    clienteNombre: credito.clienteNombre,
+                    creditoId: creditoAbonoId,
                     monto: monto,
-                    fecha: new Date().toLocaleString('es-VE')
+                    fecha: new Date().toLocaleString('es-VE'),
+                    saldoRestante: credito.saldo
                 });
             }
 
-            log('💰 Abono registrado: ' + credito.clienteNombre + ' - Bs. ' + monto.toFixed(2));
-            filtrarCreditos();
+            log('✅ Abono registrado: Bs. ' + monto.toFixed(2));
+            renderCreditos();
             cerrarModalAbono();
-            alert('✅ Abono registrado correctamente.');
+            alert('✅ Abono registrado\nMonto: Bs. ' + monto.toFixed(2) + '\nSaldo restante: Bs. ' + credito.saldo.toFixed(2));
         }
 
-        // ==================== REPORTES Y CIERRES ====================
-        function toggleAccordion(id) {
-            const content = document.getElementById('content' + id.charAt(0).toUpperCase() + id.slice(1));
-            const icon = document.getElementById('icon' + id.charAt(0).toUpperCase() + id.slice(1));
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                icon.textContent = '➖';
-            } else {
-                content.style.display = 'none';
-                icon.textContent = '➕';
+        // ==================== MÓDULO DE PROVEEDORES ====================
+        let proveedorSeleccionadoId = null;
+
+        function filtrarProveedores() {
+            const filtro = document.getElementById('buscarProveedor').value.toLowerCase();
+            renderProveedoresLista(filtro);
+        }
+
+        function renderProveedoresLista(filtro = '') {
+            const div = document.getElementById('listaProveedoresCompleta');
+            const filtrados = proveedores.filter(p => 
+                p.nombre.toLowerCase().includes(filtro) || 
+                (p.rif && p.rif.includes(filtro))
+            );
+
+            if (filtrados.length === 0) {
+                div.innerHTML = '<p style="color: #999; text-align: center;">No hay proveedores registrados</p>';
+                return;
+            }
+
+            div.innerHTML = filtrados.map(p => `
+                <div class="proveedor-item${proveedorSeleccionadoId === p.id ? ' selected' : ''}" onclick="seleccionarProveedor('${p.id}', '${p.nombre}')">
+                    <div class="proveedor-nombre">${p.nombre}</div>
+                    <div class="proveedor-detalle">RIF: ${p.rif || '-'} | Tel: ${p.telefono || '-'}</div>
+                </div>
+            `).join('');
+        }
+
+        function seleccionarProveedor(id, nombre) {
+            proveedorSeleccionadoId = id;
+            facturaActual.proveedorId = id;
+            facturaActual.proveedorNombre = nombre;
+            document.getElementById('proveedorSeleccionadoDisplay').textContent = nombre;
+            renderProveedoresLista();
+        }
+
+        function toggleCameraProveedores() {
+            if(!libreriasListas) return alert('Cargando librerías...');
+            if(cameraProveedoresActive) closeCameraProveedores();
+            else openCameraProveedores();
+        }
+
+        function openCameraProveedores() {
+            const readerDiv = document.getElementById('qr-reader-proveedores');
+            const statusDiv = document.getElementById('qr-status-proveedores');
+            readerDiv.style.display = 'block';
+            readerDiv.innerHTML = '';
+            statusDiv.textContent = 'Inicializando cámara...';
+            
+            if(scannerProveedores) {
+                try { scannerProveedores.clear(); } catch(e) {}
+                scannerProveedores = null;
+            }
+            
+            try {
+                scannerProveedores = new Html5QrcodeScanner(
+                    "qr-reader-proveedores",
+                    { 
+                        fps: 10, 
+                        qrbox: { width: 250, height: 250 }, 
+                        rememberLastUsedCamera: true, 
+                        showTorchButtonIfSupported: true,
+                        aspectRatio: 1.0,
+                        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE, Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39, Html5QrcodeSupportedFormats.EAN_13]
+                    },
+                    false
+                );
+                scannerProveedores.render(onScanSuccessProveedores, onScanErrorProveedores);
+                cameraProveedoresActive = true;
+                statusDiv.textContent = '✓ Cámara activa';
+            } catch(err) {
+                statusDiv.textContent = 'Error: ' + err.message;
             }
         }
 
+        function closeCameraProveedores() {
+            if(scannerProveedores) {
+                scannerProveedores.clear().then(() => {
+                    document.getElementById('qr-reader-proveedores').style.display = 'none';
+                    document.getElementById('qr-status-proveedores').textContent = '';
+                    cameraProveedoresActive = false;
+                });
+            }
+        }
+
+        function onScanSuccessProveedores(decodedText) {
+            document.getElementById('codigoProductoFactura').value = decodedText;
+            log("✅ Código: " + decodedText);
+            closeCameraProveedores();
+        }
+
+        function onScanErrorProveedores(err) { }
+
+        function agregarItemFactura() {
+            const codigo = document.getElementById('codigoProductoFactura').value.trim();
+            const cantidad = parseFloat(document.getElementById('cantidadFactura').value) || 0;
+            const costoUnitario = parseFloat(document.getElementById('costoUnitarioFactura').value) || 0;
+
+            if (!codigo || cantidad <= 0 || costoUnitario <= 0) {
+                return alert('Completa todos los campos del item');
+            }
+
+            // Buscar el producto en el inventario
+            const producto = items.find(i => i.sku === codigo || i.id === codigo);
+            const nombreProducto = producto ? producto.nombre : `Producto ${codigo}`;
+
+            const item = {
+                id: 'ITEM-' + Date.now(),
+                codigo: codigo,
+                nombre: nombreProducto,
+                cantidad: cantidad,
+                costoUnitario: costoUnitario,
+                subtotal: cantidad * costoUnitario
+            };
+
+            facturaActual.items.push(item);
+            renderItemsFactura();
+            
+            // Limpiar campos
+            document.getElementById('codigoProductoFactura').value = '';
+            document.getElementById('cantidadFactura').value = '1';
+            document.getElementById('costoUnitarioFactura').value = '';
+            document.getElementById('codigoProductoFactura').focus();
+        }
+
+        function renderItemsFactura() {
+            const container = document.getElementById('facturaItemsContainer');
+            
+            if (facturaActual.items.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">Sin items agregados</div>';
+                return;
+            }
+
+            let costoTotal = 0;
+            container.innerHTML = facturaActual.items.map((item, idx) => {
+                costoTotal += item.subtotal;
+                return `
+                    <div class="factura-item">
+                        <div class="factura-item-info">
+                            <div class="factura-item-nombre">${item.nombre}</div>
+                            <div class="factura-item-precio">${item.cantidad} x Bs. ${item.costoUnitario.toFixed(2)} = Bs. ${item.subtotal.toFixed(2)}</div>
+                        </div>
+                        <div class="factura-item-actions">
+                            <button class="btn-small btn-danger" onclick="removerItemFactura(${idx})">✕</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('costoTotalFactura').textContent = `Bs. ${costoTotal.toFixed(2)}`;
+            document.getElementById('totalFactura').textContent = `Bs. ${costoTotal.toFixed(2)}`;
+        }
+
+        function removerItemFactura(idx) {
+            facturaActual.items.splice(idx, 1);
+            renderItemsFactura();
+        }
+
+        function cerrarFactura() {
+            if (!facturaActual.proveedorId) return alert('Selecciona un proveedor');
+            if (facturaActual.items.length === 0) return alert('Agrega al menos un item');
+
+            const numeroFactura = document.getElementById('numeroFactura').value.trim();
+            const fechaFactura = document.getElementById('fechaFactura').value;
+            const fechaVencimiento = document.getElementById('fechaVencimiento').value;
+
+            if (!numeroFactura || !fechaFactura) return alert('Completa número y fecha de factura');
+
+            // Calcular costo total
+            let costoTotal = 0;
+            facturaActual.items.forEach(item => {
+                costoTotal += item.subtotal;
+            });
+
+            const factura = {
+                id: 'FAC-' + Date.now(),
+                numeroFactura: numeroFactura,
+                proveedorId: facturaActual.proveedorId,
+                proveedorNombre: facturaActual.proveedorNombre,
+                fechaFactura
+: fechaFactura,
+                fechaVencimiento: fechaVencimiento,
+                items: JSON.parse(JSON.stringify(facturaActual.items)),
+                costoTotal: costoTotal,
+                estado: 'pendiente',
+                fechaRegistro: new Date().toLocaleString('es-VE')
+            };
+
+            // Agregar items al stock
+            facturaActual.items.forEach(itemFactura => {
+                const productoIdx = items.findIndex(i => i.sku === itemFactura.codigo || i.id === itemFactura.codigo);
+                if (productoIdx !== -1) {
+                    items[productoIdx].cantidad += itemFactura.cantidad;
+                } else {
+                    // Crear nuevo producto si no existe
+                    const nuevoProducto = {
+                        id: 'ITEM-' + Date.now() + Math.random(),
+                        nombre: itemFactura.nombre,
+                        sku: itemFactura.codigo,
+                        cantidad: itemFactura.cantidad,
+                        costo: itemFactura.costoUnitario,
+                        beneficio: 30,
+                        unidad: 'UND',
+                        exentoIVA: false,
+                        precioVenta: itemFactura.costoUnitario * 1.3,
+                        precioVentaUSD: (itemFactura.costoUnitario * 1.3) / tasaDolar,
+                        precioCompra: itemFactura.costoUnitario
+                    };
+                    items.push(nuevoProducto);
+                }
+            });
+
+            if (db) {
+                db.ref(configMaestra.pathCliente + 'data/facturas').push(factura);
+                db.ref(configMaestra.pathCliente + 'data/items').set(items);
+            } else {
+                facturas.push(factura);
+            }
+
+            log('✅ Factura cerrada: ' + numeroFactura + ' - Bs. ' + costoTotal.toFixed(2));
+            alert('✅ Factura registrada\nNúmero: ' + numeroFactura + '\nCosto Total: Bs. ' + costoTotal.toFixed(2) + '\n\nItems agregados al stock');
+            
+            limpiarFormularioFactura();
+            renderFacturasPendientes();
+            renderHistorialFacturas();
+        }
+
+        function limpiarFormularioFactura() {
+            facturaActual = {
+                items: [],
+                proveedorId: null,
+                proveedorNombre: '',
+                numeroFactura: '',
+                fechaFactura: '',
+                fechaVencimiento: ''
+            };
+            proveedorSeleccionadoId = null;
+            document.getElementById('numeroFactura').value = '';
+            document.getElementById('fechaFactura').value = '';
+            document.getElementById('fechaVencimiento').value = '';
+            document.getElementById('codigoProductoFactura').value = '';
+            document.getElementById('cantidadFactura').value = '1';
+            document.getElementById('costoUnitarioFactura').value = '';
+            document.getElementById('proveedorSeleccionadoDisplay').textContent = 'Selecciona un proveedor...';
+            renderItemsFactura();
+            renderProveedoresLista();
+        }
+
+        function renderFacturasPendientes() {
+            const div = document.getElementById('listaFacturasPendientes');
+            const pendientes = facturas.filter(f => f.estado === 'pendiente');
+
+            if (pendientes.length === 0) {
+                div.innerHTML = '<p style="color: #999; text-align: center;">No hay facturas pendientes</p>';
+                return;
+            }
+
+            div.innerHTML = pendientes.map(f => `
+                <div class="historial-item" style="border-left-color: #f39c12;">
+                    <div class="historial-item-header">
+                        <span style="font-size:0.8rem;">${f.fechaFactura}</span>
+                        <span style="color:#f39c12; font-size:1rem;">Bs. ${f.costoTotal.toFixed(2)}</span>
+                    </div>
+                    <div class="historial-item-detalle" style="font-weight:bold; color:#f39c12;">
+                        🏭 ${f.proveedorNombre} | Factura: ${f.numeroFactura}
+                    </div>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 4px;">
+                        Vence: ${f.fechaVencimiento || 'N/A'} | ${f.items.length} items
+                    </div>
+                    <button class="btn-anular-venta" style="background: var(--primary); margin-top: 4px;" onclick="marcarFacturaPagada('${f.id}')">✅ MARCAR PAGADA</button>
+                </div>
+            `).join('');
+        }
+
+        function renderHistorialFacturas() {
+            const div = document.getElementById('listaHistorialFacturas');
+            const pagadas = facturas.filter(f => f.estado === 'pagada');
+
+            if (pagadas.length === 0) {
+                div.innerHTML = '<p style="color: #999; text-align: center;">No hay facturas pagadas</p>';
+                return;
+            }
+
+            div.innerHTML = pagadas.map(f => `
+                <div class="historial-item" style="border-left-color: #27ae60;">
+                    <div class="historial-item-header">
+                        <span style="font-size:0.8rem;">${f.fechaFactura}</span>
+                        <span style="color:#27ae60; font-size:1rem;">Bs. ${f.costoTotal.toFixed(2)}</span>
+                    </div>
+                    <div class="historial-item-detalle" style="font-weight:bold; color:#27ae60;">
+                        ✅ ${f.proveedorNombre} | Factura: ${f.numeroFactura}
+                    </div>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 4px;">
+                        Registrada: ${f.fechaRegistro || 'N/A'} | ${f.items.length} items
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function marcarFacturaPagada(facturaId) {
+            const idx = facturas.findIndex(f => f.id === facturaId);
+            if (idx === -1) return;
+            
+            if (confirm('¿Marcar esta factura como pagada?')) {
+                facturas[idx].estado = 'pagada';
+                facturas[idx].fechaPago = new Date().toLocaleString('es-VE');
+                
+                if (db) {
+                    db.ref(configMaestra.pathCliente + 'data/facturas').set(facturas);
+                }
+                
+                log('✅ Factura marcada como pagada: ' + facturas[idx].numeroFactura);
+                renderFacturasPendientes();
+                renderHistorialFacturas();
+                alert('✅ Factura marcada como pagada');
+            }
+        }
+
+        // ==================== REPORTES ====================
         function renderReportes() {
             const container = document.getElementById('diasPendientesCierre');
-            const archivados = document.getElementById('historialCierresArchivados');
-            if (!container || !archivados) return;
-
-            // 1. Cálculos para el Dashboard (Ventas de HOY activas)
-            const d = new Date();
-            const hoy = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
-            
             const idsCerrados = new Set();
             cierres.forEach(c => {
                 if (c.ventasIds) c.ventasIds.forEach(id => idsCerrados.add(id));
             });
-
-            const ventasHoyActivas = ventas.filter(v => 
-                (v.fecha || "").split(',')[0].trim() === hoy && 
-                !v.anulada && 
-                !idsCerrados.has(v.id)
-            );
 
             let totalBruto = 0;
             let totalIVA = 0;
@@ -3247,13 +2895,11 @@
 
             ventasHoyActivas.forEach(v => {
                 totalBruto += v.totalBs;
-                // Calcular IVA si aplica (asumiendo 16% en los items que no son exentos)
                 v.items.forEach(item => {
                     const subtotalItem = item.precioVenta * item.cantidad;
                     if (!item.exentoIVA) {
                         totalIVA += subtotalItem * (ivaPercentaje / 100);
                     }
-                    // Ganancia Neta: Precio Venta - Precio Compra
                     const itemOriginal = items.find(i => i.id === item.id);
                     const precioCompra = itemOriginal ? (itemOriginal.precioCompra || 0) : 0;
                     totalCosto += precioCompra * item.cantidad;
@@ -3266,8 +2912,7 @@
             const gananciaNeta = totalBruto - totalIVA - totalCosto;
             document.getElementById('dashGananciaNeta').textContent = `Bs. ${gananciaNeta.toFixed(2)}`;
 
-            // 2. Productos en Falla
-            const productosFalla = items.filter(i => i.cantidad <= 5); // Umbral de falla
+            const productosFalla = items.filter(i => i.cantidad <= 5);
             const listaFalla = document.getElementById('listaProductosFalla');
             if (productosFalla.length === 0) {
                 listaFalla.innerHTML = '<p style="color: #999;">No hay productos en falla.</p>';
@@ -3279,7 +2924,6 @@
                     }).join('') + '</ul>';
             }
 
-            // 3. Agrupar ventas por día para Cierre
             const ventasPorDia = {};
             const ventasPendientes = ventas.filter(v => !idsCerrados.has(v.id) && !v.anulada);
             
@@ -3306,13 +2950,12 @@
                 `).join('');
             }
 
-            // 4. Renderizar archivados (Diarios y Mensuales)
+            const archivados = document.getElementById('historialCierresArchivados');
             if (cierres.length === 0 && (!window.cierresMensuales || window.cierresMensuales.length === 0)) {
                 archivados.innerHTML = '<p style="text-align:center; color:#999; padding:10px;">No hay cierres registrados.</p>';
             } else {
                 let html = '';
                 
-                // Mostrar Cierres Mensuales Primero (si existen)
                 if (window.cierresMensuales && window.cierresMensuales.length > 0) {
                     html += '<h4 style="margin: 10px 0 5px 0; font-size: 0.8rem; color: #e74c3c;">🗓️ CIERRES MENSUALES</h4>';
                     html += [...window.cierresMensuales].reverse().map(cm => `
@@ -3329,7 +2972,6 @@
                     `).join('');
                 }
 
-                // Mostrar Cierres Diarios
                 html += '<h4 style="margin: 10px 0 5px 0; font-size: 0.8rem; color: #27ae60;">☀️ CIERRES DIARIOS</h4>';
                 html += [...cierres].reverse().map(c => `
                     <div style="border-left: 4px solid #27ae60; background: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 0.9rem; border: 1px solid #eee;">
@@ -3370,7 +3012,6 @@
         }
 
         function realizarCierreGlobal() {
-            // 1. Agrupar ventas por día que NO estén en un cierre archivado
             const idsCerrados = new Set();
             cierres.forEach(c => {
                 if (c.ventasIds) c.ventasIds.forEach(id => idsCerrados.add(id));
@@ -3382,7 +3023,6 @@
                 return alert('⚠️ No hay ventas pendientes para cerrar.');
             }
 
-            // Agrupar por día
             const ventasPorDia = {};
             ventasPendientes.forEach(v => {
                 const dia = (v.fecha || "").split(',')[0].trim();
@@ -3399,7 +3039,6 @@
                 const ventasDia = ventasPorDia[dia];
                 const totalBs = ventasDia.reduce((sum, v) => sum + v.totalBs, 0);
                 
-                // Calcular IVA acumulado del día
                 let totalIVA = 0;
                 ventasDia.forEach(v => {
                     v.items.forEach(item => {
@@ -3430,7 +3069,6 @@
             if (db) {
                 Promise.all(promesas).then(() => {
                     alert('✅ Cierres realizados con éxito.\nEl historial de ventas se ha limpiado.');
-                    // Forzar recarga local de cierres para que renderHistorial filtre correctamente
                     db.ref(configMaestra.pathCliente + 'data/cierres').once('value', snap => {
                         const cData = snap.val();
                         if (cData) {
@@ -3455,7 +3093,6 @@
             
             if (!confirm(`¿Desea generar el Cierre Mensual para el periodo ${mesActual}?`)) return;
 
-            // Agrupar cierres por mes
             let totalVentas = 0;
             let totalIVA = 0;
             let cantCierres = 0;
@@ -3475,7 +3112,6 @@
             const resumen = `Resumen Mensual (${mesActual}):\n- Ventas Totales: Bs. ${totalVentas.toFixed(2)}\n- IVA Recaudado: Bs. ${totalIVA.toFixed(2)}\n- Días cerrados: ${cantCierres}`;
             alert(resumen);
             
-            // Aquí se podría guardar en un nodo 'data/cierresMensuales' si se desea persistencia
             if (db) {
                 db.ref(configMaestra.pathCliente + 'logs/cierresMensuales').push({
                     mes: mesActual,
@@ -3486,6 +3122,34 @@
                 });
             }
         }
+
+        // Variable para ventas activas de hoy
+        let ventasHoyActivas = [];
+
+        // Actualizar ventasHoyActivas cuando se carguen las ventas
+        db.ref(configMaestra.pathCliente + 'logs/ventas').on('value', snap => {
+            const ventasData = snap.val();
+            ventas = [];
+            if (ventasData) {
+                Object.keys(ventasData).forEach(k => {
+                    ventas.push({...ventasData[k], id: k});
+                });
+            }
+            
+            const d = new Date();
+            const hoy = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+            const idsCerrados = new Set();
+            cierres.forEach(c => {
+                if (c.ventasIds) c.ventasIds.forEach(id => idsCerrados.add(id));
+            });
+            ventasHoyActivas = ventas.filter(v => {
+                const f = (v.fecha || "").split(',')[0].trim();
+                return f === hoy && !idsCerrados.has(v.id) && !v.anulada;
+            });
+            
+            renderHistorial();
+            renderReportes();
+        });
 
         verificarLibrerias();
     </script>
