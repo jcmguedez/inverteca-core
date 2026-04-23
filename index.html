@@ -931,6 +931,7 @@
             <button class="tab-btn active" onclick="switchTab('stock')">📦 Stock</button>
             <button class="tab-btn" onclick="switchTab('venta')">🛒 Venta</button>
             <button class="tab-btn" onclick="switchTab('creditos')">💳 Créditos</button>
+            <button class="tab-btn" onclick="switchTab('proveedores')">🏭 Proveedores</button>
             <button class="tab-btn" onclick="switchTab('reportes')">🏢 Reportes</button>
         </div>
 
@@ -1143,6 +1144,178 @@
             <button class="btn-camera" style="background: #3498db; width: 100%;" onclick="descargarCSVVentas()">
                 📥 DESCARGAR CSV
             </button>
+        </div>
+    </div>
+
+    <!-- TAB: PROVEEDORES -->
+    <div id="proveedores" class="tab-content">
+        <h2 style="display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #f39c12; padding-bottom: 10px;">
+            🏭 Gestión de Proveedores
+        </h2>
+        
+        <!-- DATOS DE LA EMPRESA -->
+        <h3 style="font-size: 0.95rem; color: #666; margin-top: 15px; margin-bottom: 10px; font-weight: 600;">📍 Datos de la Empresa</h3>
+        <div class="input-row">
+            <div>
+                <label>Nombre</label>
+                <input type="text" id="nombreEmpresaProv" readonly>
+            </div>
+            <div>
+                <label>RIF</label>
+                <input type="text" id="rifEmpresaProv" readonly>
+            </div>
+        </div>
+        <div class="input-row">
+            <div>
+                <label>Teléfono</label>
+                <input type="text" id="telefonoEmpresaProv" readonly>
+            </div>
+            <div>
+                <label>Correo</label>
+                <input type="text" id="correoEmpresaProv" readonly>
+            </div>
+        </div>
+        <div class="input-group">
+            <label>Dirección</label>
+            <input type="text" id="direccionEmpresaProv" readonly>
+        </div>
+
+        <!-- GESTIÓN DE PROVEEDORES -->
+        <h3 style="font-size: 0.95rem; color: #666; margin-top: 20px; margin-bottom: 10px; font-weight: 600;">🏭 Proveedores Registrados</h3>
+        <button class="btn-add" style="width: 100%; margin-bottom: 15px;" onclick="abrirModalNuevoProveedor()">➕ NUEVO PROVEEDOR</button>
+        
+        <div class="input-group">
+            <label>Buscar Proveedor</label>
+            <input type="text" id="filtroProveedores" placeholder="Escribe para filtrar..." oninput="filtrarProveedores()">
+        </div>
+        
+        <div id="listaProveedoresContainer" style="max-height: 300px; overflow-y: auto;"></div>
+
+        <!-- CARGA DE FACTURAS -->
+        <h3 style="font-size: 0.95rem; color: #666; margin-top: 20px; margin-bottom: 10px; font-weight: 600;">📋 Proveedor Seleccionado</h3>
+        <div style="background: #f0f0f0; padding: 12px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+            <div style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">Proveedor Actual:</div>
+            <div style="font-weight: bold; font-size: 1.1rem; color: var(--secondary);" id="proveedorSeleccionadoDisplay">Selecciona un proveedor...</div>
+        </div>
+        <button class="btn-venta-contado" style="width: 100%; margin-bottom: 15px;" onclick="abrirModalProveedores()">🔄 CAMBIAR PROVEEDOR</button>
+
+        <!-- DATOS DE FACTURA -->
+        <h3 style="font-size: 0.95rem; color: #666; margin-top: 20px; margin-bottom: 10px; font-weight: 600;">📄 Datos de Factura</h3>
+        <div class="input-row">
+            <div>
+                <label>Número de Factura</label>
+                <input type="text" id="numeroFactura" placeholder="FAC-001">
+            </div>
+            <div>
+                <label>Fecha Factura</label>
+                <input type="date" id="fechaFactura">
+            </div>
+        </div>
+        <div class="input-group">
+            <label>Fecha de Vencimiento</label>
+            <input type="date" id="fechaVencimiento">
+        </div>
+
+        <!-- ITEMS DE FACTURA -->
+        <h3 style="font-size: 0.95rem; color: #666; margin-top: 20px; margin-bottom: 10px; font-weight: 600;">📦 Items de la Factura</h3>
+        <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+            <label style="display: flex; align-items: center; gap: 5px; font-size: 0.9rem; cursor: pointer;">
+                <input type="checkbox" id="lectorCodigosFactura" onchange="toggleLectorFactura()">
+                📱 Lector de Códigos
+            </label>
+        </div>
+        <div id="qr-reader-proveedores" style="display: none;"></div>
+        
+        <div class="input-row">
+            <div>
+                <label>Código/SKU</label>
+                <input type="text" id="codigoProductoFactura" placeholder="Código o escanea...">
+            </div>
+            <div>
+                <label>Cantidad</label>
+                <input type="number" id="cantidadFactura" value="1" min="1">
+            </div>
+        </div>
+        <div class="input-row">
+            <div>
+                <label>Costo Unitario (Bs.)</label>
+                <input type="number" id="costoUnitarioFactura" placeholder="0.00" step="0.01">
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+                <button class="btn-add" onclick="agregarItemFactura()" style="margin: 0;">➕ AGREGAR</button>
+            </div>
+        </div>
+
+        <div id="itemsFacturaContainer" style="margin: 15px 0;"></div>
+
+        <div style="background: var(--info); color: white; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 15px;">
+            <div style="font-size: 0.9rem; opacity: 0.9;">Costo Total de Factura:</div>
+            <div style="font-size: 1.3rem; font-weight: bold;" id="costoTotalFactura">Bs. 0,00</div>
+        </div>
+
+        <button class="btn-venta-contado" style="width: 100%;" onclick="cerrarFactura()">✅ CERRAR FACTURA</button>
+
+        <!-- HISTORIAL -->
+        <h3 style="font-size: 0.95rem; color: #666; margin-top: 20px; margin-bottom: 10px; font-weight: 600;">⏳ Facturas Pendientes</h3>
+        <div id="listaFacturasPendientes" style="max-height: 250px; overflow-y: auto;"></div>
+
+        <h3 style="font-size: 0.95rem; color: #666; margin-top: 20px; margin-bottom: 10px; font-weight: 600;">✅ Facturas Pagadas</h3>
+        <div id="listaHistorialFacturas" style="max-height: 250px; overflow-y: auto;"></div>
+    </div>
+
+    <!-- MODAL: NUEVO PROVEEDOR -->
+    <div id="modalNuevoProveedor" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>🏭</span>
+                <span>Registrar Nuevo Proveedor</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-input-group">
+                    <label>Nombre del Proveedor:</label>
+                    <input type="text" id="nombreProveedor" placeholder="Nombre completo">
+                </div>
+                <div class="modal-input-group">
+                    <label>RIF/NIT:</label>
+                    <input type="text" id="rifProveedor" placeholder="RIF o NIT">
+                </div>
+                <div class="modal-input-group">
+                    <label>Dirección:</label>
+                    <input type="text" id="direccionProveedor" placeholder="Dirección completa">
+                </div>
+                <div class="modal-input-group">
+                    <label>Teléfono:</label>
+                    <input type="text" id="telefonoProveedor" placeholder="0412-0000000">
+                </div>
+                <div class="modal-input-group">
+                    <label>Correo Electrónico:</label>
+                    <input type="email" id="correoProveedor" placeholder="correo@proveedor.com">
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="guardarNuevoProveedor()">✅ GUARDAR</button>
+                <button class="modal-btn" style="background:#95a5a6; color:white;" onclick="cerrarModalNuevoProveedor()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SELECCIONAR PROVEEDOR -->
+    <div id="modalProveedores" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>🏭</span>
+                <span>Seleccionar Proveedor</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-input-group">
+                    <label>Buscar:</label>
+                    <input type="text" id="buscarProveedorModal" placeholder="Escribe para buscar..." oninput="filtrarProveedoresModal()">
+                </div>
+                <div id="listaProveedoresModal" style="max-height: 300px; overflow-y: auto;"></div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn" style="background:#95a5a6; color:white;" onclick="cerrarModalProveedores()">CERRAR</button>
+            </div>
         </div>
     </div>
 
@@ -2745,6 +2918,435 @@
                 });
             }
         }
+
+        // ==================== MÓDULO PROVEEDORES ====================
+        let proveedores = [];
+        let facturas = [];
+        let facturaActual = {
+            items: [],
+            proveedorId: null,
+            proveedorNombre: '',
+            numeroFactura: '',
+            fechaFactura: '',
+            fechaVencimiento: ''
+        };
+        let proveedorSeleccionadoId = null;
+        let scannerFactura = null;
+        let cameraFacturaActive = false;
+
+        function cargarDatosEmpresaProveedores() {
+            db.ref(configMaestra.pathCliente + 'config').once('value', snap => {
+                const config = snap.val();
+                if (config) {
+                    document.getElementById('nombreEmpresaProv').value = config.nombre_negocio || config.nombre || 'N/A';
+                    document.getElementById('rifEmpresaProv').value = config.rif || 'N/A';
+                    document.getElementById('telefonoEmpresaProv').value = config.telefono || 'N/A';
+                    document.getElementById('correoEmpresaProv').value = config.correo || 'N/A';
+                    document.getElementById('direccionEmpresaProv').value = config.direccion || 'N/A';
+                }
+            });
+        }
+
+        function escucharProveedoresFacturas() {
+            db.ref(configMaestra.pathCliente + 'data').on('value', snap => {
+                const data = snap.val();
+                if (data) {
+                    const proveedoresData = data.proveedores;
+                    if (proveedoresData) {
+                        proveedores = Array.isArray(proveedoresData) ? proveedoresData : Object.keys(proveedoresData).map(k => ({...proveedoresData[k], id: k}));
+                    } else {
+                        proveedores = [];
+                    }
+
+                    const facturasData = data.facturas;
+                    if (facturasData) {
+                        facturas = Array.isArray(facturasData) ? facturasData : Object.keys(facturasData).map(k => ({...facturasData[k], id: k}));
+                    } else {
+                        facturas = [];
+                    }
+
+                    renderProveedoresLista();
+                    renderFacturasPendientes();
+                    renderHistorialFacturas();
+                }
+            });
+        }
+
+        function abrirModalNuevoProveedor() {
+            document.getElementById('nombreProveedor').value = '';
+            document.getElementById('rifProveedor').value = '';
+            document.getElementById('direccionProveedor').value = '';
+            document.getElementById('telefonoProveedor').value = '';
+            document.getElementById('correoProveedor').value = '';
+            document.getElementById('modalNuevoProveedor').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('nombreProveedor').focus();
+            }, 200);
+        }
+
+        function cerrarModalNuevoProveedor() {
+            document.getElementById('modalNuevoProveedor').classList.remove('active');
+        }
+
+        function guardarNuevoProveedor() {
+            const nombre = document.getElementById('nombreProveedor').value.trim();
+            const rif = document.getElementById('rifProveedor').value.trim();
+            const direccion = document.getElementById('direccionProveedor').value.trim();
+            const telefono = document.getElementById('telefonoProveedor').value.trim();
+            const correo = document.getElementById('correoProveedor').value.trim();
+
+            if (!nombre) return alert('⚠️ Ingresa el nombre del proveedor');
+
+            const nuevoProveedor = {
+                id: 'PROV-' + Date.now(),
+                nombre: nombre,
+                rif: rif,
+                direccion: direccion,
+                telefono: telefono,
+                correo: correo,
+                fechaRegistro: new Date().toLocaleString('es-VE')
+            };
+
+            if (db) {
+                db.ref(configMaestra.pathCliente + 'data/proveedores').push(nuevoProveedor).then(() => {
+                    log('✅ Proveedor registrado: ' + nombre);
+                    alert('✅ Proveedor registrado exitosamente');
+                    cerrarModalNuevoProveedor();
+                }).catch(e => log('❌ Error: ' + e.message));
+            }
+        }
+
+        function renderProveedoresLista() {
+            const div = document.getElementById('listaProveedoresContainer');
+            
+            if (proveedores.length === 0) {
+                div.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No hay proveedores registrados</p>';
+                return;
+            }
+
+            div.innerHTML = proveedores.map(p => `
+                <div style="background: #f9f9f9; border: 1px solid #eee; border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: var(--text);">${p.nombre}</div>
+                        <div style="font-size: 0.85rem; color: #999;">RIF: ${p.rif || 'N/A'} | Tel: ${p.telefono || 'N/A'}</div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-add" style="padding: 6px 12px; font-size: 0.8rem;" onclick="seleccionarProveedor('${p.id}', '${p.nombre}')">Sel.</button>
+                        <button class="btn-venta-contado" style="padding: 6px 12px; font-size: 0.8rem; background: var(--danger);" onclick="eliminarProveedor('${p.id}')">X</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filtrarProveedores() {
+            const filtro = document.getElementById('filtroProveedores').value.toLowerCase();
+            const items = document.querySelectorAll('#listaProveedoresContainer > div');
+            
+            items.forEach(item => {
+                const texto = item.textContent.toLowerCase();
+                item.style.display = texto.includes(filtro) ? 'flex' : 'none';
+            });
+        }
+
+        function seleccionarProveedor(id, nombre) {
+            proveedorSeleccionadoId = id;
+            facturaActual.proveedorId = id;
+            facturaActual.proveedorNombre = nombre;
+            document.getElementById('proveedorSeleccionadoDisplay').textContent = nombre;
+            log('✅ Proveedor seleccionado: ' + nombre);
+        }
+
+        function eliminarProveedor(id) {
+            if (!confirm('¿Eliminar este proveedor?')) return;
+            
+            proveedores = proveedores.filter(p => p.id !== id);
+            
+            if (db) {
+                db.ref(configMaestra.pathCliente + 'data/proveedores').set(proveedores);
+            }
+            
+            log('✅ Proveedor eliminado');
+            renderProveedoresLista();
+        }
+
+        function abrirModalProveedores() {
+            if (proveedores.length === 0) return alert('⚠️ No hay proveedores registrados');
+            renderProveedoresModal();
+            document.getElementById('modalProveedores').classList.add('active');
+        }
+
+        function cerrarModalProveedores() {
+            document.getElementById('modalProveedores').classList.remove('active');
+        }
+
+        function renderProveedoresModal() {
+            const div = document.getElementById('listaProveedoresModal');
+            
+            div.innerHTML = proveedores.map(p => `
+                <div style="padding: 10px; border-bottom: 1px solid #ddd; cursor: pointer;" onclick="seleccionarProveedorModal('${p.id}', '${p.nombre}')">
+                    <strong>${p.nombre}</strong><br>
+                    <small>RIF: ${p.rif || 'N/A'} | Tel: ${p.telefono || 'N/A'}</small>
+                </div>
+            `).join('');
+        }
+
+        function filtrarProveedoresModal() {
+            const filtro = document.getElementById('buscarProveedorModal').value.toLowerCase();
+            const items = document.querySelectorAll('#listaProveedoresModal > div');
+            
+            items.forEach(item => {
+                const texto = item.textContent.toLowerCase();
+                item.style.display = texto.includes(filtro) ? 'block' : 'none';
+            });
+        }
+
+        function seleccionarProveedorModal(id, nombre) {
+            seleccionarProveedor(id, nombre);
+            cerrarModalProveedores();
+        }
+
+        function toggleLectorFactura() {
+            const checkbox = document.getElementById('lectorCodigosFactura');
+            const qrDiv = document.getElementById('qr-reader-proveedores');
+            
+            if (checkbox.checked) {
+                qrDiv.style.display = 'block';
+                if (!scannerFactura) {
+                    scannerFactura = new Html5QrcodeScanner('qr-reader-proveedores', {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 }
+                    }, false);
+                    scannerFactura.render(onScanSuccessFactura, onScanErrorFactura);
+                }
+            } else {
+                qrDiv.style.display = 'none';
+                if (scannerFactura) {
+                    scannerFactura.clear();
+                    scannerFactura = null;
+                }
+            }
+        }
+
+        function onScanSuccessFactura(decodedText) {
+            document.getElementById('codigoProductoFactura').value = decodedText;
+            log('✅ Código escaneado: ' + decodedText);
+        }
+
+        function onScanErrorFactura(error) {
+            // Ignorar errores
+        }
+
+        function agregarItemFactura() {
+            const codigo = document.getElementById('codigoProductoFactura').value.trim();
+            const cantidad = parseInt(document.getElementById('cantidadFactura').value) || 1;
+            const costoUnitario = parseFloat(document.getElementById('costoUnitarioFactura').value) || 0;
+
+            if (!codigo) return alert('⚠️ Ingresa el código del producto');
+            if (costoUnitario <= 0) return alert('⚠️ Ingresa un costo válido');
+
+            const productoExistente = items.find(i => i.sku === codigo || i.id === codigo);
+            const nombreProducto = productoExistente ? productoExistente.nombre : 'Producto ' + codigo;
+
+            const item = {
+                codigo: codigo,
+                nombre: nombreProducto,
+                cantidad: cantidad,
+                costoUnitario: costoUnitario,
+                subtotal: cantidad * costoUnitario
+            };
+
+            facturaActual.items.push(item);
+            
+            document.getElementById('codigoProductoFactura').value = '';
+            document.getElementById('cantidadFactura').value = '1';
+            document.getElementById('costoUnitarioFactura').value = '';
+            
+            renderItemsFactura();
+            log('✅ Item agregado: ' + nombreProducto + ' x' + cantidad);
+        }
+
+        function renderItemsFactura() {
+            const div = document.getElementById('itemsFacturaContainer');
+            let costoTotal = 0;
+
+            div.innerHTML = facturaActual.items.map((item, idx) => {
+                costoTotal += item.subtotal;
+                return `
+                    <div style="background: #f9f9f9; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: var(--text); margin-bottom: 3px;">${item.nombre}</div>
+                            <div style="font-size: 0.85rem; color: #666;">${item.cantidad} x Bs. ${item.costoUnitario.toFixed(2)} = Bs. ${item.subtotal.toFixed(2)}</div>
+                        </div>
+                        <button class="btn-venta-contado" style="padding: 6px 10px; font-size: 0.8rem; background: var(--danger);" onclick="removerItemFactura(${idx})">✕</button>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('costoTotalFactura').textContent = `Bs. ${costoTotal.toFixed(2)}`;
+        }
+
+        function removerItemFactura(idx) {
+            facturaActual.items.splice(idx, 1);
+            renderItemsFactura();
+        }
+
+        function cerrarFactura() {
+            if (!facturaActual.proveedorId) return alert('⚠️ Selecciona un proveedor');
+            if (facturaActual.items.length === 0) return alert('⚠️ Agrega al menos un item');
+
+            const numeroFactura = document.getElementById('numeroFactura').value.trim();
+            const fechaFactura = document.getElementById('fechaFactura').value;
+            const fechaVencimiento = document.getElementById('fechaVencimiento').value;
+
+            if (!numeroFactura || !fechaFactura) return alert('⚠️ Completa número y fecha de factura');
+
+            let costoTotal = 0;
+            facturaActual.items.forEach(item => {
+                costoTotal += item.subtotal;
+            });
+
+            const factura = {
+                id: 'FAC-' + Date.now(),
+                numeroFactura: numeroFactura,
+                proveedorId: facturaActual.proveedorId,
+                proveedorNombre: facturaActual.proveedorNombre,
+                fechaFactura: fechaFactura,
+                fechaVencimiento: fechaVencimiento,
+                items: JSON.parse(JSON.stringify(facturaActual.items)),
+                costoTotal: costoTotal,
+                estado: 'pendiente',
+                fechaRegistro: new Date().toLocaleString('es-VE')
+            };
+
+            facturaActual.items.forEach(itemFactura => {
+                const productoIdx = items.findIndex(i => i.sku === itemFactura.codigo || i.id === itemFactura.codigo);
+                if (productoIdx !== -1) {
+                    items[productoIdx].cantidad += itemFactura.cantidad;
+                } else {
+                    const nuevoProducto = {
+                        id: 'ITEM-' + Date.now() + Math.random(),
+                        nombre: itemFactura.nombre,
+                        sku: itemFactura.codigo,
+                        cantidad: itemFactura.cantidad,
+                        costo: itemFactura.costoUnitario,
+                        beneficio: 30,
+                        unidad: 'UND',
+                        exentoIVA: false,
+                        precioVenta: itemFactura.costoUnitario * 1.3,
+                        precioVentaUSD: (itemFactura.costoUnitario * 1.3) / tasaDolar,
+                        precioCompra: itemFactura.costoUnitario
+                    };
+                    items.push(nuevoProducto);
+                }
+            });
+
+            if (db) {
+                Promise.all([
+                    db.ref(configMaestra.pathCliente + 'data/facturas').push(factura),
+                    db.ref(configMaestra.pathCliente + 'data/items').set(items)
+                ]).then(() => {
+                    log('✅ Factura cerrada: ' + numeroFactura + ' - Bs. ' + costoTotal.toFixed(2));
+                    alert('✅ Factura registrada\nNúmero: ' + numeroFactura + '\nCosto Total: Bs. ' + costoTotal.toFixed(2) + '\n\nItems agregados al stock');
+                    limpiarFormularioFactura();
+                    renderFacturasPendientes();
+                    renderHistorialFacturas();
+                }).catch(e => log('❌ Error: ' + e.message));
+            }
+        }
+
+        function limpiarFormularioFactura() {
+            facturaActual = {
+                items: [],
+                proveedorId: null,
+                proveedorNombre: '',
+                numeroFactura: '',
+                fechaFactura: '',
+                fechaVencimiento: ''
+            };
+            proveedorSeleccionadoId = null;
+            document.getElementById('numeroFactura').value = '';
+            document.getElementById('fechaFactura').value = '';
+            document.getElementById('fechaVencimiento').value = '';
+            document.getElementById('codigoProductoFactura').value = '';
+            document.getElementById('cantidadFactura').value = '1';
+            document.getElementById('costoUnitarioFactura').value = '';
+            document.getElementById('proveedorSeleccionadoDisplay').textContent = 'Selecciona un proveedor...';
+            renderItemsFactura();
+        }
+
+        function renderFacturasPendientes() {
+            const div = document.getElementById('listaFacturasPendientes');
+            const pendientes = facturas.filter(f => f.estado === 'pendiente');
+
+            if (pendientes.length === 0) {
+                div.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No hay facturas pendientes</p>';
+                return;
+            }
+
+            div.innerHTML = pendientes.map(f => `
+                <div style="border-left: 4px solid #f39c12; background: #f9f9f9; padding: 12px; border-radius: 6px; margin-bottom: 10px; border: 1px solid #eee;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size:0.8rem;">${f.fechaFactura}</span>
+                        <span style="color:#f39c12; font-size:1rem;">Bs. ${f.costoTotal.toFixed(2)}</span>
+                    </div>
+                    <div style="font-weight:bold; color:#f39c12; margin-bottom: 6px;">🏭 ${f.proveedorNombre} | Factura: ${f.numeroFactura}</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 8px;">
+                        Vence: ${f.fechaVencimiento || 'N/A'} | ${f.items.length} items
+                    </div>
+                    <button class="btn-venta-contado" style="background: var(--primary); width: 100%; padding: 8px;" onclick="marcarFacturaPagada('${f.id}')">✅ MARCAR PAGADA</button>
+                </div>
+            `).join('');
+        }
+
+        function renderHistorialFacturas() {
+            const div = document.getElementById('listaHistorialFacturas');
+            const pagadas = facturas.filter(f => f.estado === 'pagada');
+
+            if (pagadas.length === 0) {
+                div.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No hay facturas pagadas</p>';
+                return;
+            }
+
+            div.innerHTML = pagadas.map(f => `
+                <div style="border-left: 4px solid #27ae60; background: #f9f9f9; padding: 12px; border-radius: 6px; margin-bottom: 10px; border: 1px solid #eee;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size:0.8rem;">${f.fechaFactura}</span>
+                        <span style="color:#27ae60; font-size:1rem;">Bs. ${f.costoTotal.toFixed(2)}</span>
+                    </div>
+                    <div style="font-weight:bold; color:#27ae60; margin-bottom: 6px;">✅ ${f.proveedorNombre} | Factura: ${f.numeroFactura}</div>
+                    <div style="font-size: 0.8rem; color: #666;">
+                        Registrada: ${f.fechaRegistro || 'N/A'} | ${f.items.length} items
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function marcarFacturaPagada(facturaId) {
+            const idx = facturas.findIndex(f => f.id === facturaId);
+            if (idx === -1) return;
+            
+            if (confirm('¿Marcar esta factura como pagada?')) {
+                facturas[idx].estado = 'pagada';
+                facturas[idx].fechaPago = new Date().toLocaleString('es-VE');
+                
+                if (db) {
+                    db.ref(configMaestra.pathCliente + 'data/facturas').set(facturas);
+                }
+                
+                log('✅ Factura marcada como pagada: ' + facturas[idx].numeroFactura);
+                renderFacturasPendientes();
+                renderHistorialFacturas();
+                alert('✅ Factura marcada como pagada');
+            }
+        }
+
+        // Llamar a cargar datos de proveedores cuando se inicializa Firebase
+        const originalEscucharDatos = escucharDatos;
+        escucharDatos = function() {
+            originalEscucharDatos();
+            cargarDatosEmpresaProveedores();
+            escucharProveedoresFacturas();
+        };
 
         verificarLibrerias();
     </script>
