@@ -1250,14 +1250,16 @@
                 <label>Número de Factura</label>
                 <input type="text" id="numeroFactura" placeholder="FAC-001">
             </div>
-            <div>
-                <label>Fecha Factura</label>
-                <input type="date" id="fechaFactura">
-            </div>
         </div>
-        <div class="input-group">
-            <label>Fecha de Vencimiento</label>
-            <input type="date" id="fechaVencimiento">
+        <div class="input-row">
+            <div>
+                <label style="font-size: 0.85rem;">Fecha Factura</label>
+                <input type="date" id="fechaFactura" style="padding: 10px; font-size: 0.9rem;">
+            </div>
+            <div>
+                <label style="font-size: 0.85rem;">Vencimiento</label>
+                <input type="date" id="fechaVencimiento" style="padding: 10px; font-size: 0.9rem;">
+            </div>
         </div>
 
         <!-- ITEMS DE FACTURA -->
@@ -1294,17 +1296,14 @@
         </div>
         <div style="color: var(--info); font-size: 0.85rem; font-weight: 600; margin-bottom: 12px;" id="eqvFactura">Eqv: $ 0,00</div>
         
-        <div class="input-row">
-            <div>
-                <label>Beneficio %</label>
-                <input type="number" id="beneficioFactura" value="30" min="0" step="0.01">
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <div style="flex: 1;">
+                <label style="font-size: 0.85rem;">Beneficio %</label>
+                <input type="number" id="beneficioFactura" value="30" min="0" step="0.01" style="width: 100%; padding: 10px; border: 2px solid #eee; border-radius: 8px; font-size: 0.9rem;">
             </div>
-        </div>
-        
-        <div class="input-row">
-            <div>
-                <label>Unidad</label>
-                <select id="unidadFactura" style="width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px;">
+            <div style="flex: 2;">
+                <label style="font-size: 0.85rem;">Unidad</label>
+                <select id="unidadFactura" style="width: 100%; padding: 10px; border: 2px solid #eee; border-radius: 8px; font-size: 0.9rem;">
                     <option value="UND">Unidad (UND)</option>
                     <option value="KG">Kilogramo (KG)</option>
                     <option value="LT">Litro (LT)</option>
@@ -1312,11 +1311,12 @@
                     <option value="PACK">Pack (PACK)</option>
                 </select>
             </div>
-            <div>
-                <label>Cantidad/Peso</label>
-                <input type="number" id="cantidadFactura" value="1" min="1" step="0.01">
+            <div style="flex: 1;">
+                <label style="font-size: 0.85rem;">Cantidad</label>
+                <input type="number" id="cantidadFactura" value="1" min="1" step="0.01" style="width: 100%; padding: 10px; border: 2px solid #eee; border-radius: 8px; font-size: 0.9rem;">
             </div>
         </div>
+
         
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding: 12px; background: var(--light-gray); border-radius: 10px;">
             <label style="font-size: 0.9rem; margin: 0; font-weight: 500;">Producto Exento de IVA</label>
@@ -1326,9 +1326,11 @@
             </div>
         </div>
         
-        <button class="btn-add" onclick="agregarItemFactura()" style="width: 100%; padding: 14px; font-weight: bold; font-size: 1rem;">CARGAR AL INVENTARIO</button>
+        <button class="btn-add" onclick="agregarItemFactura()" style="width: 100%; padding: 14px; font-weight: bold; font-size: 1rem;">➕ AGREGAR A LA CESTA</button>
 
-        <div id="itemsFacturaContainer" style="margin: 15px 0;"></div>
+        <!-- CESTA DE FACTURA -->
+        <h3 style="font-size: 0.95rem; color: #666; margin-top: 20px; margin-bottom: 10px; font-weight: 600;">🛒 Cesta de Compra</h3>
+        <div id="itemsFacturaContainer" style="margin: 15px 0; background: #f9f9f9; border-radius: 10px; padding: 10px;"></div>
 
         <div style="background: var(--info); color: white; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 15px;">
             <div style="font-size: 0.9rem; opacity: 0.9;">Costo Total de Factura:</div>
@@ -1339,11 +1341,29 @@
         <button class="btn-venta-contado" style="width: 100%;" onclick="cerrarFactura()">✅ CERRAR FACTURA</button>
 
         <!-- HISTORIAL -->
-        <h3 style="font-size: 0.95rem; color: #666; margin-top: 20px; margin-bottom: 10px; font-weight: 600;">⏳ Facturas Pendientes</h3>
-        <div id="listaFacturasPendientes" style="max-height: 250px; overflow-y: auto;"></div>
+        <!-- ACORDEÓN: FACTURAS PENDIENTES -->
+        <div style="border: 2px solid #eee; border-radius: 10px; margin-bottom: 15px; overflow: hidden;">
+            <button onclick="toggleAcordeonPendientes()" style="width: 100%; padding: 15px; background: #f39c12; color: white; border: none; cursor: pointer; font-weight: 600; font-size: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <span>⏳ Facturas Pendientes</span>
+                <span id="iconoPendientes" style="font-size: 1.2rem;">▼</span>
+            </button>
+            <div id="contenidoPendientes" style="display: none; padding: 15px; background: #fafafa;">
+                <input type="text" id="filtroPendientes" placeholder="🔍 Buscar por proveedor..." oninput="filtrarFacturasPendientes()" style="width: 100%; padding: 10px; border: 2px solid #eee; border-radius: 8px; margin-bottom: 10px; font-size: 0.9rem;">
+                <div id="listaFacturasPendientes" style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
+        </div>
 
-        <h3 style="font-size: 0.95rem; color: #666; margin-top: 20px; margin-bottom: 10px; font-weight: 600;">✅ Facturas Pagadas</h3>
-        <div id="listaHistorialFacturas" style="max-height: 250px; overflow-y: auto;"></div>
+        <!-- ACORDEÓN: FACTURAS PAGADAS -->
+        <div style="border: 2px solid #eee; border-radius: 10px; margin-bottom: 15px; overflow: hidden;">
+            <button onclick="toggleAcordeonPagadas()" style="width: 100%; padding: 15px; background: #27ae60; color: white; border: none; cursor: pointer; font-weight: 600; font-size: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <span>✅ Facturas Pagadas</span>
+                <span id="iconoPagadas" style="font-size: 1.2rem;">▼</span>
+            </button>
+            <div id="contenidoPagadas" style="display: none; padding: 15px; background: #fafafa;">
+                <input type="text" id="filtroPagadas" placeholder="🔍 Buscar por proveedor..." oninput="filtrarFacturasPagadas()" style="width: 100%; padding: 10px; border: 2px solid #eee; border-radius: 8px; margin-bottom: 10px; font-size: 0.9rem;">
+                <div id="listaHistorialFacturas" style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL: NUEVO PROVEEDOR -->
@@ -3353,7 +3373,7 @@
 
         function agregarItemFactura() {
             const nombre = document.getElementById('nombreProductoFactura').value.trim();
-            const codigo = document.getElementById('codigoProductoFactura').value.trim();
+            let codigo = document.getElementById('codigoProductoFactura').value.trim();
             const cantidad = parseFloat(document.getElementById('cantidadFactura').value) || 1;
             let costoUnitario = parseFloat(document.getElementById('costoUnitarioFactura').value) || 0;
             const moneda = document.getElementById('monedaCostoFactura').value;
@@ -3362,8 +3382,12 @@
             const exentoIVA = document.getElementById('exentoIVAFactura').checked;
 
             if (!nombre) return alert('⚠️ Ingresa el nombre del producto');
-            if (!codigo) return alert('⚠️ Ingresa el código del producto');
             if (costoUnitario <= 0) return alert('⚠️ Ingresa un costo válido');
+            
+            // Si no hay código, generar uno temporal
+            if (!codigo) {
+                codigo = 'TEMP_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
 
             // Convertir a Bs si está en USD
             if (moneda === 'USD') {
@@ -3404,15 +3428,27 @@
             const div = document.getElementById('itemsFacturaContainer');
             let costoTotal = 0;
 
+            if (facturaActual.items.length === 0) {
+                div.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">La cesta está vacía</div>';
+                document.getElementById('costoTotalFactura').textContent = `Bs. 0,00`;
+                document.getElementById('costoTotalFacturaUSD').textContent = `$ 0,00`;
+                return;
+            }
+
             div.innerHTML = facturaActual.items.map((item, idx) => {
                 costoTotal += item.subtotal;
+                const costoUSD = item.subtotal / tasaDolar;
                 return `
-                    <div style="background: #f9f9f9; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="background: white; border: 1px solid #eee; border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                         <div style="flex: 1;">
-                            <div style="font-weight: 600; color: var(--text); margin-bottom: 3px;">${item.nombre}</div>
-                            <div style="font-size: 0.85rem; color: #666;">${item.cantidad} x Bs. ${item.costoUnitario.toFixed(2)} = Bs. ${item.subtotal.toFixed(2)}</div>
+                            <div style="font-weight: 600; color: var(--text); margin-bottom: 5px; font-size: 0.95rem;">${item.nombre}</div>
+                            <div style="font-size: 0.8rem; color: #666; margin-bottom: 3px;">${item.cantidad} ${item.unidad}</div>
+                            <div style="font-size: 0.85rem; color: var(--info); font-weight: 600;">Bs. ${item.subtotal.toFixed(2)} / $ ${costoUSD.toFixed(2)}</div>
                         </div>
-                        <button class="btn-venta-contado" style="padding: 6px 10px; font-size: 0.8rem; background: var(--danger);" onclick="removerItemFactura(${idx})">✕</button>
+                        <div style="display: flex; gap: 8px;">
+                            <button style="background: var(--info); color: white; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer; font-size: 1rem;" onclick="editarItemFactura(${idx})">✏️</button>
+                            <button style="background: var(--danger); color: white; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer; font-size: 1rem;" onclick="removerItemFactura(${idx})">🗑️</button>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -3420,6 +3456,28 @@
             const costoTotalUSD = costoTotal / tasaDolar;
             document.getElementById('costoTotalFactura').textContent = `Bs. ${costoTotal.toFixed(2)}`;
             document.getElementById('costoTotalFacturaUSD').textContent = `$ ${costoTotalUSD.toFixed(2)}`;
+        }
+
+
+        function editarItemFactura(idx) {
+            const item = facturaActual.items[idx];
+            if (!item) return;
+            
+            // Cargar datos en el formulario
+            document.getElementById('nombreProductoFactura').value = item.nombre;
+            document.getElementById('codigoProductoFactura').value = item.codigo;
+            document.getElementById('costoUnitarioFactura').value = item.costoUnitario;
+            document.getElementById('beneficioFactura').value = item.beneficio;
+            document.getElementById('unidadFactura').value = item.unidad;
+            document.getElementById('cantidadFactura').value = item.cantidad;
+            document.getElementById('exentoIVAFactura').checked = item.exentoIVA;
+            
+            // Eliminar el item
+            removerItemFactura(idx);
+            
+            // Scroll al formulario
+            document.querySelector('h3:nth-of-type(3)').scrollIntoView({ behavior: 'smooth' });
+            log('✏️ Editando: ' + item.nombre);
         }
 
         function removerItemFactura(idx) {
@@ -3513,6 +3571,64 @@
             document.getElementById('exentoIVAFactura').checked = false;
             document.getElementById('proveedorSeleccionadoDisplay').textContent = 'Selecciona un proveedor...';
             renderItemsFactura();
+        }
+
+
+        // FUNCIONES DE ACORDEÓN
+        function toggleAcordeonPendientes() {
+            const contenido = document.getElementById('contenidoPendientes');
+            const icono = document.getElementById('iconoPendientes');
+            
+            if (contenido.style.display === 'none') {
+                contenido.style.display = 'block';
+                icono.textContent = '▲';
+                renderFacturasPendientes();
+            } else {
+                contenido.style.display = 'none';
+                icono.textContent = '▼';
+            }
+        }
+        
+        function toggleAcordeonPagadas() {
+            const contenido = document.getElementById('contenidoPagadas');
+            const icono = document.getElementById('iconoPagadas');
+            
+            if (contenido.style.display === 'none') {
+                contenido.style.display = 'block';
+                icono.textContent = '▲';
+                renderHistorialFacturas();
+            } else {
+                contenido.style.display = 'none';
+                icono.textContent = '▼';
+            }
+        }
+        
+        function filtrarFacturasPendientes() {
+            const filtro = document.getElementById('filtroPendientes').value.toLowerCase();
+            const items = document.querySelectorAll('#listaFacturasPendientes > div');
+            
+            items.forEach(item => {
+                const proveedor = item.getAttribute('data-proveedor') || '';
+                if (proveedor.toLowerCase().includes(filtro)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        function filtrarFacturasPagadas() {
+            const filtro = document.getElementById('filtroPagadas').value.toLowerCase();
+            const items = document.querySelectorAll('#listaHistorialFacturas > div');
+            
+            items.forEach(item => {
+                const proveedor = item.getAttribute('data-proveedor') || '';
+                if (proveedor.toLowerCase().includes(filtro)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
         }
 
         function renderFacturasPendientes() {
