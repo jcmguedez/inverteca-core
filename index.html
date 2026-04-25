@@ -1164,8 +1164,8 @@
                 🔒 CERRAR CAJA (ARCHIVAR)
             </button>
             
-            <button class="btn-dar-credito" style="background: #e74c3c; margin-bottom: 20px;" onclick="realizarCierreMensual()">
-                📅 CIERRE MENSUAL
+            <button class="btn-dar-credito" style="background: #e74c3c; margin-bottom: 20px;" onclick="abrirModalCierreConsolidado()">
+                📊 CIERRE MENSUAL CONSOLIDADO (G&P)
             </button>
             
             <!-- HISTORIAL DE CIERRES (PLEGABLE) -->
@@ -1372,19 +1372,37 @@
 
     <!-- GASTOS OPERATIVOS -->
     <div id="gastos" class="tab-content">
-        <!-- DATOS DE EMPRESA -->
-        <h3 style="font-size: 0.95rem; color: #666; margin-top: 0; margin-bottom: 10px; font-weight: 600;">🏢 Datos de la Empresa</h3>
-        <div style="background: #f9f9f9; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
-            <div class="input-row">
-                <div>
-                    <label style="font-size: 0.85rem;">Empresa</label>
-                    <input type="text" id="empresaGastos" placeholder="Nombre de la empresa" readonly style="background: #eee;">
+        <!-- GESTIÓN DE EMPRESAS (ACORDEÓN) -->
+        <div style="background: #fff; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; overflow: hidden;">
+            <div onclick="toggleAccordion('EmpresasGastos')" style="padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fdfdfd;">
+                <h3 style="margin:0; font-size: 1rem; color: #444; display: flex; align-items: center; gap: 8px;">
+                    🏢 GESTIÓN DE EMPRESAS
+                </h3>
+                <span id="iconEmpresasGastos">➕</span>
+            </div>
+            <div id="contentEmpresasGastos" style="display: none; padding: 15px;">
+                <div class="input-row">
+                    <div>
+                        <label style="font-size: 0.85rem;">Nombre Empresa</label>
+                        <input type="text" id="nuevaEmpresaNombre" placeholder="Ej: Inverteca C.A.">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem;">RIF</label>
+                        <input type="text" id="nuevaEmpresaRif" placeholder="J-12345678-9">
+                    </div>
                 </div>
-                <div>
-                    <label style="font-size: 0.85rem;">RIF</label>
-                    <input type="text" id="rifGastos" placeholder="RIF" readonly style="background: #eee;">
+                <button class="btn-add" style="width: 100%; margin-bottom: 15px;" onclick="agregarEmpresaGasto()">➕ AÑADIR EMPRESA</button>
+                
+                <div id="listaEmpresasGastos" style="max-height: 200px; overflow-y: auto; border-top: 1px solid #eee; pt: 10px;">
+                    <!-- Se llena dinámicamente -->
                 </div>
             </div>
+        </div>
+
+        <div style="background: #f0f7ff; border: 1px solid #d0e3ff; border-radius: 10px; padding: 12px; margin-bottom: 20px;">
+            <div style="font-size: 0.8rem; color: #555; margin-bottom: 5px;">Empresa Seleccionada para el Gasto:</div>
+            <div id="empresaSeleccionadaDisplay" style="font-weight: bold; color: var(--info); font-size: 1.1rem;">Ninguna seleccionada</div>
+            <input type="hidden" id="empresaGastosId">
         </div>
 
         <!-- REGISTRO DE GASTO -->
@@ -1393,29 +1411,21 @@
         <div class="input-row">
             <div>
                 <label>Centro de Costo</label>
-                <select id="centroCostoGasto" style="width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px;">
-                    <option value="">-- Seleccionar Centro --</option>
-                    <option value="Oficina Principal">Oficina Principal</option>
-                    <option value="Almacén">Almacén</option>
-                    <option value="Sucursal 1">Sucursal 1</option>
-                    <option value="Sucursal 2">Sucursal 2</option>
-                    <option value="Transporte">Transporte</option>
-                    <option value="Otro">Otro</option>
-                </select>
+                <div style="display: flex; gap: 5px;">
+                    <select id="centroCostoGasto" style="flex: 1; padding: 12px; border: 2px solid #eee; border-radius: 10px;">
+                        <option value="">-- Seleccionar --</option>
+                    </select>
+                    <button class="btn-qty" onclick="abrirGestionCatalogo('centrosCosto')" title="Gestionar Centros">⚙️</button>
+                </div>
             </div>
             <div>
                 <label>Categoría de Gasto</label>
-                <select id="categoriaGasto" style="width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px;">
-                    <option value="">-- Seleccionar Categoría --</option>
-                    <option value="Servicios">Servicios (Luz, Agua, Internet)</option>
-                    <option value="Salarios">Salarios y Nómina</option>
-                    <option value="Transporte">Transporte y Logística</option>
-                    <option value="Alquiler">Alquiler</option>
-                    <option value="Suministros">Suministros de Oficina</option>
-                    <option value="Mantenimiento">Mantenimiento</option>
-                    <option value="Publicidad">Publicidad y Marketing</option>
-                    <option value="Otro">Otro</option>
-                </select>
+                <div style="display: flex; gap: 5px;">
+                    <select id="categoriaGasto" style="flex: 1; padding: 12px; border: 2px solid #eee; border-radius: 10px;">
+                        <option value="">-- Seleccionar --</option>
+                    </select>
+                    <button class="btn-qty" onclick="abrirGestionCatalogo('categoriasGastos')" title="Gestionar Categorías">⚙️</button>
+                </div>
             </div>
         </div>
 
@@ -1448,8 +1458,7 @@
                 <input type="text" id="referenciaGasto" placeholder="Ej: Factura #123">
             </div>
         </div>
-
-        <button class="btn-add" onclick="agregarGasto()" style="width: 100%; padding: 14px; font-weight: bold; font-size: 1rem;">➕ REGISTRAR GASTO</button>
+        <button class="btn-add" onclick="agregarGasto()" style="width: 100%; padding: 14px; font-weight: bold; font-size: 1rem; margin-top: 10px;">➕ REGISTRAR GASTO</button>
 
         <!-- LISTA DE GASTOS DEL MES -->
         <h3 style="font-size: 0.95rem; color: #666; margin-top: 20px; margin-bottom: 10px; font-weight: 600;">📋 Gastos Registrados</h3>
@@ -1715,6 +1724,98 @@
         </div>
     </div>
 
+    <!-- MODAL: EDITAR GASTO -->
+    <div id="modalEditarGasto" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>✏️</span>
+                <span>Editar Gasto</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-input-group">
+                    <label>Descripción:</label>
+                    <input type="text" id="editDescripcionGasto">
+                </div>
+                <div class="modal-input-group">
+                    <label>Monto (Bs.):</label>
+                    <input type="number" id="editMontoGasto" step="0.01">
+                </div>
+                <div class="modal-input-group">
+                    <label>Centro de Costo:</label>
+                    <select id="editCentroCostoGasto" style="width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px;"></select>
+                </div>
+                <div class="modal-input-group">
+                    <label>Categoría:</label>
+                    <select id="editCategoriaGasto" style="width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px;"></select>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="guardarEdicionGasto()">✅ GUARDAR CAMBIOS</button>
+                <button class="modal-btn" style="background:#95a5a6; color:white;" onclick="cerrarModalEditarGasto()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: GESTIÓN DE CATÁLOGOS (CENTROS/CATEGORÍAS) -->
+    <div id="modalGestionCatalogo" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <span id="tituloCatalogo">Gestionar Catálogo</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-input-group">
+                    <label>Nuevo Elemento:</label>
+                    <div style="display: flex; gap: 5px;">
+                        <input type="text" id="nuevoElementoCatalogo" placeholder="Escribe aquí...">
+                        <button class="btn-add" onclick="agregarElementoCatalogo()">➕</button>
+                    </div>
+                </div>
+                <div id="listaElementosCatalogo" style="max-height: 250px; overflow-y: auto; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;"></div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="cerrarGestionCatalogo()">CERRAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CIERRE CONSOLIDADO (G&P) -->
+    <div id="modalCierreConsolidado" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <span>📊</span>
+                <span>Cierre Mensual Consolidado</span>
+            </div>
+            <div class="modal-body">
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Ventas Totales:</span>
+                        <span id="cierreVentasTotal" style="font-weight: bold; color: var(--primary);">Bs. 0,00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Costos (Proveedores):</span>
+                        <span id="cierreCostosTotal" style="font-weight: bold; color: var(--secondary);">Bs. 0,00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Gastos Operativos:</span>
+                        <span id="cierreGastosTotal" style="font-weight: bold; color: var(--danger);">Bs. 0,00</span>
+                    </div>
+                    <hr>
+                    <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold;">
+                        <span>UTILIDAD NETA:</span>
+                        <span id="cierreUtilidadNeta">Bs. 0,00</span>
+                    </div>
+                </div>
+                <p style="font-size: 0.85rem; color: #666; text-align: center;">
+                    ⚠️ Al confirmar, se archivarán todas las ventas, facturas y gastos del mes actual en el historial.
+                </p>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="confirmarCierreConsolidado()">🔒 CONFIRMAR CIERRE Y ARCHIVAR</button>
+                <button class="modal-btn modal-btn-danger" onclick="cerrarModalCierreConsolidado()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
     <div id="debug-log"></div>
 
     <script>
@@ -1764,14 +1865,244 @@
         
         // VARIABLES GLOBALES PARA GASTOS
         let gastos = [];
+        let empresasGastos = [];
+        let centrosCosto = [];
+        let categoriasGastos = [];
 
         // INICIALIZAR GASTOS
         function inicializarGastos() {
             cargarGastosFirebase();
-            document.getElementById('empresaGastos').value = configMaestra.nombreEmpresa || '';
-            document.getElementById('rifGastos').value = configMaestra.rif || '';
+            cargarCatalogosGastos();
             document.getElementById('fechaGasto').valueAsDate = new Date();
             renderGastos();
+        }
+
+        function cargarCatalogosGastos() {
+            if (!db || !configMaestra.pathCliente) return;
+            
+            // Escuchar Empresas (Ahora en data/empresasGastos)
+            db.ref(configMaestra.pathCliente + 'data/empresasGastos').on('value', snap => {
+                empresasGastos = [];
+                snap.forEach(child => {
+                    empresasGastos.push({ id: child.key, ...child.val() });
+                });
+                renderEmpresasGastos();
+            });
+
+            // Escuchar Centros de Costo (Ahora en data/centrosCosto)
+            db.ref(configMaestra.pathCliente + 'data/centrosCosto').on('value', snap => {
+                if (!snap.exists()) {
+                    const defaults = ["Oficina Principal", "Almacén", "Sucursal 1", "Sucursal 2", "Transporte"];
+                    defaults.forEach(d => db.ref(configMaestra.pathCliente + 'data/centrosCosto').push(d));
+                    return;
+                }
+                centrosCosto = [];
+                snap.forEach(child => {
+                    centrosCosto.push({ id: child.key, nombre: child.val() });
+                });
+                actualizarSelectoresCatalogo('centroCostoGasto', centrosCosto);
+                actualizarSelectoresCatalogo('editCentroCostoGasto', centrosCosto);
+            });
+
+            // Escuchar Categorías (Ahora en data/categoriasGastos)
+            db.ref(configMaestra.pathCliente + 'data/categoriasGastos').on('value', snap => {
+                if (!snap.exists()) {
+                    const defaults = ["Servicio eléctrico", "Servicio agua", "Servicio internet", "Salario y sueldos", "Alquiler", "Transporte y logística", "Mantenimiento", "Marketing y publicidad"];
+                    defaults.forEach(d => db.ref(configMaestra.pathCliente + 'data/categoriasGastos').push(d));
+                    return;
+                }
+                categoriasGastos = [];
+                snap.forEach(child => {
+                    categoriasGastos.push({ id: child.key, nombre: child.val() });
+                });
+                actualizarSelectoresCatalogo('categoriaGasto', categoriasGastos);
+                actualizarSelectoresCatalogo('editCategoriaGasto', categoriasGastos);
+            });
+        }
+
+        function actualizarSelectoresCatalogo(id, lista) {
+            const select = document.getElementById(id);
+            if (!select) return;
+            const valAnterior = select.value;
+            select.innerHTML = '<option value="">-- Seleccionar --</option>' + 
+                lista.map(item => `<option value="${item.nombre}">${item.nombre}</option>`).join('');
+            select.value = valAnterior;
+        }
+
+        // GESTIÓN DE EMPRESAS
+        function agregarEmpresaGasto() {
+            const nombre = document.getElementById('nuevaEmpresaNombre').value.trim();
+            const rif = document.getElementById('nuevaEmpresaRif').value.trim();
+            if (!nombre) return alert('Ingresa el nombre de la empresa');
+            
+            db.ref(configMaestra.pathCliente + 'data/empresasGastos').push({ nombre, rif }).then(() => {
+                document.getElementById('nuevaEmpresaNombre').value = '';
+                document.getElementById('nuevaEmpresaRif').value = '';
+                log('✅ Empresa añadida');
+            });
+        }
+
+        function renderEmpresasGastos() {
+            const div = document.getElementById('listaEmpresasGastos');
+            if (!div) return;
+            div.innerHTML = empresasGastos.map(emp => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee;">
+                    <div style="cursor: pointer; flex: 1;" onclick="seleccionarEmpresaGasto('${emp.id}', '${emp.nombre}', '${emp.rif}')">
+                        <div style="font-weight: 600; font-size: 0.9rem;">${emp.nombre}</div>
+                        <div style="font-size: 0.75rem; color: #666;">RIF: ${emp.rif}</div>
+                    </div>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn-qty" onclick="editarEmpresaGasto('${emp.id}', '${emp.nombre}', '${emp.rif}')" title="Editar">✏️</button>
+                        <button class="btn-qty" onclick="eliminarEmpresaGasto('${emp.id}')" title="Eliminar">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editarEmpresaGasto(id, nombre, rif) {
+            const nuevoNombre = prompt("Editar nombre de la empresa:", nombre);
+            if (nuevoNombre === null) return;
+            const nuevoRif = prompt("Editar RIF de la empresa:", rif);
+            if (nuevoRif === null) return;
+            
+            if (nuevoNombre.trim() === "") return alert("El nombre no puede estar vacío");
+            
+            db.ref(configMaestra.pathCliente + 'data/empresasGastos/' + id).update({
+                nombre: nuevoNombre.trim(),
+                rif: nuevoRif.trim()
+            }).then(() => log('✅ Empresa actualizada'));
+        }
+
+        function seleccionarEmpresaGasto(id, nombre, rif) {
+            document.getElementById('empresaGastosId').value = id;
+            document.getElementById('empresaSeleccionadaDisplay').textContent = `${nombre} (${rif})`;
+            log('🏢 Empresa seleccionada: ' + nombre);
+            toggleAccordion('EmpresasGastos');
+        }
+
+        function eliminarEmpresaGasto(id) {
+            if (confirm('¿Eliminar esta empresa?')) {
+                db.ref(configMaestra.pathCliente + 'data/empresasGastos/' + id).remove();
+            }
+        }
+
+        // GESTIÓN DE CATÁLOGOS DINÁMICOS
+        let catalogoActual = ''; // 'centrosCosto' o 'categoriasGastos'
+
+        function abrirGestionCatalogo(tipo) {
+            catalogoActual = tipo;
+            document.getElementById('tituloCatalogo').textContent = tipo === 'centrosCosto' ? 'Gestionar Centros de Costo' : 'Gestionar Categorías de Gasto';
+            renderElementosCatalogo();
+            document.getElementById('modalGestionCatalogo').classList.add('active');
+        }
+
+        function cerrarGestionCatalogo() {
+            document.getElementById('modalGestionCatalogo').classList.remove('active');
+        }
+
+        function agregarElementoCatalogo() {
+            const input = document.getElementById('nuevoElementoCatalogo');
+            const valor = input.value.trim();
+            if (!valor) return;
+            
+            db.ref(configMaestra.pathCliente + 'data/' + catalogoActual).push(valor).then(() => {
+                input.value = '';
+                renderElementosCatalogo();
+            });
+        }
+
+        function renderElementosCatalogo() {
+            const lista = catalogoActual === 'centrosCosto' ? centrosCosto : categoriasGastos;
+            const div = document.getElementById('listaElementosCatalogo');
+            div.innerHTML = lista.map(item => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee;">
+                    <span>${item.nombre}</span>
+                    <button class="btn-qty" onclick="eliminarElementoCatalogo('${item.id}')">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        function eliminarElementoCatalogo(id) {
+            if (confirm('¿Eliminar este elemento?')) {
+                db.ref(configMaestra.pathCliente + 'data/' + catalogoActual + '/' + id).remove().then(() => {
+                    renderElementosCatalogo();
+                });
+            }
+        }
+
+        // CIERRE CONSOLIDADO (G&P)
+        function abrirModalCierreConsolidado() {
+            // Calcular totales del mes actual
+            const mesActual = new Date().getMonth();
+            const anoActual = new Date().getFullYear();
+
+            // 1. Ventas
+            const ventasMes = ventas.filter(v => {
+                const f = new Date(v.fecha);
+                return f.getMonth() === mesActual && f.getFullYear() === anoActual && !v.anulada;
+            });
+            const totalVentas = ventasMes.reduce((acc, v) => acc + v.totalBs, 0);
+
+            // 2. Costos (Facturas de Proveedores Pagadas)
+            const costosMes = facturas.filter(f => {
+                const fP = new Date(f.fechaRegistro);
+                return fP.getMonth() === mesActual && fP.getFullYear() === anoActual && f.estado === 'pagada';
+            });
+            const totalCostos = costosMes.reduce((acc, f) => acc + f.costoTotal, 0);
+
+            // 3. Gastos Operativos
+            const gastosMes = gastos.filter(g => {
+                const fG = new Date(g.fecha);
+                return fG.getMonth() === mesActual && fG.getFullYear() === anoActual;
+            });
+            const totalGastos = gastosMes.reduce((acc, g) => acc + g.monto, 0);
+
+            const utilidad = totalVentas - totalCostos - totalGastos;
+
+            document.getElementById('cierreVentasTotal').textContent = `Bs. ${totalVentas.toFixed(2)}`;
+            document.getElementById('cierreCostosTotal').textContent = `Bs. ${totalCostos.toFixed(2)}`;
+            document.getElementById('cierreGastosTotal').textContent = `Bs. ${totalGastos.toFixed(2)}`;
+            
+            const utilidadEl = document.getElementById('cierreUtilidadNeta');
+            utilidadEl.textContent = `Bs. ${utilidad.toFixed(2)}`;
+            utilidadEl.style.color = utilidad >= 0 ? 'var(--primary)' : 'var(--danger)';
+
+            document.getElementById('modalCierreConsolidado').classList.add('active');
+        }
+
+        function cerrarModalCierreConsolidado() {
+            document.getElementById('modalCierreConsolidado').classList.remove('active');
+        }
+
+        function confirmarCierreConsolidado() {
+            const mesNombres = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            const d = new Date();
+            const mesNombre = mesNombres[d.getMonth()] + " " + d.getFullYear();
+
+            const totalVentas = parseFloat(document.getElementById('cierreVentasTotal').textContent.replace('Bs. ', '').replace(',', ''));
+            const totalCostos = parseFloat(document.getElementById('cierreCostosTotal').textContent.replace('Bs. ', '').replace(',', ''));
+            const totalGastos = parseFloat(document.getElementById('cierreGastosTotal').textContent.replace('Bs. ', '').replace(',', ''));
+            const utilidad = totalVentas - totalCostos - totalGastos;
+
+            const cierreConsolidado = {
+                mes: mesNombre,
+                fechaCierre: new Date().toISOString(),
+                totalVentas,
+                totalCostos,
+                totalGastos,
+                utilidadNeta: utilidad,
+                tasaDolar: tasaDolar
+            };
+
+            if (db && configMaestra.pathCliente) {
+                // 1. Guardar en Histórico de Cierres
+                db.ref(configMaestra.pathCliente + 'logs/cierresConsolidados').push(cierreConsolidado).then(() => {
+                    log('✅ Cierre Consolidado guardado');
+                    alert('✅ Cierre Mensual Exitoso\nMes: ' + mesNombre + '\nUtilidad: Bs. ' + utilidad.toFixed(2));
+                    cerrarModalCierreConsolidado();
+                    // Aquí se podría implementar la lógica de "limpieza" o marcado de registros como archivados
+                });
+            }
         }
 
         // CARGAR GASTOS DE FIREBASE
@@ -1806,8 +2137,12 @@
             calcularEqvGasto();
         }
 
+        // Función eliminada para proteger el nodo config maestro
+
         // AGREGAR GASTO
         function agregarGasto() {
+            const empresaId = document.getElementById('empresaGastosId').value;
+            const empresaNombre = document.getElementById('empresaSeleccionadaDisplay').textContent;
             const centro = document.getElementById('centroCostoGasto').value.trim();
             const categoria = document.getElementById('categoriaGasto').value.trim();
             const descripcion = document.getElementById('descripcionGasto').value.trim();
@@ -1816,32 +2151,31 @@
             const fecha = document.getElementById('fechaGasto').value;
             const referencia = document.getElementById('referenciaGasto').value.trim();
 
+            if (!empresaId) return alert('⚠️ Selecciona una empresa del catálogo');
             if (!centro) return alert('Selecciona un centro de costo');
             if (!categoria) return alert('Selecciona una categoria');
             if (!descripcion) return alert('Ingresa una descripcion');
             if (monto <= 0) return alert('Ingresa un monto valido');
             if (!fecha) return alert('Selecciona una fecha');
 
-            if (moneda === 'USD') {
-                monto = monto * tasaDolar;
-            }
-
             const gasto = {
+                empresaId,
+                empresaNombre,
                 centro,
                 categoria,
                 descripcion,
-                monto,
+                monto: moneda === 'USD' ? monto * tasaDolar : monto,
                 fecha,
                 referencia,
                 fechaRegistro: new Date().toISOString()
             };
 
             if (db && configMaestra.pathCliente) {
-                db.ref(configMaestra.pathCliente + '/gastos').push(gasto, (error) => {
+                db.ref(configMaestra.pathCliente + 'gastos').push(gasto, (error) => {
                     if (error) {
                         alert('Error: ' + error.message);
                     } else {
-                        log('Gasto registrado: ' + descripcion);
+                        log('✅ Gasto registrado: ' + descripcion);
                         document.getElementById('descripcionGasto').value = '';
                         document.getElementById('montoGasto').value = '';
                         document.getElementById('referenciaGasto').value = '';
@@ -1895,10 +2229,14 @@
                 return `<div data-centro="${g.centro}" data-categoria="${g.categoria}" style="background: white; border: 1px solid #eee; border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                     <div style="flex: 1;">
                         <div style="font-weight: 600; color: var(--text); margin-bottom: 5px;">${g.descripcion}</div>
+                        <div style="font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 3px;">🏢 ${g.empresaNombre || 'Empresa N/A'}</div>
                         <div style="font-size: 0.8rem; color: #666; margin-bottom: 3px;">${g.centro} | ${g.categoria}</div>
                         <div style="font-size: 0.85rem; color: var(--info); font-weight: 600;">Bs. ${g.monto.toFixed(2)} / $ ${montoUSD.toFixed(2)}</div>
                     </div>
-                    <button style="background: var(--danger); color: white; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer;" onclick="eliminarGasto('${g.id}')">Eliminar</button>
+                    <div style="display: flex; gap: 5px;">
+                        <button style="background: var(--info); color: white; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer;" onclick="abrirModalEditarGasto('${g.id}')">Editar</button>
+                        <button style="background: var(--danger); color: white; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer;" onclick="eliminarGasto('${g.id}')">Eliminar</button>
+                    </div>
                 </div>`;
             }).join('');
 
@@ -1920,15 +2258,59 @@
 
         // ELIMINAR GASTO
         function eliminarGasto(id) {
-            if (!confirm('Deseas eliminar este gasto?')) return;
+            if (!confirm('¿Deseas eliminar este gasto?')) return;
             if (db && configMaestra.pathCliente) {
                 db.ref(configMaestra.pathCliente + '/gastos/' + id).remove((error) => {
                     if (error) {
                         alert('Error: ' + error.message);
                     } else {
-                        log('Gasto eliminado');
+                        log('✅ Gasto eliminado');
                     }
                 });
+            }
+        }
+
+        // EDITAR GASTO
+        let gastoEnEdicionId = null;
+
+        function abrirModalEditarGasto(id) {
+            const gasto = gastos.find(g => g.id === id);
+            if (!gasto) return;
+            
+            gastoEnEdicionId = id;
+            document.getElementById('editDescripcionGasto').value = gasto.descripcion;
+            document.getElementById('editMontoGasto').value = gasto.monto;
+            document.getElementById('editCentroCostoGasto').value = gasto.centro;
+            document.getElementById('editCategoriaGasto').value = gasto.categoria;
+            
+            document.getElementById('modalEditarGasto').classList.add('active');
+        }
+
+        function cerrarModalEditarGasto() {
+            document.getElementById('modalEditarGasto').classList.remove('active');
+            gastoEnEdicionId = null;
+        }
+
+        function guardarEdicionGasto() {
+            if (!gastoEnEdicionId) return;
+            
+            const descripcion = document.getElementById('editDescripcionGasto').value.trim();
+            const monto = parseFloat(document.getElementById('editMontoGasto').value) || 0;
+            const centro = document.getElementById('editCentroCostoGasto').value;
+            const categoria = document.getElementById('editCategoriaGasto').value;
+            
+            if (!descripcion || monto <= 0) return alert('⚠️ Completa todos los campos correctamente');
+            
+            if (db && configMaestra.pathCliente) {
+                db.ref(configMaestra.pathCliente + '/gastos/' + gastoEnEdicionId).update({
+                    descripcion,
+                    monto,
+                    centro,
+                    categoria
+                }).then(() => {
+                    log('✅ Gasto actualizado: ' + descripcion);
+                    cerrarModalEditarGasto();
+                }).catch(e => alert('❌ Error: ' + e.message));
             }
         }
 
@@ -2032,11 +2414,20 @@
                     const statusEl = document.getElementById('connectionStatus');
                     statusEl.textContent = 'Online (' + (config.nivel_plan || "basico").toUpperCase() + ')';
                     statusEl.className = 'connection-status online';
+                    
+                    // Actualizar campos en el módulo de gastos
+                    const empGastos = document.getElementById('empresaGastos');
+                    const rifGastos = document.getElementById('rifGastos');
+                    if (empGastos) empGastos.value = config.nombre_negocio || config.nombre || '';
+                    if (rifGastos) rifGastos.value = config.rif || '';
                 }
             });
         }
 
         function escucharDatos() {
+            // Inicializar módulo de gastos
+            inicializarGastos();
+            
             // Escuchar cambios en data (items, clientes, tasa)
             db.ref(configMaestra.pathCliente + 'data').on('value', snap => {
                 const data = snap.val();
