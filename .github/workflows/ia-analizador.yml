@@ -1,4 +1,4 @@
-hyname: Analizador de Issues con Gemini
+name: Analizador de Issues con Gemini
 on:
   issues:
     types: [opened]
@@ -6,6 +6,9 @@ on:
 jobs:
   gemini-analysis:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
     steps:
       - name: Enviar Issue a Gemini
         uses: google-github-actions/run-gemini-cli@v0
@@ -18,8 +21,8 @@ jobs:
             Título: ${{ github.event.issue.title }}
             Descripción: ${{ github.event.issue.body }}
             
-            Por favor:
+            Responde en español:
             1. Resume el problema.
-            2. Di si falta información para resolverlo.
-            3. Sugiere una solución técnica breve en español.
+            2. Di si falta información.
+            3. Sugiere una solución técnica.
             
