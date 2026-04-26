@@ -1,0 +1,23 @@
+name: Analizador de Issues con Gemini
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  gemini-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enviar Issue a Gemini
+        uses: google-github-actions/run-gemini-cli@v0
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          prompt: |
+            Actúa como un experto en programación. Analiza el siguiente reporte de error:
+            Título: ${{ github.event.issue.title }}
+            Descripción: ${{ github.event.issue.body }}
+            
+            Por favor:
+            1. Resume el problema.
+            2. Di si falta información para resolverlo.
+            3. Sugiere una solución técnica breve en español.
+            
