@@ -13,7 +13,6 @@ jobs:
       - name: Descargar código de la rama actual
         uses: actions/checkout@v4
         with:
-          # Esto le dice a GitHub que descargue la rama donde se originó el evento
           ref: ${{ github.ref }}
 
       - name: Analizar archivos con Gemini
@@ -22,24 +21,27 @@ jobs:
         env:
           GEMINI_CLI_TRUST_WORKSPACE: true
         with:
-          api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           prompt: |
             Actúa como un revisor de código experto. 
-            Analiza los archivos (HTML, JS, CSS) de la rama actual para resolver este problema:
-            "${{ github.event.issue.title }} - ${{ github.event.issue.body }}"
+            Analiza los archivos (HTML, JS, CSS) de este repositorio para resolver el siguiente problema reportado por el usuario:
+            
+            Título: "${{ github.event.issue.title }}"
+            Descripción: "${{ github.event.issue.body }}"
 
-            Instrucciones:
-            1. Identifica errores en cualquier archivo del repositorio.
-            2. Explica la solución técnica en español.
-            3. Proporciona el código corregido.
+            Instrucciones para tu respuesta:
+            1. Resume el error encontrado en el código.
+            2. Explica qué corregir basándote en los archivos del repositorio.
+            3. Proporciona el bloque de código corregido.
+            4. Responde siempre en español.
 
       - name: Publicar Comentario
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.issue.number }}
           body: |
-            ### 🤖 Revisión de IA en todas las ramas
-            He revisado los archivos actuales de tu proyecto:
+            ### 🤖 Revisión de IA (Gemini)
+            He analizado los archivos de tu proyecto y esto es lo que encontré:
             
             ${{ steps.gemini.outputs.text }}
             
