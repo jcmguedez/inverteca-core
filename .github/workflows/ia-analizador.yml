@@ -1,4 +1,4 @@
-name: Analizador de Issues con Gemini
+name: Analizador Multirama con Gemini
 on:
   issues:
     types: [opened]
@@ -10,19 +10,36 @@ jobs:
       issues: write
       contents: read
     steps:
-      - name: Enviar Issue a Gemini
+      - name: Descargar código de la rama actual
+        uses: actions/checkout@v4
+        with:
+          # Esto le dice a GitHub que descargue la rama donde se originó el evento
+          ref: ${{ github.ref }}
+
+      - name: Analizar archivos con Gemini
+        id: gemini
         uses: google-github-actions/run-gemini-cli@v0
         env:
           GEMINI_CLI_TRUST_WORKSPACE: true
         with:
-          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          api_key: ${{ secrets.GEMINI_API_KEY }}
           prompt: |
-            Actúa como un experto en programación. Analiza el siguiente reporte de error:
-            Título: ${{ github.event.issue.title }}
-            Descripción: ${{ github.event.issue.body }}
+            Actúa como un revisor de código experto. 
+            Analiza los archivos (HTML, JS, CSS) de la rama actual para resolver este problema:
+            "${{ github.event.issue.title }} - ${{ github.event.issue.body }}"
+
+            Instrucciones:
+            1. Identifica errores en cualquier archivo del repositorio.
+            2. Explica la solución técnica en español.
+            3. Proporciona el código corregido.
+
+      - name: Publicar Comentario
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            ### 🤖 Revisión de IA en todas las ramas
+            He revisado los archivos actuales de tu proyecto:
             
-            Responde en español:
-            1. Resume el problema.
-            2. Di si falta información.
-            3. Sugiere una solución técnica.
+            ${{ steps.gemini.outputs.text }}
             
