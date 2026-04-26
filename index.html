@@ -1067,7 +1067,7 @@
                 <div class="total-amount" id="totalDisplay">Bs. 0,00</div>
                 <div id="totalDisplayUSD" style="font-size: 0.9rem; opacity: 0.8;">$ 0,00</div>
             </div>
-        </div>
+        
 
         <!-- TABS PROXIMAMENTE -->
         <div id="venta" class="tab-content">
@@ -1880,8 +1880,8 @@
         function cargarCatalogosGastos() {
             if (!db || !configMaestra.pathCliente) return;
             
-            // Escuchar Empresas (Ahora en gastos/catalogos/empresas)
-            db.ref(configMaestra.pathCliente + 'gastos/catalogos/empresas').on('value', snap => {
+            // Escuchar Empresas (Ahora en data/empresasGastos)
+            db.ref(configMaestra.pathCliente + 'data/empresasGastos').on('value', snap => {
                 empresasGastos = [];
                 snap.forEach(child => {
                     empresasGastos.push({ id: child.key, ...child.val() });
@@ -1889,11 +1889,11 @@
                 renderEmpresasGastos();
             });
 
-            // Escuchar Centros de Costo (Ahora en gastos/catalogos/centrosCosto)
-            db.ref(configMaestra.pathCliente + 'gastos/catalogos/centrosCosto').on('value', snap => {
+            // Escuchar Centros de Costo (Ahora en data/centrosCosto)
+            db.ref(configMaestra.pathCliente + 'data/centrosCosto').on('value', snap => {
                 if (!snap.exists()) {
                     const defaults = ["Oficina Principal", "Almacén", "Sucursal 1", "Sucursal 2", "Transporte"];
-                    defaults.forEach(d => db.ref(configMaestra.pathCliente + 'gastos/catalogos/centrosCosto').push(d));
+                    defaults.forEach(d => db.ref(configMaestra.pathCliente + 'data/centrosCosto').push(d));
                     return;
                 }
                 centrosCosto = [];
@@ -1904,11 +1904,11 @@
                 actualizarSelectoresCatalogo('editCentroCostoGasto', centrosCosto);
             });
 
-            // Escuchar Categorías (Ahora en gastos/catalogos/categorias)
-            db.ref(configMaestra.pathCliente + 'gastos/catalogos/categorias').on('value', snap => {
+            // Escuchar Categorías (Ahora en data/categoriasGastos)
+            db.ref(configMaestra.pathCliente + 'data/categoriasGastos').on('value', snap => {
                 if (!snap.exists()) {
                     const defaults = ["Servicio eléctrico", "Servicio agua", "Servicio internet", "Salario y sueldos", "Alquiler", "Transporte y logística", "Mantenimiento", "Marketing y publicidad"];
-                    defaults.forEach(d => db.ref(configMaestra.pathCliente + 'gastos/catalogos/categorias').push(d));
+                    defaults.forEach(d => db.ref(configMaestra.pathCliente + 'data/categoriasGastos').push(d));
                     return;
                 }
                 categoriasGastos = [];
@@ -1935,7 +1935,7 @@
             const rif = document.getElementById('nuevaEmpresaRif').value.trim();
             if (!nombre) return alert('Ingresa el nombre de la empresa');
             
-            db.ref(configMaestra.pathCliente + 'gastos/catalogos/empresas').push({ nombre, rif }).then(() => {
+            db.ref(configMaestra.pathCliente + 'data/empresasGastos').push({ nombre, rif }).then(() => {
                 document.getElementById('nuevaEmpresaNombre').value = '';
                 document.getElementById('nuevaEmpresaRif').value = '';
                 log('✅ Empresa añadida');
@@ -1967,7 +1967,7 @@
             
             if (nuevoNombre.trim() === "") return alert("El nombre no puede estar vacío");
             
-            db.ref(configMaestra.pathCliente + 'gastos/catalogos/empresas/' + id).update({
+            db.ref(configMaestra.pathCliente + 'data/empresasGastos/' + id).update({
                 nombre: nuevoNombre.trim(),
                 rif: nuevoRif.trim()
             }).then(() => log('✅ Empresa actualizada'));
@@ -1982,7 +1982,7 @@
 
         function eliminarEmpresaGasto(id) {
             if (confirm('¿Eliminar esta empresa?')) {
-                db.ref(configMaestra.pathCliente + 'gastos/catalogos/empresas/' + id).remove();
+                db.ref(configMaestra.pathCliente + 'data/empresasGastos/' + id).remove();
             }
         }
 
@@ -2005,10 +2005,7 @@
             const valor = input.value.trim();
             if (!valor) return;
             
-            // Mapear nombre de catálogo a la ruta correcta en gastos/catalogos/
-            const rutaCatalogo = catalogoActual === 'centrosCosto' ? 'centrosCosto' : 'categorias';
-            
-            db.ref(configMaestra.pathCliente + 'gastos/catalogos/' + rutaCatalogo).push(valor).then(() => {
+            db.ref(configMaestra.pathCliente + 'data/' + catalogoActual).push(valor).then(() => {
                 input.value = '';
                 renderElementosCatalogo();
             });
@@ -2027,8 +2024,7 @@
 
         function eliminarElementoCatalogo(id) {
             if (confirm('¿Eliminar este elemento?')) {
-                const rutaCatalogo = catalogoActual === 'centrosCosto' ? 'centrosCosto' : 'categorias';
-                db.ref(configMaestra.pathCliente + 'gastos/catalogos/' + rutaCatalogo + '/' + id).remove().then(() => {
+                db.ref(configMaestra.pathCliente + 'data/' + catalogoActual + '/' + id).remove().then(() => {
                     renderElementosCatalogo();
                 });
             }
@@ -2419,8 +2415,11 @@
                     statusEl.textContent = 'Online (' + (config.nivel_plan || "basico").toUpperCase() + ')';
                     statusEl.className = 'connection-status online';
                     
-                    // El módulo de gastos ahora usa su propio catálogo en gastos/catalogos/empresas
-                    // No se sincronizan automáticamente para evitar sobrescribir datos maestros.
+                    // Actualizar campos en el módulo de gastos
+                    const empGastos = document.getElementById('empresaGastos');
+                    const rifGastos = document.getElementById('rifGastos');
+                    if (empGastos) empGastos.value = config.nombre_negocio || config.nombre || '';
+                    if (rifGastos) rifGastos.value = config.rif || '';
                 }
             });
         }
