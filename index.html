@@ -956,7 +956,7 @@
 <body>
     <div class="app-container">
         <!-- HEADER -->
-        <div class="header-info">
+        <div class="header-info" style="position: relative;">
             <h2 id="nombreNegocioDisplay">Cargando...</h2>
             <div>
                 <span class="status-badge" id="estadoServicio">ABIERTO</span>
@@ -965,6 +965,8 @@
             <div style="font-size: 0.8rem; margin-top: 8px; cursor: pointer;" onclick="toggleDebug()">
                 (Toca aquí para configurar o ver QR)
             </div>
+            <!-- Icono de Engranaje para Acceso Admin -->
+            <div onclick="solicitarAccesoAdmin()" style="position: absolute; top: 10px; right: 15px; font-size: 1.4rem; cursor: pointer; background: rgba(255,255,255,0.2); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center;" title="Seguridad">⚙️</div>
         </div>
 
         <!-- TABS -->
@@ -1811,7 +1813,30 @@
             </div>
             <div class="modal-buttons">
                 <button class="modal-btn modal-btn-primary" onclick="confirmarCierreConsolidado()">🔒 CONFIRMAR CIERRE Y ARCHIVAR</button>
-                <button class="modal-btn modal-btn-danger" onclick="cerrarModalCierreConsolidado()">CANCELAR</button>
+                <button class="modal-btn" style="background:#95a5a6; color:white;" onclick="cerrarModalCierreConsolidado()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ACCESO ADMINISTRATIVO -->
+    <div id="modalAccesoAdmin" class="modal">
+        <div class="modal-content" style="max-width: 350px;">
+            <div class="modal-header">
+                <span>🔐</span>
+                <span>Acceso Restringido</span>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; font-size: 0.9rem; color: #666; margin-bottom: 15px;">
+                    Ingrese la clave de administrador para desbloquear funciones avanzadas.
+                </p>
+                <div class="modal-input-group">
+                    <label>Clave de Seguridad:</label>
+                    <input type="password" id="claveAdminInput" placeholder="****" style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;">
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="validarClaveAdmin()">ENTRAR</button>
+                <button class="modal-btn" style="background:#95a5a6; color:white;" onclick="cerrarModalAccesoAdmin()">CANCELAR</button>
             </div>
         </div>
     </div>
@@ -1861,15 +1886,179 @@
             if (btn) btn.classList.add('active');
         }
 
-        // ==================== INICIALIZACIÓN ====================
+        // ==================== NÚCLEO MAESTRO UNIFICADO (SEGURIDAD, PERSISTENCIA Y NIVELES) ====================
         
-        // VARIABLES GLOBALES PARA GASTOS
+        let configSistema = {}; // Cerebro del sistema
         let gastos = [];
         let empresasGastos = [];
         let centrosCosto = [];
         let categoriasGastos = [];
 
-        // INICIALIZAR GASTOS
+        async function inicializarSistema() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let idCliente = urlParams.get('id');
+
+            // 1. PERSISTENCIA: Si no hay ID en la URL, lo busca en la memoria del teléfono
+            if (!idCliente) {
+                idCliente = localStorage.getItem('inverteca_client_id');
+            }
+
+            if (!idCliente) {
+                mostrarErrorAcceso("Acceso Denegado: Se requiere vinculación inicial (Link de ID).");
+                return;
+            }
+
+            // 2. REGISTRO: Guardamos el ID para que el cliente entre directo mañana
+            localStorage.setItem('inverteca_client_id', idCliente);
+            configMaestra.idActual = idCliente;
+            configMaestra.pathCliente = `clientes/${idCliente}/`;
+
+            // 3. INICIALIZAR FIREBASE ANTES DE VALIDAR LICENCIA
+            inicializarFirebase();
+        }
+
+        function inicializarFirebase() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Zdp-7lwUSFc",
+                authDomain: "inverteca-core.firebaseapp.com",
+                databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
+                projectId: "inverteca-core",
+                storageBucket: "inverteca-core.firebasestorage.app",
+                messagingSenderId: "647568711575",
+                appId: "1:647568711575:web:d09efc868294c96b0aeed2"
+            };
+
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                db = firebase.database();
+                
+                // VALIDACIÓN BLINDADA DE LICENCIA
+                db.ref(`licencias_activas/${configMaestra.idActual}`).once('value').then((snapshot) => {
+                    if (snapshot.exists() && snapshot.val().estado === 'activo') {
+                        console.log("🔓 Licencia Autorizada. Sincronizando parámetros...");
+                        firebase.auth().signInAnonymously().then(() => {
+                            log("🔐 Conexión Firebase OK.");
+                            sincronizarParametros();
+                            escucharConfig();
+                            escucharDatos();
+                        });
+                    } else {
+                        mostrarErrorAcceso("ID de Licencia Inválido, Vencido o Suspendido.");
+                    }
+                }).catch(error => {
+                    mostrarErrorAcceso("Error de conexión con el servidor de licencias.");
+                });
+            } catch (e) {
+                log("❌ Error Init: " + e.message);
+            }
+        }
+
+        function sincronizarParametros() {
+            const rutaConfig = configMaestra.pathCliente + 'parametros';
+            
+            // Escucha en tiempo real: Si el Presidente cambia algo en la consola, se refleja al instante
+            db.ref(rutaConfig).on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    configSistema = data;
+                    aplicarLogicaDeSeguridad();
+                } else {
+                    // Valores por defecto si no existe el nodo
+                    configSistema = {
+                        iva: 16,
+                        stock_minimo_alerta: 5,
+                        pass_admin: "1234",
+                        nivel_suscripcion: "basica",
+                        permisos: {
+                            ver_reportes: true,
+                            ver_proveedores: false,
+                            ver_gastos: false,
+                            puede_eliminar: false
+                        }
+                    };
+                    aplicarLogicaDeSeguridad();
+                }
+            });
+        }
+
+        function aplicarLogicaDeSeguridad() {
+            const nivel = configSistema.nivel_suscripcion || "basica";
+            const p = configSistema.permisos || {};
+
+            // A. CONTROL POR NIVEL (Suscripción)
+            const btnEscaner = document.querySelectorAll('.btn-camera');
+            btnEscaner.forEach(btn => {
+                btn.style.display = (nivel === 'pro' || nivel === 'premium') ? 'block' : 'none';
+            });
+
+            // B. CONTROL DE PESTAÑAS (Roles y Permisos)
+            const controles = {
+                'reportes': p.ver_reportes,
+                'proveedores': p.ver_proveedores,
+                'gastos': (nivel === 'premium' && p.ver_gastos)
+            };
+
+            for (let tabId in controles) {
+                const el = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
+                if (el) el.style.display = controles[tabId] ? 'block' : 'none';
+            }
+
+            // C. CONTROL DE ACCIONES CRÍTICAS (Borrado/Edición)
+            const btnsEliminar = document.querySelectorAll('.btn-danger, button[onclick*="eliminar"], button[onclick*="anular"]');
+            btnsEliminar.forEach(btn => {
+                if (btn.id !== 'btnCancelarEdit') {
+                    btn.style.display = p.puede_eliminar ? 'inline-block' : 'none';
+                }
+            });
+
+            console.log(`🛡️ Sistema operativo en modo [${nivel.toUpperCase()}]`);
+        }
+
+        function mostrarErrorAcceso(mensaje) {
+            document.body.innerHTML = `
+                <div style="text-align:center; margin-top:20%; font-family:sans-serif; padding:20px;">
+                    <h1 style="color:#c0392b;">🛑 BLOQUEO DE SEGURIDAD</h1>
+                    <p style="font-size:1.2em;">${mensaje}</p>
+                    <hr style="width:50%">
+                    <p>Comuníquese con <b>Inverteca Global</b> para activar su licencia.</p>
+                </div>`;
+        }
+
+        // GESTIÓN DE ACCESO ADMINISTRATIVO
+        function solicitarAccesoAdmin() {
+            document.getElementById('claveAdminInput').value = '';
+            document.getElementById('modalAccesoAdmin').classList.add('active');
+            setTimeout(() => document.getElementById('claveAdminInput').focus(), 300);
+        }
+
+        function cerrarModalAccesoAdmin() {
+            document.getElementById('modalAccesoAdmin').classList.remove('active');
+        }
+
+        function validarClaveAdmin() {
+            const claveIngresada = document.getElementById('claveAdminInput').value;
+            const claveCorrecta = configSistema.pass_admin || "1234";
+
+            if (claveIngresada === claveCorrecta) {
+                log("🔓 Acceso Administrativo Concedido");
+                configSistema.permisos = {
+                    ver_reportes: true,
+                    ver_proveedores: true,
+                    ver_gastos: true,
+                    puede_eliminar: true
+                };
+                configSistema.nivel_suscripcion = "premium"; 
+                aplicarLogicaDeSeguridad();
+                cerrarModalAccesoAdmin();
+                alert("✅ Modo Administrador Activo");
+            } else {
+                alert("❌ Clave Incorrecta");
+            }
+        }
+
+        // INICIALIZAR GASTOS (Llamado desde escucharDatos)
         function inicializarGastos() {
             cargarGastosFirebase();
             cargarCatalogosGastos();
@@ -2368,43 +2557,9 @@
             if(firebaseCargado && scannerCargado) {
                 libreriasListas = true;
                 log('✓ Librerías cargadas correctamente');
-                init();
+                inicializarSistema();
             } else {
                 setTimeout(verificarLibrerias, 100);
-            }
-        }
-
-        function init() {
-            const urlParams = new URLSearchParams(window.location.search);
-            let clienteId = urlParams.get('id') || "c001angeles";
-            
-            configMaestra.idActual = clienteId;
-            configMaestra.pathCliente = 'clientes/' + clienteId + '/';
-            
-            inicializarFirebase();
-        }
-
-        function inicializarFirebase() {
-            const firebaseConfig = {
-                apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Zdp-7lwUSFc",
-                authDomain: "inverteca-core.firebaseapp.com",
-                databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
-                projectId: "inverteca-core",
-                storageBucket: "inverteca-core.firebasestorage.app",
-                messagingSenderId: "647568711575",
-                appId: "1:647568711575:web:d09efc868294c96b0aeed2"
-            };
-
-            try {
-                firebase.initializeApp(firebaseConfig);
-                firebase.auth().signInAnonymously().then(() => {
-                    log("🔐 Conexión Firebase OK.");
-                    db = firebase.database();
-                    escucharConfig();
-                    escucharDatos();
-                }).catch(e => log("❌ Error Auth: " + e.message));
-            } catch (e) {
-                log("❌ Error Init: " + e.message);
             }
         }
 
