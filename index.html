@@ -1936,7 +1936,8 @@
                 
                 // VALIDACIÓN BLINDADA DE LICENCIA
                 db.ref(`licencias_activas/${configMaestra.idActual}`).once('value').then((snapshot) => {
-                    if (snapshot.exists() && snapshot.val().estado === 'activo') {
+                    const estadoLicencia = snapshot.val();
+                    if (snapshot.exists() && (estadoLicencia === 'activo' || estadoLicencia.estado === 'activo')) {
                         console.log("🔓 Licencia Autorizada. Sincronizando parámetros...");
                         firebase.auth().signInAnonymously().then(() => {
                             log("🔐 Conexión Firebase OK.");
@@ -1987,6 +1988,9 @@
             const nivel = configSistema.nivel_suscripcion || "basica";
             const p = configSistema.permisos || {};
 
+            // Función de conversión de seguridad para booleanos (Instrucción Crítica)
+            const checkPermiso = (val) => String(val) === 'true' || val === true;
+
             // A. CONTROL POR NIVEL (Suscripción)
             const btnEscaner = document.querySelectorAll('.btn-camera');
             btnEscaner.forEach(btn => {
@@ -1995,9 +1999,10 @@
 
             // B. CONTROL DE PESTAÑAS (Roles y Permisos)
             const controles = {
-                'reportes': p.ver_reportes,
-                'proveedores': p.ver_proveedores,
-                'gastos': (nivel === 'premium' && p.ver_gastos)
+                'reportes': checkPermiso(p.ver_reportes),
+                'proveedores': checkPermiso(p.ver_proveedores),
+                'gastos': checkPermiso(p.ver_gastos),
+                'stock': checkPermiso(p.ver_inventario)
             };
 
             for (let tabId in controles) {
@@ -2009,9 +2014,18 @@
             const btnsEliminar = document.querySelectorAll('.btn-danger, button[onclick*="eliminar"], button[onclick*="anular"]');
             btnsEliminar.forEach(btn => {
                 if (btn.id !== 'btnCancelarEdit') {
-                    btn.style.display = p.puede_eliminar ? 'inline-block' : 'none';
+                    btn.style.display = checkPermiso(p.puede_eliminar) ? 'inline-block' : 'none';
                 }
             });
+
+            // D. VISUALIZACIÓN AUTOMÁTICA DEL DASHBOARD (Instrucción 37)
+            document.body.classList.remove('debug-visible');
+            const appContainer = document.querySelector('.app-container');
+            if (appContainer) {
+                appContainer.style.display = 'block';
+                // Forzar vista de Dashboard (Stock por defecto)
+                switchTab('stock');
+            }
 
             console.log(`🛡️ Sistema operativo en modo [${nivel.toUpperCase()}]`);
         }
