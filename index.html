@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Inverteca Core - Módulo Stock</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#27ae60">
+    <link rel="apple-touch-icon" href="https://files.manuscdn.com/user_upload_by_module/session_file/310519663596760533/icon-192.png">
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-app.js"></script>
@@ -12,6 +15,7 @@
     
     <!-- Html5-QRCode para lector de códigos de barras (Versión exacta del operativo) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
     <style>
         :root {
@@ -977,6 +981,7 @@
             <button class="tab-btn" onclick="switchTab('proveedores')">🏭 Proveedores</button>
             <button class="tab-btn" onclick="switchTab('reportes')">🏢 Reportes</button>
             <button class="tab-btn" onclick="switchTab('gastos')">💰 Gastos</button>
+            <button class="tab-btn" id="tabConfig" onclick="switchTab('configuracion')" style="display: none;">⚙️ Config</button>
         </div>
 
         <!-- TAB: STOCK -->
@@ -1120,10 +1125,33 @@
                 <div style="text-align: center; padding: 20px; color: #999;">Cargando créditos...</div>
             </div>
         </div>
-        <div id="reportes" class="tab-content">
-            <h2 style="display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #27ae60; padding-bottom: 10px;">
-                📊 Dashboard Control Diario
+            <div id="configuracion" class="tab-content">
+            <h2 style="display: flex; align-items: center; gap: 10px; border-bottom: 2px solid var(--primary); padding-bottom: 10px;">
+                ⚙️ Configuración y Vinculación
             </h2>
+            
+            <div class="dashboard-card" style="border-left: 5px solid var(--purple); text-align: center;">
+                <div class="card-label">VINCULAR NUEVO DISPOSITIVO</div>
+                <p style="font-size: 0.85rem; color: #666; margin: 10px 0;">
+                    Escanea este código con otro teléfono para clonar el acceso de <b><span id="qrNombreNegocio">...</span></b> automáticamente.
+                </p>
+                <div id="qrcode" style="display: flex; justify-content: center; margin: 20px 0; padding: 15px; background: white; border-radius: 10px;"></div>
+                <button class="btn-camera" style="width: 100%; background: var(--purple);" onclick="generarQRVinculacion()">🔄 REGENERAR CÓDIGO QR</button>
+            </div>
+
+            <div class="dashboard-card" style="border-left: 5px solid var(--info);">
+                <div class="card-label">ESTADO DE LA LICENCIA</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                    <span id="licenciaStatusLabel" style="font-weight: bold; color: var(--primary);">ACTIVA</span>
+                    <span id="licenciaIDLabel" style="font-size: 0.8rem; color: #999;">ID: ...</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="gastos" class="tab-content">
+            <h2 style="display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #9b59b6; padding-bottom: 10px;">
+                💰 Gastos Operativos
+            </h2></h2>
             
             <!-- TARJETAS DE DASHBOARD -->
             <div class="dashboard-card" style="border-left: 5px solid #3498db;">
@@ -1844,6 +1872,15 @@
     <div id="debug-log"></div>
 
     <script>
+        // REGISTRO DE SERVICE WORKER PARA PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('PWA: Service Worker registrado'))
+                    .catch(err => console.log('PWA: Error al registrar SW', err));
+            });
+        }
+
         // ==================== CONFIGURACIÓN GLOBAL ====================
         let items = [];
         let clientes = []; // {id, nombre, cedula, telefono, deudaTotal}
@@ -1896,7 +1933,7 @@
 
         async function inicializarSistema() {
             const urlParams = new URLSearchParams(window.location.search);
-            let idCliente = urlParams.get('id');
+            let idCliente = urlParams.get('id') || urlParams.get('vincular');
 
             // 1. PERSISTENCIA: Si no hay ID en la URL, lo busca en la memoria del teléfono
             if (!idCliente) {
@@ -1915,6 +1952,11 @@
 
             // 3. INICIALIZAR FIREBASE ANTES DE VALIDAR LICENCIA
             inicializarFirebase();
+            
+            // Limpiar URL para que no se vea el ID
+            if (window.location.search) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
         }
 
         function inicializarFirebase() {
@@ -1934,6 +1976,21 @@
                 }
                 db = firebase.database();
                 
+                // INDICADOR DE STATUS REAL (Instrucción 3)
+                const connectedRef = db.ref(".info/connected");
+                connectedRef.on("value", (snap) => {
+                    const statusEl = document.getElementById('connectionStatus');
+                    if (snap.val() === true) {
+                        statusEl.textContent = 'CONECTADO';
+                        statusEl.className = 'connection-status online';
+                        log("🌐 Conexión establecida con Firebase.");
+                    } else {
+                        statusEl.textContent = 'DESCONECTADO';
+                        statusEl.className = 'connection-status';
+                        log("⚠️ Sin conexión a internet/servidor.");
+                    }
+                });
+
                 // VALIDACIÓN BLINDADA DE LICENCIA
                 db.ref(`licencias_activas/${configMaestra.idActual}`).once('value').then((snapshot) => {
                     const estadoLicencia = snapshot.val();
@@ -2002,7 +2059,8 @@
                 'reportes': checkPermiso(p.ver_reportes),
                 'proveedores': checkPermiso(p.ver_proveedores),
                 'gastos': checkPermiso(p.ver_gastos),
-                'stock': checkPermiso(p.ver_inventario)
+                'stock': checkPermiso(p.ver_inventario),
+                'configuracion': true // Siempre visible si se entra como admin
             };
 
             for (let tabId in controles) {
@@ -2023,11 +2081,38 @@
             const appContainer = document.querySelector('.app-container');
             if (appContainer) {
                 appContainer.style.display = 'block';
-                // Forzar vista de Dashboard (Stock por defecto)
-                switchTab('stock');
+                // Solo forzar tab si es la primera carga
+                if (!document.querySelector('.tab-btn.active')) switchTab('stock');
+            }
+
+            // E. ACTUALIZAR LABELS DE CONFIG
+            document.getElementById('licenciaIDLabel').textContent = `ID: ${configMaestra.idActual}`;
+            document.getElementById('qrNombreNegocio').textContent = configMaestra.nombreNegocio;
+            if (document.getElementById('tabConfig')) {
+                document.getElementById('tabConfig').style.display = 'block';
             }
 
             console.log(`🛡️ Sistema operativo en modo [${nivel.toUpperCase()}]`);
+        }
+
+        function generarQRVinculacion() {
+            const qrContainer = document.getElementById("qrcode");
+            qrContainer.innerHTML = "";
+            
+            // URL base (detecta si es Vercel o local)
+            const baseUrl = window.location.origin + window.location.pathname;
+            const vinculacionUrl = `${baseUrl}?vincular=${configMaestra.idActual}`;
+            
+            new QRCode(qrContainer, {
+                text: vinculacionUrl,
+                width: 200,
+                height: 200,
+                colorDark : "#2c3e50",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+            
+            log("📱 QR de vinculación generado para: " + configMaestra.idActual);
         }
 
         function mostrarErrorAcceso(mensaje) {
@@ -2578,18 +2663,27 @@
         }
 
         function escucharConfig() {
-            db.ref(configMaestra.pathCliente + 'config').on('value', snap => {
-                const config = snap.val();
-                if (config) {
-                    configMaestra.nombreNegocio = config.nombre_negocio || config.nombre || "Inverteca";
+            // Sincronización del Nombre del Negocio (Instrucción 2)
+            db.ref(configMaestra.pathCliente + 'data/empresa').on('value', snap => {
+                const empresa = snap.val();
+                if (empresa && empresa.nombre) {
+                    configMaestra.nombreNegocio = empresa.nombre;
                     document.getElementById('nombreNegocioDisplay').textContent = configMaestra.nombreNegocio;
-                    document.getElementById('estadoServicio').textContent = (config.estado_servicio || "activo").toUpperCase();
-                    const statusEl = document.getElementById('connectionStatus');
-                    statusEl.textContent = 'Online (' + (config.nivel_plan || "basico").toUpperCase() + ')';
-                    statusEl.className = 'connection-status online';
-                    
-                    // El módulo de gastos ahora usa su propio catálogo en gastos/catalogos/empresas
-                    // No se sincronizan automáticamente para evitar sobrescribir datos maestros.
+                } else {
+                    // Fallback a config antigua o ID
+                    db.ref(configMaestra.pathCliente + 'config').once('value', cSnap => {
+                        const c = cSnap.val();
+                        configMaestra.nombreNegocio = (c && c.nombre_negocio) ? c.nombre_negocio : configMaestra.idActual;
+                        document.getElementById('nombreNegocioDisplay').textContent = configMaestra.nombreNegocio;
+                    });
+                }
+            });
+
+            db.ref(configMaestra.pathCliente + 'parametros').on('value', snap => {
+                const params = snap.val();
+                if (params) {
+                    document.getElementById('estadoServicio').textContent = (params.estado_servicio || "activo").toUpperCase();
+                    // El status de conexión ahora se maneja globalmente en inicializarFirebase
                 }
             });
         }
