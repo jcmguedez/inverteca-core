@@ -979,7 +979,7 @@
             <button class="tab-btn" onclick="switchTab('venta')">🛒 Venta</button>
             <button class="tab-btn" onclick="switchTab('creditos')">💳 Créditos</button>
             <button class="tab-btn" onclick="switchTab('proveedores')">🏭 Proveedores</button>
-            <button class="tab-btn" onclick="switchTab('reportes')">🏢 Reportes</button>
+            <button class="tab-btn" onclick="switchTab('reportes')">📊 Reportes</button>
             <button class="tab-btn" onclick="switchTab('gastos')">💰 Gastos</button>
             <button class="tab-btn" id="tabConfig" onclick="switchTab('configuracion')" style="display: none;">⚙️ Config</button>
         </div>
@@ -1148,10 +1148,11 @@
             </div>
         </div>
 
-        <div id="gastos" class="tab-content">
-            <h2 style="display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #9b59b6; padding-bottom: 10px;">
-                💰 Gastos Operativos
-            </h2></h2>
+        <!-- TAB: REPORTES -->
+        <div id="reportes" class="tab-content">
+            <h2 style="display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
+                📊 Reportes y Estadísticas
+            </h2>
             
             <!-- TARJETAS DE DASHBOARD -->
             <div class="dashboard-card" style="border-left: 5px solid #3498db;">
@@ -1217,6 +1218,12 @@
                 📥 DESCARGAR CSV
             </button>
         </div>
+
+        <!-- TAB: GASTOS OPERATIVOS -->
+        <div id="gastos" class="tab-content">
+            <h2 style="display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #9b59b6; padding-bottom: 10px;">
+                💰 Gastos Operativos
+            </h2>
     </div>
 
     <!-- TAB: PROVEEDORES -->
@@ -1604,17 +1611,97 @@
                 <span>Ingresar Peso</span>
             </div>
             <div class="modal-body">
-                <div style="font-size: 0.95rem; margin-bottom: 15px;" id="modalPesoProducto"></div>
+                <div id="modalPesoProducto" style="font-weight: bold; margin-bottom: 10px; text-align: center;"></div>
                 <div class="modal-input-group">
-                    <label id="modalPesoLabel">Peso en Kilogramos (ej: 0.450):</label>
-                    <input type="number" id="inputPeso" placeholder="0.000" step="0.001" min="0" oninput="calcularTotalPeso()">
+                    <label>Peso (Kg):</label>
+                    <input type="number" id="inputPeso" placeholder="0.000" step="0.001" oninput="calcularTotalPeso()">
                 </div>
-                <div class="modal-total" id="modalPesoTotal">Total: Bs. 0,00</div>
-                <div class="modal-total-dual" id="modalPesoTotalUSD" style="text-align: center;">$ 0,00</div>
+                <div id="modalPesoTotal" style="font-size: 1.2rem; font-weight: bold; color: var(--primary); text-align: center; margin-top: 10px;">Total: Bs. 0,00</div>
+                <div id="modalPesoTotalUSD" style="font-size: 1rem; color: #666; text-align: center;">$ 0,00</div>
             </div>
             <div class="modal-buttons">
-                <button class="modal-btn modal-btn-primary" onclick="confirmarPeso()">ANADIR</button>
-                <button class="modal-btn modal-btn-danger" onclick="cerrarModalPeso()">CANCELAR</button>
+                <button class="modal-btn modal-btn-primary" onclick="confirmarPeso()">✅ AGREGAR</button>
+                <button class="modal-btn" style="background:#95a5a6; color:white;" onclick="cerrarModalPeso()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CONFIGURACIÓN MAESTRA (ADMIN) -->
+    <div id="modalConfigMaestra" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header" style="background: var(--secondary);">
+                <span>⚙️</span>
+                <span>Configuración del Sistema</span>
+            </div>
+            <div class="modal-body">
+                <!-- SECCIÓN 1: DATOS DE LA EMPRESA -->
+                <h3 style="font-size: 1rem; color: var(--secondary); border-bottom: 2px solid #eee; padding-bottom: 5px; margin-bottom: 15px;">📍 Datos de la Empresa</h3>
+                <div class="modal-input-group">
+                    <label>Nombre de la Compañía:</label>
+                    <input type="text" id="configNombreEmpresa" placeholder="Ej: Inverteca C.A.">
+                </div>
+                <div class="modal-input-group">
+                    <label>RIF:</label>
+                    <input type="text" id="configRifEmpresa" placeholder="J-12345678-9">
+                </div>
+                <div class="modal-input-group">
+                    <label>Dirección:</label>
+                    <input type="text" id="configDireccionEmpresa" placeholder="Dirección completa">
+                </div>
+                <div class="modal-input-group">
+                    <label>Teléfono:</label>
+                    <input type="text" id="configTelefonoEmpresa" placeholder="0412-0000000">
+                </div>
+                <div class="modal-input-group">
+                    <label>Correo Electrónico:</label>
+                    <input type="email" id="configCorreoEmpresa" placeholder="correo@empresa.com">
+                </div>
+
+                <!-- SECCIÓN 2: PARÁMETROS Y ROLES -->
+                <h3 style="font-size: 1rem; color: var(--secondary); border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px;">🔐 Parámetros y Roles</h3>
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #eee;">
+                    <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">Configure los permisos para el personal que operará este dispositivo:</p>
+                    
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <label style="font-size: 0.9rem; margin: 0;">Ver Módulo de Gastos</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="permisoVerGastos" class="toggle-checkbox">
+                            <label for="permisoVerGastos" class="toggle-label"></label>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <label style="font-size: 0.9rem; margin: 0;">Ver Módulo de Proveedores</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="permisoVerProveedores" class="toggle-checkbox">
+                            <label for="permisoVerProveedores" class="toggle-label"></label>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <label style="font-size: 0.9rem; margin: 0;">Ver Reportes y Cierres</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="permisoVerReportes" class="toggle-checkbox">
+                            <label for="permisoVerReportes" class="toggle-label"></label>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <label style="font-size: 0.9rem; margin: 0;">Modificar/Eliminar Stock</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="permisoEditarStock" class="toggle-checkbox">
+                            <label for="permisoEditarStock" class="toggle-label"></label>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <label style="font-size: 0.9rem; margin: 0;">Anular Ventas Realizadas</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="permisoAnularVentas" class="toggle-checkbox">
+                            <label for="permisoAnularVentas" class="toggle-label"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="guardarConfigMaestra()">💾 GUARDAR CONFIGURACIÓN</button>
+                <button class="modal-btn" style="background:#95a5a6; color:white;" onclick="cerrarModalConfigMaestra()">CERRAR</button>
             </div>
         </div>
     </div>
@@ -2138,23 +2225,74 @@
 
         function validarClaveAdmin() {
             const claveIngresada = document.getElementById('claveAdminInput').value;
-            const claveCorrecta = configSistema.pass_admin || "1234";
+            const claveCorrecta = (typeof configSistema !== 'undefined' ? configSistema.pass_admin : null) || configMaestra.passAdmin || "1234";
 
             if (claveIngresada === claveCorrecta) {
-                log("🔓 Acceso Administrativo Concedido");
-                configSistema.permisos = {
-                    ver_reportes: true,
-                    ver_proveedores: true,
-                    ver_gastos: true,
-                    puede_eliminar: true
-                };
-                configSistema.nivel_suscripcion = "premium"; 
-                aplicarLogicaDeSeguridad();
                 cerrarModalAccesoAdmin();
-                alert("✅ Modo Administrador Activo");
+                abrirModalConfigMaestra();
+                log("🔓 Acceso administrativo concedido");
             } else {
                 alert("❌ Clave Incorrecta");
             }
+        }
+
+        function abrirModalConfigMaestra() {
+            // Cargar datos actuales de la empresa
+            db.ref(configMaestra.pathCliente + 'data/empresa').once('value', snap => {
+                const emp = snap.val() || {};
+                document.getElementById('configNombreEmpresa').value = emp.nombre || "";
+                document.getElementById('configRifEmpresa').value = emp.rif || "";
+                document.getElementById('configDireccionEmpresa').value = emp.direccion || "";
+                document.getElementById('configTelefonoEmpresa').value = emp.telefono || "";
+                document.getElementById('configCorreoEmpresa').value = emp.correo || "";
+            });
+
+            // Cargar permisos actuales
+            db.ref(configMaestra.pathCliente + 'parametros/permisos').once('value', snap => {
+                const p = snap.val() || {};
+                document.getElementById('permisoVerGastos').checked = String(p.ver_gastos) === 'true';
+                document.getElementById('permisoVerProveedores').checked = String(p.ver_proveedores) === 'true';
+                document.getElementById('permisoVerReportes').checked = String(p.ver_reportes) === 'true';
+                document.getElementById('permisoEditarStock').checked = String(p.editar_stock) === 'true';
+                document.getElementById('permisoAnularVentas').checked = String(p.anular_ventas) === 'true';
+            });
+
+            document.getElementById('modalConfigMaestra').classList.add('active');
+        }
+
+        function cerrarModalConfigMaestra() {
+            document.getElementById('modalConfigMaestra').classList.remove('active');
+        }
+
+        function guardarConfigMaestra() {
+            const datosEmpresa = {
+                nombre: document.getElementById('configNombreEmpresa').value.trim(),
+                rif: document.getElementById('configRifEmpresa').value.trim(),
+                direccion: document.getElementById('configDireccionEmpresa').value.trim(),
+                telefono: document.getElementById('configTelefonoEmpresa').value.trim(),
+                correo: document.getElementById('configCorreoEmpresa').value.trim()
+            };
+
+            const permisos = {
+                ver_gastos: document.getElementById('permisoVerGastos').checked,
+                ver_proveedores: document.getElementById('permisoVerProveedores').checked,
+                ver_reportes: document.getElementById('permisoVerReportes').checked,
+                editar_stock: document.getElementById('permisoEditarStock').checked,
+                anular_ventas: document.getElementById('permisoAnularVentas').checked
+            };
+
+            // Guardar datos de empresa
+            db.ref(configMaestra.pathCliente + 'data/empresa').update(datosEmpresa);
+            
+            // Guardar permisos
+            db.ref(configMaestra.pathCliente + 'parametros/permisos').update(permisos)
+                .then(() => {
+                    alert("✅ Configuración guardada correctamente");
+                    cerrarModalConfigMaestra();
+                    // Desbloquear pestaña de QR si es admin
+                    document.getElementById('tabConfig').style.display = 'block';
+                })
+                .catch(e => alert("❌ Error al guardar: " + e.message));
         }
 
         // INICIALIZAR GASTOS (Llamado desde escucharDatos)
