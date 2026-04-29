@@ -1882,12 +1882,12 @@
         }
 
         // ==================== CONFIGURACIÓN GLOBAL ====================
-        let items = [];
-        let clientes = []; // {id, nombre, cedula, telefono, deudaTotal}
+        let tasaDolar = 36.50;
+        let procesandoPago = false; // Bloqueo de seguridad contra clics múltiples
+        let items = []; // {id, nombre, cedula, telefono, deudaTotal}
         let creditos = []; // {id, clienteId, fecha, items, totalBs, saldo, pagada}
         let cierres = []; // {fecha, totalBs, totalUSD, cantVentas, ventasIds}
         let cierresMensuales = [];
-        let tasaDolar = 36.50;
         let ivaPercentaje = 16;
         let db = null;
         let scannerInventario = null;
@@ -3355,6 +3355,8 @@
         }
 
         function finalizarPago() {
+            if (procesandoPago) return; // Bloqueo de seguridad contra clics múltiples
+
             const totalBs = parseFloat(document.getElementById('modalPagoTotal').textContent.replace('Bs. ', '')) || 0;
             const montoIngresado = parseFloat(document.getElementById('montoPagoInput').value) || 0;
 
@@ -3373,6 +3375,13 @@
 
             if (pagoEnBs < totalBs && metodoPagoActual !== 'punto') {
                 return alert('⚠️ El monto ingresado es insuficiente.');
+            }
+
+            procesandoPago = true; // Activar bloqueo
+            const btnConfirmar = document.querySelector('#modalPago .modal-btn-primary');
+            if (btnConfirmar) {
+                btnConfirmar.disabled = true;
+                btnConfirmar.textContent = "PROCESANDO...";
             }
 
             const ahora = new Date();
@@ -3394,7 +3403,7 @@
             };
 
             // Guardar en Firebase (usando la misma lógica que crédito)
-            if (db) {
+            if (db && navigator.onLine) {
                 db.ref(configMaestra.pathCliente + 'logs/ventas').push(venta).then(() => {
                     // Descontar stock localmente y en DB
                     carrito.forEach(ci => {
@@ -3411,17 +3420,34 @@
                     recalcularTotales();
                     renderHistorial(); // Forzar renderizado inmediato
                     cerrarModalPago();
+                    procesandoPago = false; // Liberar bloqueo tras éxito
                     alert('✅ Venta confirmada\n' + tipoPago + '\nTotal: Bs. ' + totalBs.toFixed(2));
-                }).catch(err => alert('Error al guardar venta: ' + err));
+                }).catch(err => {
+                    procesandoPago = false; // Liberar bloqueo tras error
+                    if (btnConfirmar) {
+                        btnConfirmar.disabled = false;
+                        btnConfirmar.textContent = "CONFIRMAR PAGO";
+                    }
+                    alert('Error al guardar venta: ' + err);
+                });
             } else {
-                // Fallback offline
+                // Fallback offline o sin conexión real
                 ventas.push(venta);
+                // Descontar stock localmente
+                carrito.forEach(ci => {
+                    const idx = items.findIndex(i => i.id === ci.id);
+                    if (idx !== -1) {
+                        items[idx].cantidad = Math.max(0, items[idx].cantidad - ci.cantidad);
+                    }
+                });
+                
                 carrito = [];
                 renderCarrito();
                 recalcularTotales();
                 renderHistorial();
                 cerrarModalPago();
-                alert('✅ Venta registrada localmente.');
+                procesandoPago = false; // Liberar bloqueo
+                alert('✅ Venta registrada localmente (Modo Offline).');
             }
         }
 
