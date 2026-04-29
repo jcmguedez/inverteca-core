@@ -1882,12 +1882,12 @@
         }
 
         // ==================== CONFIGURACIÓN GLOBAL ====================
-        let items = [];
-        let clientes = []; // {id, nombre, cedula, telefono, deudaTotal}
+        let tasaDolar = 36.50;
+        let procesandoPago = false; // Bloqueo de seguridad contra clics múltiples
+        let items = []; // {id, nombre, cedula, telefono, deudaTotal}
         let creditos = []; // {id, clienteId, fecha, items, totalBs, saldo, pagada}
         let cierres = []; // {fecha, totalBs, totalUSD, cantVentas, ventasIds}
         let cierresMensuales = [];
-        let tasaDolar = 36.50;
         let ivaPercentaje = 16;
         let db = null;
         let scannerInventario = null;
@@ -3355,6 +3355,8 @@
         }
 
         function finalizarPago() {
+            if (procesandoPago) return; // Bloqueo de seguridad contra clics múltiples
+
             const totalBs = parseFloat(document.getElementById('modalPagoTotal').textContent.replace('Bs. ', '')) || 0;
             const montoIngresado = parseFloat(document.getElementById('montoPagoInput').value) || 0;
 
@@ -3375,6 +3377,9 @@
                 return alert('⚠️ El monto ingresado es insuficiente.');
             }
 
+            // --- INICIO LÓGICA LOCAL-FIRST ---
+            procesandoPago = true; 
+            
             const ahora = new Date();
             const soloFecha = `${ahora.getDate()}/${ahora.getMonth() + 1}/${ahora.getFullYear()}`;
             const soloHora = ahora.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -3393,36 +3398,44 @@
                 anulada: false
             };
 
-            // Guardar en Firebase (usando la misma lógica que crédito)
-            if (db) {
-                db.ref(configMaestra.pathCliente + 'logs/ventas').push(venta).then(() => {
-                    // Descontar stock localmente y en DB
-                    carrito.forEach(ci => {
-                        const idx = items.findIndex(i => i.id === ci.id);
-                        if (idx !== -1) {
-                            items[idx].cantidad = Math.max(0, items[idx].cantidad - ci.cantidad);
-                        }
-                    });
-                    db.ref(configMaestra.pathCliente + 'data/items').set(items);
+            // 1. Actualizar Stock Localmente de inmediato
+            carrito.forEach(ci => {
+                const idx = items.findIndex(i => i.id === ci.id);
+                if (idx !== -1) {
+                    items[idx].cantidad = Math.max(0, items[idx].cantidad - ci.cantidad);
+                }
+            });
 
-                    log('✅ Venta registrada: Bs. ' + totalBs.toFixed(2) + ' - ' + tipoPago);
-                    carrito = [];
-                    renderCarrito();
-                    recalcularTotales();
-                    renderHistorial(); // Forzar renderizado inmediato
-                    cerrarModalPago();
-                    alert('✅ Venta confirmada\n' + tipoPago + '\nTotal: Bs. ' + totalBs.toFixed(2));
-                }).catch(err => alert('Error al guardar venta: ' + err));
+            // 2. Limpiar Interfaz de inmediato (Sin esperar a Firebase)
+            const carritoCopia = [...carrito]; // Guardar copia por si acaso
+            carrito = [];
+            renderCarrito();
+            recalcularTotales();
+            renderHistorial(); 
+            cerrarModalPago();
+            
+            // 3. Intentar guardar en Firebase en segundo plano
+            if (db) {
+                // Usamos set() con el ID único para evitar duplicados si se reintenta la conexión
+                db.ref(configMaestra.pathCliente + 'logs/ventas/' + venta.id).set(venta)
+                    .then(() => {
+                        // Actualizar stock en DB también en segundo plano
+                        db.ref(configMaestra.pathCliente + 'data/items').set(items);
+                        log('✅ Venta sincronizada con la nube: ' + venta.id);
+                    })
+                    .catch(err => {
+                        console.error("Error de sincronización (se reintentará):", err);
+                        // Firebase reintentará automáticamente si la persistencia está activa
+                    });
             } else {
-                // Fallback offline
+                // Si no hay DB inicializada, guardamos en el array local (fallback total)
                 ventas.push(venta);
-                carrito = [];
-                renderCarrito();
-                recalcularTotales();
-                renderHistorial();
-                cerrarModalPago();
-                alert('✅ Venta registrada localmente.');
             }
+
+            // 4. Liberar bloqueo y avisar al usuario
+            procesandoPago = false;
+            alert('✅ Venta procesada con éxito.\n' + tipoPago + '\nTotal: Bs. ' + totalBs.toFixed(2));
+            // --- FIN LÓGICA LOCAL-FIRST ---
         }
 
         // ==================== ANULACIÓN DE VENTAS ====================
@@ -3531,10 +3544,14 @@
         }
 
         function confirmarCredito() {
+            if (procesandoPago) return; // Bloqueo de seguridad
+
             const nombre = document.getElementById('nombreClienteCredito').value.trim();
             const totalBs = parseFloat(document.getElementById('modalCreditoTotal').textContent.replace('Bs. ', '')) || 0;
             
             if (!nombre) return alert('⚠️ Ingresa el nombre del cliente.');
+
+            procesandoPago = true; // Activar bloqueo
 
             let clienteId = clienteSeleccionadoId;
             
@@ -3576,37 +3593,40 @@
                 tipo: 'CREDITO'
             };
             
-            // Guardar en Firebase
+            // --- INICIO LÓGICA LOCAL-FIRST ---
+            // 1. Actualizar Stock Localmente de inmediato
+            carrito.forEach(ci => {
+                const idx = items.findIndex(i => i.id === ci.id);
+                if (idx !== -1) {
+                    items[idx].cantidad = Math.max(0, items[idx].cantidad - ci.cantidad);
+                }
+            });
+
+            // 2. Limpiar Interfaz de inmediato
+            carrito = [];
+            renderCarrito();
+            recalcularTotales();
+            cerrarModalCredito();
+
+            // 3. Intentar guardar en Firebase en segundo plano
             if (db) {
+                // Usamos set() con ID único para evitar duplicados
                 Promise.all([
                     db.ref(configMaestra.pathCliente + 'data/clientes').set(clientes),
-                    db.ref(configMaestra.pathCliente + 'data/creditos').push(nuevoCredito),
-                    db.ref(configMaestra.pathCliente + 'logs/ventas').push(nuevoCredito)
+                    db.ref(configMaestra.pathCliente + 'data/creditos/' + nuevoCredito.id).set(nuevoCredito),
+                    db.ref(configMaestra.pathCliente + 'logs/ventas/' + nuevoCredito.id).set(nuevoCredito),
+                    db.ref(configMaestra.pathCliente + 'data/items').set(items)
                 ]).then(() => {
-                    // Descontar stock
-                    carrito.forEach(ci => {
-                        const idx = items.findIndex(i => i.id === ci.id);
-                        if (idx !== -1) {
-                            items[idx].cantidad = Math.max(0, items[idx].cantidad - ci.cantidad);
-                        }
-                    });
-                    db.ref(configMaestra.pathCliente + 'data/items').set(items);
-
-                    log('💳 Crédito asignado a ' + nombre + ': Bs. ' + totalBs.toFixed(2));
-                    carrito = [];
-                    renderCarrito();
-                    recalcularTotales();
-                    cerrarModalCredito();
-                    alert('✅ Crédito registrado correctamente.');
-                }).catch(err => alert('Error al guardar crédito: ' + err));
-            } else {
-                // Fallback offline
-                carrito = [];
-                renderCarrito();
-                recalcularTotales();
-                cerrarModalCredito();
-                alert('✅ Crédito registrado localmente.');
+                    log('💳 Crédito sincronizado con la nube: ' + nombre);
+                }).catch(err => {
+                    console.error("Error de sincronización de crédito:", err);
+                });
             }
+
+            // 4. Liberar bloqueo y avisar
+            procesandoPago = false;
+            alert('✅ Crédito registrado con éxito (Modo Local).\nCliente: ' + nombre + '\nTotal: Bs. ' + totalBs.toFixed(2));
+            // --- FIN LÓGICA LOCAL-FIRST ---
         }
 
         function filtrarCreditos() {
