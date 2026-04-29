@@ -966,8 +966,8 @@
                 <span class="status-badge" id="estadoServicio">ABIERTO</span>
                 <span id="connectionStatus" class="connection-status">DESCONECTADO</span>
             </div>
-            <div style="font-size: 0.8rem; margin-top: 8px; cursor: pointer;" onclick="toggleDebug()">
-                (Toca aquí para configurar o ver QR)
+            <div style="font-size: 0.8rem; margin-top: 8px; cursor: pointer;" onclick="abrirConfigDispositivo()">
+                👤 <span id="vendedorDisplay">Vendedor: Genérico</span> (Configurar)
             </div>
             <!-- Icono de Engranaje para Acceso Admin -->
             <div onclick="solicitarAccesoAdmin()" style="position: absolute; top: 10px; right: 15px; font-size: 1.4rem; cursor: pointer; background: rgba(255,255,255,0.2); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center;" title="Seguridad">⚙️</div>
@@ -1846,6 +1846,40 @@
         </div>
     </div>
 
+    <!-- MODAL: CONFIGURACIÓN DISPOSITIVO (CAPA 1) -->
+    <div id="modalConfigDispositivo" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <span>👤</span>
+                <span>Configuración de Dispositivo</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-input-group">
+                    <label>Nombre del Vendedor/Dispositivo:</label>
+                    <input type="text" id="vendedorInput" placeholder="Ej: Caja 1, Juan Pérez...">
+                </div>
+                <div id="panelPermisosDispositivo" style="background: #f9f9f9; padding: 15px; border-radius: 10px; margin-top: 10px;">
+                    <h4 style="margin-top: 0; font-size: 0.9rem; color: var(--primary);">Permisos del Dispositivo</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem;">
+                        <label><input type="checkbox" id="p_ver_inventario"> Ver Inventario</label>
+                        <label><input type="checkbox" id="p_anular_factura"> Anular Factura</label>
+                        <label><input type="checkbox" id="p_ver_costos"> Ver Costos</label>
+                        <label><input type="checkbox" id="p_aplicar_descuentos"> Descuentos</label>
+                        <label><input type="checkbox" id="p_ver_reportes"> Ver Reportes</label>
+                        <label><input type="checkbox" id="p_ver_gastos"> Ver Gastos</label>
+                    </div>
+                </div>
+                <p style="font-size: 0.75rem; color: #999; margin-top: 10px; text-align: center;">
+                    ID Único: <span id="idDispositivoLabel">...</span>
+                </p>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="guardarConfigDispositivo()">✅ GUARDAR</button>
+                <button class="modal-btn" style="background:#95a5a6; color:white;" onclick="cerrarConfigDispositivo()">CERRAR</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL: ACCESO ADMINISTRATIVO -->
     <div id="modalAccesoAdmin" class="modal">
         <div class="modal-content" style="max-width: 350px;">
@@ -1926,6 +1960,12 @@
         // ==================== NÚCLEO MAESTRO UNIFICADO (SEGURIDAD, PERSISTENCIA Y NIVELES) ====================
         
         let configSistema = {}; // Cerebro del sistema
+        let configDispositivo = {
+            idDispositivo: localStorage.getItem('inverteca_device_id') || ('DEV-' + Date.now()),
+            vendedor: localStorage.getItem('inverteca_vendedor') || 'Genérico',
+            permisos: JSON.parse(localStorage.getItem('inverteca_device_permisos')) || {}
+        };
+        localStorage.setItem('inverteca_device_id', configDispositivo.idDispositivo);
         let gastos = [];
         let empresasGastos = [];
         let centrosCosto = [];
@@ -1953,9 +1993,30 @@
             // 3. INICIALIZAR FIREBASE ANTES DE VALIDAR LICENCIA
             inicializarFirebase();
             
+            // Cargar datos offline si existen
+            cargarDatosOffline();
+
             // Limpiar URL para que no se vea el ID
             if (window.location.search) {
                 window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        function cargarDatosOffline() {
+            const offlineName = localStorage.getItem('offline_nombre_negocio');
+            if (offlineName) {
+                configMaestra.nombreNegocio = offlineName;
+                document.getElementById('nombreNegocioDisplay').textContent = offlineName;
+            }
+            const offlineVendedor = localStorage.getItem('inverteca_vendedor');
+            if (offlineVendedor) {
+                configDispositivo.vendedor = offlineVendedor;
+                document.getElementById('vendedorDisplay').textContent = `Vendedor: ${offlineVendedor}`;
+            }
+            const offlinePlan = localStorage.getItem('offline_version_comprada');
+            if (offlinePlan) {
+                configSistema.nivel_suscripcion = offlinePlan;
+                aplicarLogicaDeSeguridad();
             }
         }
 
@@ -1982,11 +2043,11 @@
                     const statusEl = document.getElementById('connectionStatus');
                     if (snap.val() === true) {
                         statusEl.textContent = 'CONECTADO';
-                        statusEl.className = 'connection-status online';
+                        statusEl.classList.add('online');
                         log("🌐 Conexión establecida con Firebase.");
                     } else {
                         statusEl.textContent = 'DESCONECTADO';
-                        statusEl.className = 'connection-status';
+                        statusEl.classList.remove('online');
                         log("⚠️ Sin conexión a internet/servidor.");
                     }
                 });
@@ -2043,56 +2104,110 @@
 
         function aplicarLogicaDeSeguridad() {
             const nivel = configSistema.nivel_suscripcion || "basica";
-            const p = configSistema.permisos || {};
+            const pGlobal = configSistema.permisos || {};
+            const pDevice = configDispositivo.permisos || {};
 
-            // Función de conversión de seguridad para booleanos (Instrucción Crítica)
+            // Función de conversión de seguridad para booleanos
             const checkPermiso = (val) => String(val) === 'true' || val === true;
 
-            // A. CONTROL POR NIVEL (Suscripción)
+            // 1. RESTRICCIÓN POR NIVEL DE PLAN (HARD-CODED - Protocolo Punto 2)
+            const tabsPermitidas = {
+                'basica': ['stock', 'venta', 'creditos', 'reportes'],
+                'pro': ['stock', 'venta', 'creditos', 'reportes'], // + Escáner habilitado abajo
+                'premium': ['stock', 'venta', 'creditos', 'proveedores', 'reportes', 'gastos', 'configuracion']
+            };
+
+            // 2. CONTROL DE ESCÁNER POR PLAN
             const btnEscaner = document.querySelectorAll('.btn-camera');
             btnEscaner.forEach(btn => {
                 btn.style.display = (nivel === 'pro' || nivel === 'premium') ? 'block' : 'none';
             });
 
-            // B. CONTROL DE PESTAÑAS (Roles y Permisos)
-            const controles = {
-                'reportes': checkPermiso(p.ver_reportes),
-                'proveedores': checkPermiso(p.ver_proveedores),
-                'gastos': checkPermiso(p.ver_gastos),
-                'stock': checkPermiso(p.ver_inventario),
-                'configuracion': true // Siempre visible si se entra como admin
-            };
-
-            for (let tabId in controles) {
+            // 3. CONTROL DE PESTAÑAS (Cruce Plan + Permisos Dispositivo)
+            const tabs = ['stock', 'venta', 'creditos', 'proveedores', 'reportes', 'gastos', 'configuracion'];
+            tabs.forEach(tabId => {
                 const el = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
-                if (el) el.style.display = controles[tabId] ? 'block' : 'none';
-            }
+                if (!el) return;
 
-            // C. CONTROL DE ACCIONES CRÍTICAS (Borrado/Edición)
+                let visible = tabsPermitidas[nivel].includes(tabId);
+                
+                // Refinar por permisos de dispositivo (Capa 1)
+                if (tabId === 'stock' && !checkPermiso(pDevice.ver_inventario)) visible = false;
+                if (tabId === 'reportes' && !checkPermiso(pDevice.ver_reportes)) visible = false;
+                if (tabId === 'gastos' && !checkPermiso(pDevice.ver_gastos)) visible = false;
+                if (tabId === 'proveedores' && !checkPermiso(pDevice.ver_proveedores)) visible = false;
+
+                el.style.display = visible ? 'block' : 'none';
+            });
+
+            // 4. CONTROL DE ACCIONES CRÍTICAS
             const btnsEliminar = document.querySelectorAll('.btn-danger, button[onclick*="eliminar"], button[onclick*="anular"]');
             btnsEliminar.forEach(btn => {
                 if (btn.id !== 'btnCancelarEdit') {
-                    btn.style.display = checkPermiso(p.puede_eliminar) ? 'inline-block' : 'none';
+                    btn.style.display = checkPermiso(pDevice.anular_factura) ? 'inline-block' : 'none';
                 }
             });
 
-            // D. VISUALIZACIÓN AUTOMÁTICA DEL DASHBOARD (Instrucción 37)
+            // 5. VISUALIZACIÓN AUTOMÁTICA
             document.body.classList.remove('debug-visible');
             const appContainer = document.querySelector('.app-container');
             if (appContainer) {
                 appContainer.style.display = 'block';
-                // Solo forzar tab si es la primera carga
                 if (!document.querySelector('.tab-btn.active')) switchTab('stock');
             }
 
-            // E. ACTUALIZAR LABELS DE CONFIG
+            // 6. ACTUALIZAR LABELS
             document.getElementById('licenciaIDLabel').textContent = `ID: ${configMaestra.idActual}`;
             document.getElementById('qrNombreNegocio').textContent = configMaestra.nombreNegocio;
-            if (document.getElementById('tabConfig')) {
-                document.getElementById('tabConfig').style.display = 'block';
+            document.getElementById('vendedorDisplay').textContent = `Vendedor: ${configDispositivo.vendedor}`;
+
+            console.log(`🛡️ Protocolo Definitivo: Modo [${nivel.toUpperCase()}] | Dispositivo: [${configDispositivo.vendedor}]`);
+        }
+
+        function abrirConfigDispositivo() {
+            document.getElementById('vendedorInput').value = configDispositivo.vendedor;
+            document.getElementById('idDispositivoLabel').textContent = configDispositivo.idDispositivo;
+            
+            const p = configDispositivo.permisos;
+            document.getElementById('p_ver_inventario').checked = p.ver_inventario || false;
+            document.getElementById('p_anular_factura').checked = p.anular_factura || false;
+            document.getElementById('p_ver_costos').checked = p.ver_costos || false;
+            document.getElementById('p_aplicar_descuentos').checked = p.aplicar_descuentos || false;
+            document.getElementById('p_ver_reportes').checked = p.ver_reportes || false;
+            document.getElementById('p_ver_gastos').checked = p.ver_gastos || false;
+            
+            document.getElementById('modalConfigDispositivo').classList.add('active');
+        }
+
+        function cerrarConfigDispositivo() {
+            document.getElementById('modalConfigDispositivo').classList.remove('active');
+        }
+
+        function guardarConfigDispositivo() {
+            const nuevoVendedor = document.getElementById('vendedorInput').value.trim() || 'Genérico';
+            const nuevosPermisos = {
+                ver_inventario: document.getElementById('p_ver_inventario').checked,
+                anular_factura: document.getElementById('p_anular_factura').checked,
+                ver_costos: document.getElementById('p_ver_costos').checked,
+                aplicar_descuentos: document.getElementById('p_aplicar_descuentos').checked,
+                ver_reportes: document.getElementById('p_ver_reportes').checked,
+                ver_gastos: document.getElementById('p_ver_gastos').checked
+            };
+
+            configDispositivo.vendedor = nuevoVendedor;
+            configDispositivo.permisos = nuevosPermisos;
+
+            localStorage.setItem('inverteca_vendedor', nuevoVendedor);
+            localStorage.setItem('inverteca_device_permisos', JSON.stringify(nuevosPermisos));
+
+            if (db) {
+                db.ref(configMaestra.pathCliente + 'usuarios/roles/' + configDispositivo.idDispositivo).set(nuevosPermisos);
+                db.ref(configMaestra.pathCliente + 'usuarios/nombres/' + configDispositivo.idDispositivo).set(nuevoVendedor);
             }
 
-            console.log(`🛡️ Sistema operativo en modo [${nivel.toUpperCase()}]`);
+            aplicarLogicaDeSeguridad();
+            cerrarConfigDispositivo();
+            alert("✅ Configuración de dispositivo guardada localmente y en la nube.");
         }
 
         function generarQRVinculacion() {
@@ -2658,23 +2773,22 @@
                 log('✓ Librerías cargadas correctamente');
                 inicializarSistema();
             } else {
-                setTimeout(verificarLibrerias, 100);
-            }
-        }
-
-        function escucharConfig() {
+                setTimeout(verificarLibr        function escucharConfig() {
             // Sincronización del Nombre del Negocio (Instrucción 2)
             db.ref(configMaestra.pathCliente + 'data/empresa').on('value', snap => {
                 const empresa = snap.val();
                 if (empresa && empresa.nombre) {
                     configMaestra.nombreNegocio = empresa.nombre;
                     document.getElementById('nombreNegocioDisplay').textContent = configMaestra.nombreNegocio;
+                    localStorage.setItem('offline_nombre_negocio', empresa.nombre);
+                    if (empresa.rif) localStorage.setItem('offline_rif', empresa.rif);
                 } else {
                     // Fallback a config antigua o ID
                     db.ref(configMaestra.pathCliente + 'config').once('value', cSnap => {
                         const c = cSnap.val();
                         configMaestra.nombreNegocio = (c && c.nombre_negocio) ? c.nombre_negocio : configMaestra.idActual;
                         document.getElementById('nombreNegocioDisplay').textContent = configMaestra.nombreNegocio;
+                        localStorage.setItem('offline_nombre_negocio', configMaestra.nombreNegocio);
                     });
                 }
             });
@@ -2683,16 +2797,34 @@
                 const params = snap.val();
                 if (params) {
                     document.getElementById('estadoServicio').textContent = (params.estado_servicio || "activo").toUpperCase();
-                    // El status de conexión ahora se maneja globalmente en inicializarFirebase
+                    if (params.nivel_suscripcion) {
+                        localStorage.setItem('offline_version_comprada', params.nivel_suscripcion);
+                        actualizarIconoPWA(params.nivel_suscripcion);
+                    }
+                    if (params.max_dispositivos) localStorage.setItem('offline_max_dispositivos', params.max_dispositivos);
+                }
+            });
+
+            // Escuchar roles del dispositivo específico
+            db.ref(configMaestra.pathCliente + 'usuarios/roles/' + configDispositivo.idDispositivo).on('value', snap => {
+                if (snap.exists()) {
+                    configDispositivo.permisos = snap.val();
+                    localStorage.setItem('inverteca_device_permisos', JSON.stringify(configDispositivo.permisos));
+                    aplicarLogicaDeSeguridad();
                 }
             });
         }
 
-        function escucharDatos() {
-            // Inicializar módulo de gastos
-            inicializarGastos();
+        function actualizarIconoPWA(plan) {
+            const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+            link.type = 'image/x-icon';
+            link.rel = 'shortcut icon';
+            link.href = `icono_${plan}.png`; // Se asume que existen icono_basico.png, etc.
+            document.getElementsByTagName('head')[0].appendChild(link);
             
-            // Escuchar cambios en data (items, clientes, tasa)
+            const appleLink = document.querySelector("link[rel='apple-touch-icon']");
+            if (appleLink) appleLink.href = `icono_${plan}.png`;
+        }har cambios en data (items, clientes, tasa)
             db.ref(configMaestra.pathCliente + 'data').on('value', snap => {
                 const data = snap.val();
                 if (data) {
@@ -3354,7 +3486,10 @@
             }
         }
 
+        let procesandoPago = false;
         function finalizarPago() {
+            if (procesandoPago) return; // Bloqueo de seguridad contra clics múltiples
+            
             const totalBs = parseFloat(document.getElementById('modalPagoTotal').textContent.replace('Bs. ', '')) || 0;
             const montoIngresado = parseFloat(document.getElementById('montoPagoInput').value) || 0;
 
@@ -3375,12 +3510,25 @@
                 return alert('⚠️ El monto ingresado es insuficiente.');
             }
 
+            procesandoPago = true; // Activar bloqueo
+            const btnConfirmar = document.querySelector('#modalPago .modal-btn-primary');
+            if (btnConfirmar) {
+                btnConfirmar.disabled = true;
+                btnConfirmar.textContent = "PROCESANDO...";
+            }
+
             const ahora = new Date();
             const soloFecha = `${ahora.getDate()}/${ahora.getMonth() + 1}/${ahora.getFullYear()}`;
             const soloHora = ahora.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
+            // Obtener Nro de Factura de LocalStorage (Protocolo Punto 5)
+            let nroFactura = parseInt(localStorage.getItem('offline_nro_factura')) || 1;
+
             const venta = {
                 id: 'VENTA-' + Date.now(),
+                nroFactura: nroFactura,
+                vendedor: configDispositivo.vendedor,
+                idDispositivo: configDispositivo.idDispositivo,
                 fecha: soloFecha,
                 hora: soloHora,
                 fechaCompleta: soloFecha + ', ' + soloHora,
@@ -3393,9 +3541,13 @@
                 anulada: false
             };
 
-            // Guardar en Firebase (usando la misma lógica que crédito)
+            // Guardar en Firebase
             if (db) {
                 db.ref(configMaestra.pathCliente + 'logs/ventas').push(venta).then(() => {
+                    // Incrementar factura localmente
+                    localStorage.setItem('offline_nro_factura', nroFactura + 1);
+                    procesandoPago = false; // Liberar bloqueo tras éxito
+                    
                     // Descontar stock localmente y en DB
                     carrito.forEach(ci => {
                         const idx = items.findIndex(i => i.id === ci.id);
