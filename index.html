@@ -1691,6 +1691,13 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- SECCIÓN 3: SEGURIDAD DE ACCESO -->
+                <h3 style="font-size: 1rem; color: var(--secondary); border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px;">🔑 Seguridad de Acceso</h3>
+                <div class="modal-input-group">
+                    <label>Nueva Clave Administrativa:</label>
+                    <input type="password" id="configNuevaClave" placeholder="Dejar en blanco para no cambiar">
+                </div>
             </div>
             <div class="modal-buttons">
                 <button class="modal-btn modal-btn-primary" onclick="guardarConfigMaestra()">💾 GUARDAR CONFIGURACIÓN</button>
@@ -2128,32 +2135,52 @@
             // Función de conversión de seguridad para booleanos (Instrucción Crítica)
             const checkPermiso = (val) => String(val) === 'true' || val === true;
 
-            // A. CONTROL POR NIVEL (Suscripción)
+            // 1. FILTRADO DE MÓDULOS POR VERSIÓN (Plan Handling)
             const btnEscaner = document.querySelectorAll('.btn-camera');
             btnEscaner.forEach(btn => {
+                // Versión BÁSICA: Ocultar botones de Escáner. PRO/PREMIUM: Mostrar.
                 btn.style.display = (nivel === 'pro' || nivel === 'premium') ? 'block' : 'none';
             });
 
-            // B. CONTROL DE PESTAÑAS (Roles y Permisos)
+            // Jerarquía de Módulos
             const controles = {
-                'reportes': checkPermiso(p.ver_reportes),
-                'proveedores': checkPermiso(p.ver_proveedores),
-                'gastos': checkPermiso(p.ver_gastos),
-                'stock': checkPermiso(p.ver_inventario),
-                'configuracion': true // Siempre visible si se entra como admin
+                'stock': true,      // BÁSICA+
+                'venta': true,      // BÁSICA+
+                'creditos': true,   // BÁSICA+
+                'reportes': true,   // BÁSICA+
+                'proveedores': (nivel === 'premium'), // Solo PREMIUM
+                'gastos': (nivel === 'premium'),      // Solo PREMIUM
+                'configuracion': true // REGLA GLOBAL: Siempre visible
             };
 
+            // Aplicar visibilidad de pestañas según nivel y permisos adicionales
             for (let tabId in controles) {
                 const el = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
-                if (el) el.style.display = controles[tabId] ? 'block' : 'none';
+                if (el) {
+                    let visible = controles[tabId];
+                    // Refinar con permisos específicos si existen
+                    if (tabId === 'reportes') visible = visible && checkPermiso(p.ver_reportes);
+                    if (tabId === 'proveedores') visible = visible && checkPermiso(p.ver_proveedores);
+                    if (tabId === 'gastos') visible = visible && checkPermiso(p.ver_gastos);
+                    
+                    el.style.display = visible ? 'block' : 'none';
+                }
             }
 
-            // C. CONTROL DE ACCIONES CRÍTICAS (Borrado/Edición)
-            const btnsEliminar = document.querySelectorAll('.btn-danger, button[onclick*="eliminar"], button[onclick*="anular"]');
-            btnsEliminar.forEach(btn => {
-                if (btn.id !== 'btnCancelarEdit') {
-                    btn.style.display = checkPermiso(p.puede_eliminar) ? 'inline-block' : 'none';
+            // 2. FUNCIONALIDADES DE SEGURIDAD Y CONTROL (CRUD y Anulaciones)
+            // Activar botones de Modificar y Eliminar en Stock y Venta
+            const btnsCRUD = document.querySelectorAll('.btn-edit, .btn-danger, .btn-anular-venta');
+            btnsCRUD.forEach(btn => {
+                if (btn.id === 'btnCancelarEdit') return;
+                
+                let permiso = false;
+                if (btn.classList.contains('btn-edit') || btn.classList.contains('btn-danger')) {
+                    permiso = checkPermiso(p.editar_stock);
+                } else if (btn.classList.contains('btn-anular-venta')) {
+                    permiso = checkPermiso(p.anular_ventas);
                 }
+                
+                btn.style.display = permiso ? 'inline-block' : 'none';
             });
 
             // D. VISUALIZACIÓN AUTOMÁTICA DEL DASHBOARD (Instrucción 37)
@@ -2280,6 +2307,14 @@
             // Guardar permisos
             db.ref(configMaestra.pathCliente + 'parametros/permisos').update(permisos)
                 .then(() => {
+                    // Cambio de Credenciales: Actualizar clave si se ingresó una nueva
+                    const nuevaClave = document.getElementById('configNuevaClave').value.trim();
+                    if (nuevaClave) {
+                        db.ref(configMaestra.pathCliente + 'parametros/pass_admin').set(nuevaClave);
+                        configSistema.pass_admin = nuevaClave;
+                        document.getElementById('configNuevaClave').value = '';
+                    }
+
                     alert("✅ Configuración guardada correctamente");
                     cerrarModalConfigMaestra();
                     // Desbloquear pestaña de QR si es admin
