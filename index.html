@@ -1970,7 +1970,8 @@
 
         // ==================== CONFIGURACIÓN GLOBAL ====================
         let tasaDolar = 36.50;
-        let procesandoPago = false; // Bloqueo de seguridad contra clics múltiples
+        let procesandoPago = false;
+        let nroFacturaActual = 1; // Contador de facturas local // Bloqueo de seguridad contra clics múltiples
         let items = []; // {id, nombre, cedula, telefono, deudaTotal}
         let creditos = []; // {id, clienteId, fecha, items, totalBs, saldo, pagada}
         let cierres = []; // {fecha, totalBs, totalUSD, cantVentas, ventasIds}
@@ -2103,14 +2104,18 @@
         function sincronizarParametros() {
             const rutaConfig = configMaestra.pathCliente + 'parametros';
             
-            // Escucha en tiempo real: Si el Presidente cambia algo en la consola, se refleja al instante
-            db.ref(rutaConfig).on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    configSistema = data;
-                    aplicarLogicaDeSeguridad();
-                } else {
-                    // Valores por defecto si no existe el nodo
+            // Escucha en tiempo real: Si el Presidente cambia algo en la consola, se            db.ref(configMaestra.pathCliente + 'parametros').on('value', snap => {
+                const params = snap.val();
+                if (params) {
+                    configSistema = params;
+                    // Sincronizar Nro de Factura desde Firebase si existe
+                    if (params.nro_factura) {
+                        nroFacturaActual = parseInt(params.nro_factura);
+                        localStorage.setItem('inverteca_nro_factura', nroFacturaActual);
+                    }
+                    aplicarLogicaDeSeguridad(params);
+                }
+            }); // Valores por defecto si no existe el nodo
                     configSistema = {
                         iva: 16,
                         stock_minimo_alerta: 5,
@@ -2177,10 +2182,12 @@
                 if (btn.classList.contains('btn-edit') || btn.classList.contains('btn-danger')) {
                     permiso = checkPermiso(p.editar_stock);
                 } else if (btn.classList.contains('btn-anular-venta')) {
+                    // Corregido: Asegurar que se use el permiso correcto de Firebase
                     permiso = checkPermiso(p.anular_ventas);
                 }
                 
-                btn.style.display = permiso ? 'inline-block' : 'none';
+                // Forzar visibilidad según permiso
+                btn.style.setProperty('display', permiso ? 'inline-block' : 'none', 'important');
             });
 
             // D. VISUALIZACIÓN AUTOMÁTICA DEL DASHBOARD (Instrucción 37)
@@ -3294,7 +3301,7 @@
             let totalAcumuladoDia = 0;
             
             // Mostrar en orden inverso (más reciente primero)
-            const htmlVentas = [...ventasHoy].reverse().map(v => {
+                const htmlVentas = [...ventasHoy].reverse().map(v => {
                 const esAnulada = v.anulada === true;
                 if (!esAnulada) totalAcumuladoDia += v.totalBs;
                 
@@ -3304,6 +3311,10 @@
 
                 const colorTipo = v.tipo === 'CREDITO' ? '#e67e22' : (esAnulada ? 'var(--danger)' : 'var(--primary)');
                 const labelTipo = v.tipo === 'CREDITO' ? `💳 CRÉDITO (${v.clienteNombre})` : (v.metodoPago || 'CONTADO');
+
+                // Verificar permiso para anular ventas
+                const p = configMaestra.permisos;
+                const puedeAnular = p && p.anular_ventas === true;
 
                 return `
                 <div class="historial-item${esAnulada ? ' anulada' : ''}" style="${v.tipo === 'CREDITO' ? 'border-left-color: #e67e22;' : ''}">
@@ -3317,7 +3328,8 @@
                         ${v.items.length} artículo(s) &mdash; ${labelTipo}
                     </div>
                     <div class="historial-item-items">${itemsDetalle}</div>
-                    ${!esAnulada ? `<button class="btn-anular-venta" onclick="abrirModalAnulacion('${v.id}')">&#128683; ANULAR</button>` : `<div style="font-size:0.75rem; color:var(--danger); margin-top:4px;">Motivo: ${v.motivoAnulacion || ''}</div>`}
+                    ${!esAnulada && puedeAnular ? `<button class="btn-anular-venta" onclick="abrirModalAnulacion('${v.id}')">&#128683; ANULAR</button>` : ''}
+                    ${esAnulada ? `<div style="font-size:0.75rem; color:var(--danger); margin-top:4px;">Motivo: ${v.motivoAnulacion || ''}</div>` : ''}
                 </div>`;
             }).join('');
 
@@ -3550,8 +3562,14 @@
             const soloFecha = `${ahora.getDate()}/${ahora.getMonth() + 1}/${ahora.getFullYear()}`;
             const soloHora = ahora.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
+            // Obtener y aumentar número de factura
+            const nroFactura = nroFacturaActual;
+            nroFacturaActual++;
+            localStorage.setItem('inverteca_nro_factura', nroFacturaActual);
+
             const venta = {
                 id: 'VENTA-' + Date.now(),
+                nroFactura: nroFactura,
                 fecha: soloFecha,
                 hora: soloHora,
                 fechaCompleta: soloFecha + ', ' + soloHora,
@@ -3585,13 +3603,13 @@
                 // Usamos set() con el ID único para evitar duplicados si se reintenta la conexión
                 db.ref(configMaestra.pathCliente + 'logs/ventas/' + venta.id).set(venta)
                     .then(() => {
-                        // Actualizar stock en DB también en segundo plano
+                        // Actualizar stock y contador de factura en DB
                         db.ref(configMaestra.pathCliente + 'data/items').set(items);
+                        db.ref(configMaestra.pathCliente + 'parametros/nro_factura').set(nroFacturaActual);
                         log('✅ Venta sincronizada con la nube: ' + venta.id);
                     })
                     .catch(err => {
                         console.error("Error de sincronización (se reintentará):", err);
-                        // Firebase reintentará automáticamente si la persistencia está activa
                     });
             } else {
                 // Si no hay DB inicializada, guardamos en el array local (fallback total)
@@ -3623,22 +3641,39 @@
         function confirmarAnulacion() {
             const motivo = document.getElementById('motivoAnulacion').value.trim();
             if (!motivo) return alert('⚠️ Debes ingresar el motivo de la anulación.');
+            
             const idx = ventas.findIndex(v => v.id === ventaAnulacionId);
             if (idx === -1) return;
-            ventas[idx].anulada = true;
-            ventas[idx].motivoAnulacion = motivo;
-            ventas[idx].fechaAnulacion = new Date().toLocaleString('es-VE');
+
+            const ventaActualizada = { ...ventas[idx] };
+            ventaActualizada.anulada = true;
+            ventaActualizada.motivoAnulacion = motivo;
+            ventaActualizada.fechaAnulacion = new Date().toLocaleString('es-VE');
+
+            // 1. Actualización Local Inmediata
+            ventas[idx] = ventaActualizada;
+            renderHistorial();
+            cerrarModalAnulacion();
+
+            // 2. Persistencia en Firebase (Actualizar el registro original de la venta)
             if (db) {
+                db.ref(configMaestra.pathCliente + 'logs/ventas/' + ventaAnulacionId).update({
+                    anulada: true,
+                    motivoAnulacion: motivo,
+                    fechaAnulacion: ventaActualizada.fechaAnulacion
+                }).then(() => {
+                    log('✅ Anulación sincronizada: ' + ventaAnulacionId);
+                });
+
+                // También guardar en el log de anulaciones para auditoría
                 db.ref(configMaestra.pathCliente + 'logs/anulaciones').push({
                     ventaId: ventaAnulacionId,
                     motivo: motivo,
-                    fecha: ventas[idx].fechaAnulacion,
-                    totalBs: ventas[idx].totalBs
+                    fecha: ventaActualizada.fechaAnulacion,
+                    totalBs: ventaActualizada.totalBs
                 });
             }
-            log('🚫 Venta anulada: ' + ventaAnulacionId + ' - ' + motivo);
-            renderHistorial();
-            cerrarModalAnulacion();
+            
             alert('🚫 Venta anulada correctamente.');
         }
 
@@ -3745,8 +3780,14 @@
             const soloFecha = `${ahora.getDate()}/${ahora.getMonth() + 1}/${ahora.getFullYear()}`;
             const soloHora = ahora.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
+            // Obtener y aumentar número de factura
+            const nroFactura = nroFacturaActual;
+            nroFacturaActual++;
+            localStorage.setItem('inverteca_nro_factura', nroFacturaActual);
+
             const nuevoCredito = {
                 id: 'CRED-' + Date.now(),
+                nroFactura: nroFactura,
                 clienteId: clienteId,
                 clienteNombre: nombre,
                 fecha: soloFecha,
@@ -3756,7 +3797,8 @@
                 totalBs: totalBs,
                 saldo: totalBs,
                 pagada: false,
-                tipo: 'CREDITO'
+                tipo: 'CREDITO',
+                anulada: false
             };
             
             // --- INICIO LÓGICA LOCAL-FIRST ---
@@ -3781,7 +3823,8 @@
                     db.ref(configMaestra.pathCliente + 'data/clientes').set(clientes),
                     db.ref(configMaestra.pathCliente + 'data/creditos/' + nuevoCredito.id).set(nuevoCredito),
                     db.ref(configMaestra.pathCliente + 'logs/ventas/' + nuevoCredito.id).set(nuevoCredito),
-                    db.ref(configMaestra.pathCliente + 'data/items').set(items)
+                    db.ref(configMaestra.pathCliente + 'data/items').set(items),
+                    db.ref(configMaestra.pathCliente + 'parametros/nro_factura').set(nroFacturaActual)
                 ]).then(() => {
                     log('💳 Crédito sincronizado con la nube: ' + nombre);
                 }).catch(err => {
