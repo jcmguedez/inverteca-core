@@ -2104,7 +2104,7 @@
         function sincronizarParametros() {
             const rutaConfig = configMaestra.pathCliente + 'parametros';
             
-            // Escucha en tiempo real: Si el Presidente cambia algo en la consola, se            db.ref(configMaestra.pathCliente + 'parametros').on('value', snap => {
+            db.ref(rutaConfig).on('value', snap => {
                 const params = snap.val();
                 if (params) {
                     configSistema = params;
@@ -2113,9 +2113,9 @@
                         nroFacturaActual = parseInt(params.nro_factura);
                         localStorage.setItem('inverteca_nro_factura', nroFacturaActual);
                     }
-                    aplicarLogicaDeSeguridad(params);
-                }
-            }); // Valores por defecto si no existe el nodo
+                    aplicarLogicaDeSeguridad();
+                } else {
+                    // Valores por defecto si no existe el nodo
                     configSistema = {
                         iva: 16,
                         stock_minimo_alerta: 5,
@@ -2125,7 +2125,8 @@
                             ver_reportes: true,
                             ver_proveedores: false,
                             ver_gastos: false,
-                            puede_eliminar: false
+                            puede_eliminar: false,
+                            anular_ventas: false
                         }
                     };
                     aplicarLogicaDeSeguridad();
