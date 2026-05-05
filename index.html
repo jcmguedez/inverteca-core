@@ -2118,6 +2118,16 @@
                 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
                 db = firebase.database();
                 
+                // Timeout de seguridad para la carga inicial
+                const timeoutCarga = setTimeout(() => {
+                    const overlay = document.getElementById('blocking-overlay');
+                    if (overlay && overlay.style.display !== 'none') {
+                        document.getElementById('blocking-title').textContent = "⚠️ Error de Conexión";
+                        document.getElementById('blocking-msg').textContent = "No se pudo conectar con el servidor. Verifique su internet y recargue.";
+                        overlay.style.display = 'flex';
+                    }
+                }, 10000);
+
                 const connectedRef = db.ref(".info/connected");
                 connectedRef.on("value", (snap) => {
                     const statusEl = document.getElementById('connectionStatus');
@@ -2132,33 +2142,34 @@
 
                 // 3. PROTOCOLO DE INICIALIZACIÓN Y LISTA BLANCA
                 db.ref(configMaestra.pathCliente + 'lista_blanca').on('value', snap => {
+                    clearTimeout(timeoutCarga);
                     listaBlanca = snap.val() || {};
                     
-                    // Si la lista está vacía -> Modo Inicialización (Primer Dispositivo Maestro)
                     if (Object.keys(listaBlanca).length === 0) {
                         activarModoInicializacion();
                     } else {
                         validarMiDispositivo();
                     }
+                }, error => {
+                    console.error("Error Lista Blanca:", error);
+                    mostrarErrorAcceso("Error de permisos en Firebase. Contacte soporte.");
                 });
 
                 // Sincronizar parámetros globales (Roles)
                 db.ref(configMaestra.pathCliente + 'parametros').on('value', snap => {
                     configSistema = snap.val() || {};
-                    
-                    // Sincronizar Nro de Factura desde Firebase si existe
                     if (configSistema.nro_factura) {
                         nroFacturaActual = parseInt(configSistema.nro_factura);
                         localStorage.setItem('inverteca_nro_factura', nroFacturaActual);
                     }
-                    
                     aplicarLogicaDeSeguridad();
                 });
 
                 escucharDatos();
 
             } catch (e) {
-                console.error("Error Init: " + e.message);
+                console.error("Error Init:", e);
+                mostrarErrorAcceso("Error crítico al inicializar Firebase.");
             }
         }
 
@@ -2227,9 +2238,14 @@
             }
 
             // 3. Acceso concedido
-            overlay.style.display = 'none';
+            myDeviceStatus = 'activo';
+            if (overlay) overlay.style.display = 'none';
             myDeviceRole = data.rol || "vendedor";
             aplicarLogicaDeSeguridad();
+            
+            // Ocultar cualquier pantalla de carga inicial si existe
+            const appContainer = document.querySelector('.app-container');
+            if (appContainer) appContainer.style.display = 'block';
         }
 
         function aplicarLogicaDeSeguridad() {
@@ -2289,75 +2305,63 @@
                 }
                 db = firebase.database();
                 
-                // INDICADOR DE STATUS REAL (Instrucción 3)
+                // Timeout de seguridad para la carga inicial (10 segundos)
+                const timeoutCarga = setTimeout(() => {
+                    const overlay = document.getElementById('blocking-overlay');
+                    if (overlay && overlay.style.display !== 'none') {
+                        document.getElementById('blocking-title').textContent = "⚠️ Error de Conexión";
+                        document.getElementById('blocking-msg').textContent = "No se pudo conectar con el servidor. Verifique su internet y recargue.";
+                        overlay.style.display = 'flex';
+                    }
+                }, 10000);
+
+                // INDICADOR DE STATUS REAL
                 const connectedRef = db.ref(".info/connected");
                 connectedRef.on("value", (snap) => {
                     const statusEl = document.getElementById('connectionStatus');
                     if (snap.val() === true) {
                         statusEl.textContent = 'CONECTADO';
                         statusEl.className = 'connection-status online';
-                        log("🌐 Conexión establecida con Firebase.");
                     } else {
                         statusEl.textContent = 'DESCONECTADO';
                         statusEl.className = 'connection-status';
-                        log("⚠️ Sin conexión a internet/servidor.");
                     }
                 });
 
-                // VALIDACIÓN BLINDADA DE LICENCIA
-                db.ref(`licencias_activas/${configMaestra.idActual}`).once('value').then((snapshot) => {
-                    const estadoLicencia = snapshot.val();
-                    if (snapshot.exists() && (estadoLicencia === 'activo' || estadoLicencia.estado === 'activo')) {
-                        console.log("🔓 Licencia Autorizada. Sincronizando parámetros...");
-                        firebase.auth().signInAnonymously().then(() => {
-                            log("🔐 Conexión Firebase OK.");
-                            sincronizarParametros();
-                            escucharConfig();
-                            escucharDatos();
-                        });
+                // 3. PROTOCOLO DE INICIALIZACIÓN Y LISTA BLANCA
+                db.ref(configMaestra.pathCliente + 'lista_blanca').on('value', snap => {
+                    clearTimeout(timeoutCarga); // Conexión exitosa, cancelar timeout
+                    listaBlanca = snap.val() || {};
+                    
+                    if (Object.keys(listaBlanca).length === 0) {
+                        activarModoInicializacion();
                     } else {
-                        mostrarErrorAcceso("ID de Licencia Inválido, Vencido o Suspendido.");
+                        validarMiDispositivo();
                     }
-                }).catch(error => {
-                    mostrarErrorAcceso("Error de conexión con el servidor de licencias.");
+                }, error => {
+                    console.error("Error Lista Blanca:", error);
+                    mostrarErrorAcceso("Error de permisos en Firebase. Contacte soporte.");
                 });
-            } catch (e) {
-                log("❌ Error Init: " + e.message);
-            }
-        }
 
-        function sincronizarParametros() {
-            const rutaConfig = configMaestra.pathCliente + 'parametros';
-            
-            db.ref(rutaConfig).on('value', snap => {
-                const params = snap.val();
-                if (params) {
-                    configSistema = params;
-                    // Sincronizar Nro de Factura desde Firebase si existe
-                    if (params.nro_factura) {
-                        nroFacturaActual = parseInt(params.nro_factura);
+                // Sincronizar parámetros globales (Roles)
+                db.ref(configMaestra.pathCliente + 'parametros').on('value', snap => {
+                    configSistema = snap.val() || {};
+                    if (configSistema.nro_factura) {
+                        nroFacturaActual = parseInt(configSistema.nro_factura);
                         localStorage.setItem('inverteca_nro_factura', nroFacturaActual);
                     }
                     aplicarLogicaDeSeguridad();
-                } else {
-                    // Valores por defecto si no existe el nodo
-                    configSistema = {
-                        iva: 16,
-                        stock_minimo_alerta: 5,
-                        pass_admin: "1234",
-                        nivel_suscripcion: "basica",
-                        permisos: {
-                            ver_reportes: true,
-                            ver_proveedores: false,
-                            ver_gastos: false,
-                            puede_eliminar: false,
-                            anular_ventas: false
-                        }
-                    };
-                    aplicarLogicaDeSeguridad();
-                }
-            });
+                });
+
+                escucharDatos();
+
+            } catch (e) {
+                console.error("Error Init:", e);
+                mostrarErrorAcceso("Error crítico al inicializar Firebase.");
+            }
         }
+
+
 
         function aplicarLogicaDeSeguridad() {
             const nivel = configSistema.nivel_suscripcion || "basica";
@@ -2424,6 +2428,12 @@
             }
 
             console.log(`🛡️ Sistema operativo en modo [${nivel.toUpperCase()}]`);
+            
+            // Asegurar que el overlay de carga se oculte si el acceso es válido
+            const overlay = document.getElementById('blocking-overlay');
+            if (overlay && myDeviceStatus === 'activo') {
+                overlay.style.display = 'none';
+            }
         }
 
         function generarQRVinculacion() {
