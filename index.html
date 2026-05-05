@@ -797,46 +797,20 @@
             gap: 10px;
         }
         
-        .modal-body {
-            padding: 15px 0;
-        }
-        
-        /* Estilos para Lista Blanca y Roles */
-        .device-item {
-            background: #fff;
-            border: 1px solid #eee;
-            padding: 10px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .device-info { flex: 1; }
-        .device-alias { font-weight: bold; font-size: 0.9rem; }
-        .device-id { font-size: 0.7rem; color: #999; font-family: monospace; }
-        .device-role { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; color: white; font-weight: bold; }
-        .role-admin { background: var(--danger); }
-        .role-supervisor { background: var(--warning); }
-        .role-vendedor { background: var(--primary); }
-        .device-status { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-        .status-active { background: #2ecc71; }
-        .status-blocked { background: #e74c3c; }
-        .status-warning { background: #f1c40f; }
-        
-        .role-template-card {
-            background: #f9f9f9;
-            border: 1px solid #ddd;
+        .modal-btn {
             padding: 12px;
+            border: none;
             border-radius: 10px;
-            margin-bottom: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
         }
-        .role-template-title { font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
         
-        #blocking-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; z-index: 10000; display: none;
-            flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
+        .modal-btn-primary {
+            background: var(--primary);
+            color: white;
+            grid-column: 1 / -1;
         }
         
         .modal-btn-danger {
@@ -1001,12 +975,13 @@
 
         <!-- TABS -->
         <div class="tabs">
-            <button class="tab-btn active" id="btnTabStock" onclick="switchTab('stock')">📦 Stock</button>
-            <button class="tab-btn" id="btnTabVenta" onclick="switchTab('venta')">🛒 Venta</button>
-            <button class="tab-btn" id="btnTabCreditos" onclick="switchTab('creditos')">💳 Créditos</button>
-            <button class="tab-btn" id="btnTabProveedores" onclick="switchTab('proveedores')">🏭 Proveedores</button>
-            <button class="tab-btn" id="btnTabReportes" onclick="switchTab('reportes')">📊 Reportes</button>
-            <button class="tab-btn" id="btnTabGastos" onclick="switchTab('gastos')">💰 Gastos</button>
+            <button class="tab-btn active" onclick="switchTab('stock')">📦 Stock</button>
+            <button class="tab-btn" onclick="switchTab('venta')">🛒 Venta</button>
+            <button class="tab-btn" onclick="switchTab('creditos')">💳 Créditos</button>
+            <button class="tab-btn" onclick="switchTab('proveedores')">🏭 Proveedores</button>
+            <button class="tab-btn" onclick="switchTab('reportes')">📊 Reportes</button>
+            <button class="tab-btn" onclick="switchTab('gastos')">💰 Gastos</button>
+            <button class="tab-btn" id="tabConfig" onclick="switchTab('configuracion')" style="display: none;">⚙️ Config</button>
         </div>
 
         <!-- TAB: STOCK -->
@@ -1646,106 +1621,83 @@
 
     <!-- MODAL: CONFIGURACIÓN MAESTRA (ADMIN) -->
     <div id="modalConfigMaestra" class="modal">
-        <div class="modal-content" style="max-width: 550px;">
+        <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header" style="background: var(--secondary);">
                 <span>⚙️</span>
-                <span>Panel de Control Administrativo</span>
+                <span>Configuración del Sistema</span>
             </div>
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto; padding: 10px;">
-                
-                <!-- TABS INTERNAS DEL MODAL -->
-                <div style="display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
-                    <button onclick="switchConfigTab('empresa')" class="modal-tab-btn active" id="btnConfEmpresa">Empresa</button>
-                    <button onclick="switchConfigTab('dispositivos')" class="modal-tab-btn" id="btnConfDispositivos">Dispositivos</button>
-                    <button onclick="switchConfigTab('roles')" class="modal-tab-btn" id="btnConfRoles">Roles</button>
-                    <button onclick="switchConfigTab('clonacion')" class="modal-tab-btn" id="btnConfClonacion">Clonación</button>
-                </div>
-
+            <div class="modal-body">
                 <!-- SECCIÓN 1: DATOS DE LA EMPRESA -->
-                <div id="confSectionEmpresa" class="conf-section active">
-                    <h3 style="font-size: 1rem; color: var(--secondary); border-bottom: 2px solid #eee; padding-bottom: 5px; margin-bottom: 15px;">📍 Datos de la Empresa</h3>
-                    <div class="modal-input-group">
-                        <label>Nombre de la Compañía:</label>
-                        <input type="text" id="configNombreEmpresa">
-                    </div>
-                    <div class="modal-input-group">
-                        <label>RIF:</label>
-                        <input type="text" id="configRifEmpresa">
-                    </div>
-                    <div class="modal-input-group">
-                        <label>Dirección:</label>
-                        <input type="text" id="configDireccionEmpresa">
-                    </div>
-                    <div class="modal-input-group">
-                        <label>Teléfono:</label>
-                        <input type="text" id="configTelefonoEmpresa">
-                    </div>
-                    <div class="modal-input-group">
-                        <label>Nueva Clave Admin:</label>
-                        <input type="password" id="configPassAdmin" placeholder="Dejar en blanco para no cambiar">
-                    </div>
+                <h3 style="font-size: 1rem; color: var(--secondary); border-bottom: 2px solid #eee; padding-bottom: 5px; margin-bottom: 15px;">📍 Datos de la Empresa</h3>
+                <div class="modal-input-group">
+                    <label>Nombre de la Compañía:</label>
+                    <input type="text" id="configNombreEmpresa" placeholder="Ej: Inverteca C.A.">
+                </div>
+                <div class="modal-input-group">
+                    <label>RIF:</label>
+                    <input type="text" id="configRifEmpresa" placeholder="J-12345678-9">
+                </div>
+                <div class="modal-input-group">
+                    <label>Dirección:</label>
+                    <input type="text" id="configDireccionEmpresa" placeholder="Dirección completa">
+                </div>
+                <div class="modal-input-group">
+                    <label>Teléfono:</label>
+                    <input type="text" id="configTelefonoEmpresa" placeholder="0412-0000000">
+                </div>
+                <div class="modal-input-group">
+                    <label>Correo Electrónico:</label>
+                    <input type="email" id="configCorreoEmpresa" placeholder="correo@empresa.com">
                 </div>
 
-                <!-- SECCIÓN 2: LISTA BLANCA DE DISPOSITIVOS -->
-                <div id="confSectionDispositivos" class="conf-section">
-                    <h3 style="font-size: 1rem; color: var(--secondary); border-bottom: 2px solid #eee; padding-bottom: 5px; margin-bottom: 15px;">📱 Lista Blanca (Dispositivos)</h3>
-                    <div id="listaDispositivos" style="margin-bottom: 15px;">
-                        <!-- Se carga dinámicamente -->
-                    </div>
-                </div>
-
-                <!-- SECCIÓN 3: PLANTILLAS DE ROLES -->
-                <div id="confSectionRoles" class="conf-section">
-                    <h3 style="font-size: 1rem; color: var(--secondary); border-bottom: 2px solid #eee; padding-bottom: 5px; margin-bottom: 15px;">🔐 Plantillas de Roles</h3>
+                <!-- SECCIÓN 2: PARÁMETROS Y ROLES -->
+                <h3 style="font-size: 1rem; color: var(--secondary); border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px;">🔐 Parámetros y Roles</h3>
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #eee;">
+                    <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">Configure los permisos para el personal que operará este dispositivo:</p>
                     
-                    <!-- Plantilla SUPERVISOR -->
-                    <div class="role-template-card">
-                        <div class="role-template-title"><span class="device-role role-supervisor">SUPERVISOR</span> Permisos Flexibles</div>
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                            <label style="font-size: 0.85rem;">Modificar/Eliminar Stock</label>
-                            <div class="toggle-switch"><input type="checkbox" id="roleSupStock" class="toggle-checkbox"><label for="roleSupStock" class="toggle-label"></label></div>
-                        </div>
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <label style="font-size: 0.85rem;">Anular Ventas</label>
-                            <div class="toggle-switch"><input type="checkbox" id="roleSupAnular" class="toggle-checkbox"><label for="roleSupAnular" class="toggle-label"></label></div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <label style="font-size: 0.9rem; margin: 0;">Ver Módulo de Gastos</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="permisoVerGastos" class="toggle-checkbox">
+                            <label for="permisoVerGastos" class="toggle-label"></label>
                         </div>
                     </div>
-
-                    <p style="font-size: 0.75rem; color: #999; font-style: italic;">* Los Administradores tienen acceso total. Los Vendedores tienen acceso restringido por defecto.</p>
-                </div>
-
-                <!-- SECCIÓN 4: CLONACIÓN -->
-                <div id="confSectionClonacion" class="conf-section">
-                    <h3 style="font-size: 1rem; color: var(--secondary); border-bottom: 2px solid #eee; padding-bottom: 5px; margin-bottom: 15px;">📲 Vincular Nuevo Dispositivo</h3>
-                    <div style="text-align: center; padding: 10px; background: #f9f9f9; border-radius: 10px;">
-                        <div id="qrcode" style="display: inline-block; padding: 10px; background: white; border-radius: 10px; margin-bottom: 10px;"></div>
-                        <div style="font-weight: bold; color: var(--primary);" id="qrLicenciaID">ID-XXXXXX</div>
-                        <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">Escanee este código desde el nuevo dispositivo para vincularlo a esta licencia.</p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <label style="font-size: 0.9rem; margin: 0;">Ver Módulo de Proveedores</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="permisoVerProveedores" class="toggle-checkbox">
+                            <label for="permisoVerProveedores" class="toggle-label"></label>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <label style="font-size: 0.9rem; margin: 0;">Ver Reportes y Cierres</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="permisoVerReportes" class="toggle-checkbox">
+                            <label for="permisoVerReportes" class="toggle-label"></label>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <label style="font-size: 0.9rem; margin: 0;">Modificar/Eliminar Stock</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="permisoEditarStock" class="toggle-checkbox">
+                            <label for="permisoEditarStock" class="toggle-label"></label>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <label style="font-size: 0.9rem; margin: 0;">Anular Ventas Realizadas</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="permisoAnularVentas" class="toggle-checkbox">
+                            <label for="permisoAnularVentas" class="toggle-label"></label>
+                        </div>
                     </div>
                 </div>
 
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn modal-btn-primary" onclick="guardarConfigMaestra()">💾 GUARDAR CAMBIOS</button>
-                <button class="modal-btn" style="background:#95a5a6; color:white;" onclick="cerrarModalConfigMaestra()">CERRAR</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- OVERLAY DE BLOQUEO -->
-    <div id="blocking-overlay">
-        <div style="font-size: 4rem; margin-bottom: 20px;">🚫</div>
-        <h2 id="blocking-title">Acceso Denegado</h2>
-        <p id="blocking-msg" style="color: #666; max-width: 300px;">Este dispositivo no está autorizado o ha sido revocado.</p>
-        <button class="btn-primary" style="margin-top: 20px; max-width: 200px;" onclick="location.reload()">REINTENTAR</button>
-    </div>
-
-    <style>
-        .modal-tab-btn { background: #eee; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #666; }
-        .modal-tab-btn.active { background: var(--secondary); color: white; }
-        .conf-section { display: none; }
-        .conf-section.active { display: block; }
-    </style>
+                <!-- SECCIÓN 3: SEGURIDAD DE ACCESO -->
+                <h3 style="font-size: 1rem; color: var(--secondary); border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px;">🔑 Seguridad de Acceso</h3>
+                <div class="modal-input-group">
+                    <label>Nueva Clave Administrativa:</label>
+                    <input type="password" id="configNuevaClave" placeholder="Dejar en blanco para no cambiar">
+                </div>
             </div>
             <div class="modal-buttons">
                 <button class="modal-btn modal-btn-primary" onclick="guardarConfigMaestra()">💾 GUARDAR CONFIGURACIÓN</button>
@@ -2067,225 +2019,32 @@
         let centrosCosto = [];
         let categoriasGastos = [];
 
-        // --- ARQUITECTURA DE SEGURIDAD Y ROLES (INVERTECA SYSTEM SAAS) ---
-        let myDeviceID = "";
-        let myDeviceRole = "vendedor"; // Default
-        let myDeviceStatus = "inactivo";
-        let listaBlanca = {};
-
         async function inicializarSistema() {
             const urlParams = new URLSearchParams(window.location.search);
             let idCliente = urlParams.get('id') || urlParams.get('vincular');
 
-            if (!idCliente) idCliente = localStorage.getItem('inverteca_client_id');
+            // 1. PERSISTENCIA: Si no hay ID en la URL, lo busca en la memoria del teléfono
+            if (!idCliente) {
+                idCliente = localStorage.getItem('inverteca_client_id');
+            }
 
             if (!idCliente) {
                 mostrarErrorAcceso("Acceso Denegado: Se requiere vinculación inicial (Link de ID).");
                 return;
             }
 
+            // 2. REGISTRO: Guardamos el ID para que el cliente entre directo mañana
             localStorage.setItem('inverteca_client_id', idCliente);
             configMaestra.idActual = idCliente;
             configMaestra.pathCliente = `clientes/${idCliente}/`;
 
-            // 1. IDENTIFICACIÓN ÚNICA (DeviceID)
-            myDeviceID = localStorage.getItem('inverteca_device_id');
-            if (!myDeviceID) {
-                myDeviceID = 'DEV-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-                localStorage.setItem('inverteca_device_id', myDeviceID);
-            }
-
-            // 2. INICIALIZAR FIREBASE
+            // 3. INICIALIZAR FIREBASE ANTES DE VALIDAR LICENCIA
             inicializarFirebase();
             
+            // Limpiar URL para que no se vea el ID
             if (window.location.search) {
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
-        }
-
-        function inicializarFirebase() {
-            const firebaseConfig = {
-                apiKey: "AIzaSyD5sWhgWQ5RfIIzn_vAlZi9Zdp-7lwUSFc",
-                authDomain: "inverteca-core.firebaseapp.com",
-                databaseURL: "https://inverteca-core-default-rtdb.firebaseio.com",
-                projectId: "inverteca-core",
-                storageBucket: "inverteca-core.firebasestorage.app",
-                messagingSenderId: "647568711575",
-                appId: "1:647568711575:web:d09efc868294c96b0aeed2"
-            };
-
-            try {
-                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-                db = firebase.database();
-                
-                // Timeout de seguridad para la carga inicial
-                const timeoutCarga = setTimeout(() => {
-                    const overlay = document.getElementById('blocking-overlay');
-                    if (overlay && overlay.style.display !== 'none') {
-                        document.getElementById('blocking-title').textContent = "⚠️ Error de Conexión";
-                        document.getElementById('blocking-msg').textContent = "No se pudo conectar con el servidor. Verifique su internet y recargue.";
-                        overlay.style.display = 'flex';
-                    }
-                }, 10000);
-
-                const connectedRef = db.ref(".info/connected");
-                connectedRef.on("value", (snap) => {
-                    const statusEl = document.getElementById('connectionStatus');
-                    if (snap.val() === true) {
-                        statusEl.textContent = 'CONECTADO';
-                        statusEl.className = 'connection-status online';
-                    } else {
-                        statusEl.textContent = 'DESCONECTADO';
-                        statusEl.className = 'connection-status';
-                    }
-                });
-
-                // 3. PROTOCOLO DE INICIALIZACIÓN Y LISTA BLANCA
-                db.ref(configMaestra.pathCliente + 'lista_blanca').on('value', snap => {
-                    clearTimeout(timeoutCarga);
-                    listaBlanca = snap.val() || {};
-                    
-                    if (Object.keys(listaBlanca).length === 0) {
-                        activarModoInicializacion();
-                    } else {
-                        validarMiDispositivo();
-                    }
-                }, error => {
-                    console.error("Error Lista Blanca:", error);
-                    mostrarErrorAcceso("Error de permisos en Firebase. Contacte soporte.");
-                });
-
-                // Sincronizar parámetros globales (Roles)
-                db.ref(configMaestra.pathCliente + 'parametros').on('value', snap => {
-                    configSistema = snap.val() || {};
-                    if (configSistema.nro_factura) {
-                        nroFacturaActual = parseInt(configSistema.nro_factura);
-                        localStorage.setItem('inverteca_nro_factura', nroFacturaActual);
-                    }
-                    aplicarLogicaDeSeguridad();
-                });
-
-                escucharDatos();
-
-            } catch (e) {
-                console.error("Error Init:", e);
-                mostrarErrorAcceso("Error crítico al inicializar Firebase.");
-            }
-        }
-
-        function activarModoInicializacion() {
-            const pass = prompt("SISTEMA NO INICIALIZADO.\nIngrese la clave de Administrador Maestra para registrar este equipo como MASTER:");
-            const passCorrecta = "1234"; // En producción esto viene de una DB de licencias
-            
-            if (pass === passCorrecta) {
-                const alias = prompt("Asigne un nombre a este dispositivo (ej: Caja Principal):", "Master");
-                const masterDevice = {
-                    alias: alias || "Master",
-                    rol: "administrador",
-                    estado: "activo",
-                    fecha_registro: new Date().toISOString()
-                };
-                db.ref(configMaestra.pathCliente + 'lista_blanca/' + myDeviceID).set(masterDevice)
-                    .then(() => location.reload());
-            } else {
-                mostrarErrorAcceso("Clave incorrecta. No se pudo inicializar el sistema.");
-            }
-        }
-
-        function validarMiDispositivo() {
-            const data = listaBlanca[myDeviceID];
-            const overlay = document.getElementById('blocking-overlay');
-            const urlParams = new URLSearchParams(window.location.search);
-            const vinculando = urlParams.get('vincular');
-
-            // 1. Si el dispositivo no existe y viene con link de vinculación -> Auto-registro en PENDIENTE
-            if (!data && vinculando) {
-                const alias = prompt("Nuevo dispositivo detectado. Ingrese un nombre para identificar este equipo:", "Caja Nueva");
-                const nuevoRegistro = {
-                    alias: alias || "Nuevo Dispositivo",
-                    rol: "vendedor",
-                    estado: "pendiente",
-                    fecha_registro: new Date().toISOString()
-                };
-                db.ref(configMaestra.pathCliente + 'lista_blanca/' + myDeviceID).set(nuevoRegistro)
-                    .then(() => {
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                        location.reload();
-                    });
-                return;
-            }
-            
-            // 2. Manejo de estados de acceso
-            if (!data) {
-                overlay.style.display = 'flex';
-                document.getElementById('blocking-title').textContent = "Acceso Denegado";
-                document.getElementById('blocking-msg').textContent = "Este dispositivo no está registrado. Solicite el QR de vinculación al administrador.";
-                return;
-            }
-
-            if (data.estado === 'pendiente') {
-                overlay.style.display = 'flex';
-                document.getElementById('blocking-title').textContent = "⏳ Esperando Autorización";
-                document.getElementById('blocking-msg').innerHTML = `Su solicitud ha sido enviada.<br><small style="color:#999">ID: ${myDeviceID}</small><br><br><b>El administrador debe aprobar este equipo desde el Panel de Control.</b>`;
-                return;
-            }
-
-            if (data.estado !== 'activo') {
-                overlay.style.display = 'flex';
-                document.getElementById('blocking-title').textContent = "🚫 Acceso Revocado";
-                document.getElementById('blocking-msg').textContent = "Este dispositivo ha sido desactivado por el administrador.";
-                return;
-            }
-
-            // 3. Acceso concedido
-            myDeviceStatus = 'activo';
-            if (overlay) overlay.style.display = 'none';
-            myDeviceRole = data.rol || "vendedor";
-            aplicarLogicaDeSeguridad();
-            
-            // Ocultar cualquier pantalla de carga inicial si existe
-            const appContainer = document.querySelector('.app-container');
-            if (appContainer) appContainer.style.display = 'block';
-        }
-
-        function aplicarLogicaDeSeguridad() {
-            if (!db) return;
-            
-            const roles = configSistema.roles || {
-                supervisor: { stock: false, anular: false }
-            };
-
-            // 1. VISIBILIDAD DE TABS POR ROL
-            const isVendedor = myDeviceRole === 'vendedor';
-            const isSupervisor = myDeviceRole === 'supervisor';
-            const isAdmin = myDeviceRole === 'administrador';
-
-            // Vendedor: No ve Reportes ni Proveedores ni Gastos
-            document.getElementById('btnTabReportes').style.display = isVendedor ? 'none' : 'block';
-            document.getElementById('btnTabProveedores').style.display = isVendedor ? 'none' : 'block';
-            document.getElementById('btnTabGastos').style.display = isVendedor ? 'none' : 'block';
-
-            // 2. PERMISOS DE ACCIÓN (CRUD / ANULACIÓN)
-            let canEditStock = false;
-            let canAnular = false;
-
-            if (isAdmin) {
-                canEditStock = true;
-                canAnular = true;
-            } else if (isSupervisor) {
-                canEditStock = roles.supervisor.stock;
-                canAnular = roles.supervisor.anular;
-            }
-
-            // Aplicar a la interfaz
-            window.canEditStockGlobal = canEditStock;
-            window.canAnularVentasGlobal = canAnular;
-
-            // Mostrar/Ocultar botón de Configuración en el Header (Solo Admin)
-            document.querySelector('[onclick="solicitarAccesoAdmin()"]').style.display = isAdmin ? 'flex' : 'none';
-
-            render(); // Refrescar stock para mostrar/ocultar botones
-            renderHistorial(); // Refrescar historial para mostrar/ocultar botones
         }
 
         function inicializarFirebase() {
@@ -2305,63 +2064,75 @@
                 }
                 db = firebase.database();
                 
-                // Timeout de seguridad para la carga inicial (10 segundos)
-                const timeoutCarga = setTimeout(() => {
-                    const overlay = document.getElementById('blocking-overlay');
-                    if (overlay && overlay.style.display !== 'none') {
-                        document.getElementById('blocking-title').textContent = "⚠️ Error de Conexión";
-                        document.getElementById('blocking-msg').textContent = "No se pudo conectar con el servidor. Verifique su internet y recargue.";
-                        overlay.style.display = 'flex';
-                    }
-                }, 10000);
-
-                // INDICADOR DE STATUS REAL
+                // INDICADOR DE STATUS REAL (Instrucción 3)
                 const connectedRef = db.ref(".info/connected");
                 connectedRef.on("value", (snap) => {
                     const statusEl = document.getElementById('connectionStatus');
                     if (snap.val() === true) {
                         statusEl.textContent = 'CONECTADO';
                         statusEl.className = 'connection-status online';
+                        log("🌐 Conexión establecida con Firebase.");
                     } else {
                         statusEl.textContent = 'DESCONECTADO';
                         statusEl.className = 'connection-status';
+                        log("⚠️ Sin conexión a internet/servidor.");
                     }
                 });
 
-                // 3. PROTOCOLO DE INICIALIZACIÓN Y LISTA BLANCA
-                db.ref(configMaestra.pathCliente + 'lista_blanca').on('value', snap => {
-                    clearTimeout(timeoutCarga); // Conexión exitosa, cancelar timeout
-                    listaBlanca = snap.val() || {};
-                    
-                    if (Object.keys(listaBlanca).length === 0) {
-                        activarModoInicializacion();
+                // VALIDACIÓN BLINDADA DE LICENCIA
+                db.ref(`licencias_activas/${configMaestra.idActual}`).once('value').then((snapshot) => {
+                    const estadoLicencia = snapshot.val();
+                    if (snapshot.exists() && (estadoLicencia === 'activo' || estadoLicencia.estado === 'activo')) {
+                        console.log("🔓 Licencia Autorizada. Sincronizando parámetros...");
+                        firebase.auth().signInAnonymously().then(() => {
+                            log("🔐 Conexión Firebase OK.");
+                            sincronizarParametros();
+                            escucharConfig();
+                            escucharDatos();
+                        });
                     } else {
-                        validarMiDispositivo();
+                        mostrarErrorAcceso("ID de Licencia Inválido, Vencido o Suspendido.");
                     }
-                }, error => {
-                    console.error("Error Lista Blanca:", error);
-                    mostrarErrorAcceso("Error de permisos en Firebase. Contacte soporte.");
+                }).catch(error => {
+                    mostrarErrorAcceso("Error de conexión con el servidor de licencias.");
                 });
-
-                // Sincronizar parámetros globales (Roles)
-                db.ref(configMaestra.pathCliente + 'parametros').on('value', snap => {
-                    configSistema = snap.val() || {};
-                    if (configSistema.nro_factura) {
-                        nroFacturaActual = parseInt(configSistema.nro_factura);
-                        localStorage.setItem('inverteca_nro_factura', nroFacturaActual);
-                    }
-                    aplicarLogicaDeSeguridad();
-                });
-
-                escucharDatos();
-
             } catch (e) {
-                console.error("Error Init:", e);
-                mostrarErrorAcceso("Error crítico al inicializar Firebase.");
+                log("❌ Error Init: " + e.message);
             }
         }
 
-
+        function sincronizarParametros() {
+            const rutaConfig = configMaestra.pathCliente + 'parametros';
+            
+            db.ref(rutaConfig).on('value', snap => {
+                const params = snap.val();
+                if (params) {
+                    configSistema = params;
+                    // Sincronizar Nro de Factura desde Firebase si existe
+                    if (params.nro_factura) {
+                        nroFacturaActual = parseInt(params.nro_factura);
+                        localStorage.setItem('inverteca_nro_factura', nroFacturaActual);
+                    }
+                    aplicarLogicaDeSeguridad();
+                } else {
+                    // Valores por defecto si no existe el nodo
+                    configSistema = {
+                        iva: 16,
+                        stock_minimo_alerta: 5,
+                        pass_admin: "1234",
+                        nivel_suscripcion: "basica",
+                        permisos: {
+                            ver_reportes: true,
+                            ver_proveedores: false,
+                            ver_gastos: false,
+                            puede_eliminar: false,
+                            anular_ventas: false
+                        }
+                    };
+                    aplicarLogicaDeSeguridad();
+                }
+            });
+        }
 
         function aplicarLogicaDeSeguridad() {
             const nivel = configSistema.nivel_suscripcion || "basica";
@@ -2428,12 +2199,6 @@
             }
 
             console.log(`🛡️ Sistema operativo en modo [${nivel.toUpperCase()}]`);
-            
-            // Asegurar que el overlay de carga se oculte si el acceso es válido
-            const overlay = document.getElementById('blocking-overlay');
-            if (overlay && myDeviceStatus === 'activo') {
-                overlay.style.display = 'none';
-            }
         }
 
         function generarQRVinculacion() {
@@ -2490,138 +2255,28 @@
             }
         }
 
-        function switchConfigTab(tab) {
-            document.querySelectorAll('.conf-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('confSection' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
-            document.getElementById('btnConf' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
-        }
-
-        function renderListaBlanca() {
-            const container = document.getElementById('listaDispositivos');
-            if (!container) return;
-            container.innerHTML = '';
-            
-            Object.keys(listaBlanca).forEach(id => {
-                const d = listaBlanca[id];
-                const div = document.createElement('div');
-                div.className = 'device-item';
-                const isPendiente = d.estado === 'pendiente';
-                div.innerHTML = `
-                    <div class="device-info">
-                        <div class="device-alias">
-                            <span class="device-status ${d.estado === 'activo' ? 'status-active' : (isPendiente ? 'status-warning' : 'status-blocked')}"></span>
-                            ${d.alias} ${id === myDeviceID ? '<b>(Este)</b>' : ''}
-                            ${isPendiente ? '<span style="color:var(--warning); font-size:0.7rem; margin-left:5px;">[PENDIENTE]</span>' : ''}
-                        </div>
-                        <div class="device-id">${id}</div>
-                    </div>
-                    <div style="display: flex; gap: 5px; align-items: center;">
-                        ${isPendiente ? `
-                            <button onclick="aprobarDispositivo('${id}')" style="background: #2ecc71; color: white; border: none; padding: 4px 8px; border-radius: 5px; font-size: 0.7rem; cursor: pointer;">APROBAR</button>
-                        ` : `
-                            <select onchange="cambiarRolDispositivo('${id}', this.value)" class="device-role role-${d.rol}" style="width: auto; padding: 2px;">
-                                <option value="vendedor" ${d.rol === 'vendedor' ? 'selected' : ''}>Vendedor</option>
-                                <option value="supervisor" ${d.rol === 'supervisor' ? 'selected' : ''}>Supervisor</option>
-                                <option value="administrador" ${d.rol === 'administrador' ? 'selected' : ''}>Admin</option>
-                            </select>
-                        `}
-                        <button onclick="eliminarDispositivo('${id}')" style="background: none; border: none; cursor: pointer;">🗑️</button>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function cambiarRolDispositivo(id, nuevoRol) {
-            db.ref(configMaestra.pathCliente + 'lista_blanca/' + id + '/rol').set(nuevoRol);
-        }
-
-        function eliminarDispositivo(id) {
-            if (id === myDeviceID) return alert("No puedes eliminar este dispositivo maestro.");
-            if (confirm("¿Eliminar este dispositivo? Perderá el acceso de inmediato.")) {
-                db.ref(configMaestra.pathCliente + 'lista_blanca/' + id).remove();
-            }
-        }
-
-        function aprobarDispositivo(id) {
-            if (confirm("¿Desea autorizar el acceso a este dispositivo?")) {
-                db.ref(configMaestra.pathCliente + 'lista_blanca/' + id + '/estado').set('activo');
-            }
-        }
-
-        function generarQRClonacion(id) {
-            const qrContainer = document.getElementById('qrcode');
-            if (!qrContainer) return;
-            qrContainer.innerHTML = '';
-            const url = window.location.origin + window.location.pathname + '?vincular=' + id;
-            new QRCode(qrContainer, {
-                text: url,
-                width: 150,
-                height: 150
-            });
-            document.getElementById('qrLicenciaID').textContent = 'ID: ' + id;
-        }
-
-        function guardarConfigMaestra() {
-            const updates = {};
-            
-            // Empresa
-            updates['data/empresa/nombre'] = document.getElementById('configNombreEmpresa').value.trim();
-            updates['data/empresa/rif'] = document.getElementById('configRifEmpresa').value.trim();
-            updates['data/empresa/direccion'] = document.getElementById('configDireccionEmpresa').value.trim();
-            updates['data/empresa/telefono'] = document.getElementById('configTelefonoEmpresa').value.trim();
-            
-            // Clave Admin
-            const newPass = document.getElementById('configPassAdmin').value.trim();
-            if (newPass) updates['parametros/pass_admin'] = newPass;
-
-            // Roles
-            updates['parametros/roles/supervisor/stock'] = document.getElementById('roleSupStock').checked;
-            updates['parametros/roles/supervisor/anular'] = document.getElementById('roleSupAnular').checked;
-
-            db.ref(configMaestra.pathCliente).update(updates)
-                .then(() => {
-                    alert("✅ Cambios aplicados globalmente.");
-                    cerrarModalConfigMaestra();
-                });
-        }
-
         function abrirModalConfigMaestra() {
-            // 1. Cargar datos de empresa
+            // Cargar datos actuales de la empresa
             db.ref(configMaestra.pathCliente + 'data/empresa').once('value', snap => {
                 const emp = snap.val() || {};
                 document.getElementById('configNombreEmpresa').value = emp.nombre || "";
                 document.getElementById('configRifEmpresa').value = emp.rif || "";
                 document.getElementById('configDireccionEmpresa').value = emp.direccion || "";
                 document.getElementById('configTelefonoEmpresa').value = emp.telefono || "";
+                document.getElementById('configCorreoEmpresa').value = emp.correo || "";
             });
 
-            // 2. Cargar Lista Blanca
-            renderListaBlanca();
-
-            // 3. Cargar Roles
-            const roles = configSistema.roles || { supervisor: { stock: false, anular: false } };
-            document.getElementById('roleSupStock').checked = roles.supervisor.stock;
-            document.getElementById('roleSupAnular').checked = roles.supervisor.anular;
-
-            // 4. Generar QR
-            generarQRClonacion(configMaestra.idActual);
+            // Cargar permisos actuales
+            db.ref(configMaestra.pathCliente + 'parametros/permisos').once('value', snap => {
+                const p = snap.val() || {};
+                document.getElementById('permisoVerGastos').checked = String(p.ver_gastos) === 'true';
+                document.getElementById('permisoVerProveedores').checked = String(p.ver_proveedores) === 'true';
+                document.getElementById('permisoVerReportes').checked = String(p.ver_reportes) === 'true';
+                document.getElementById('permisoEditarStock').checked = String(p.editar_stock) === 'true';
+                document.getElementById('permisoAnularVentas').checked = String(p.anular_ventas) === 'true';
+            });
 
             document.getElementById('modalConfigMaestra').classList.add('active');
-            switchConfigTab('empresa');
-        }
-
-        function generarQRClonacion(id) {
-            const qrContainer = document.getElementById('qrcode');
-            qrContainer.innerHTML = '';
-            const url = window.location.origin + window.location.pathname + '?vincular=' + id;
-            new QRCode(qrContainer, {
-                text: url,
-                width: 150,
-                height: 150
-            });
-            document.getElementById('qrLicenciaID').textContent = 'ID: ' + id;
         }
 
         function cerrarModalConfigMaestra() {
@@ -3352,14 +3007,15 @@
             lista.innerHTML = '';
             let total = 0, totalUSD = 0;
 
-            const puedeEditar = window.canEditStockGlobal;
-
             items.filter(i => i.nombre.toLowerCase().includes(filtro) || (i.sku && i.sku.includes(filtro)))
             .forEach(item => {
                 total += (item.precioVenta * item.cantidad);
                 totalUSD += (item.precioVentaUSD * item.cantidad);
                 const div = document.createElement('div');
                 div.className = 'item';
+                const p = configMaestra.permisos || {};
+                const checkPermiso = (val) => String(val) === 'true' || val === true;
+                const puedeEditar = checkPermiso(p.editar_stock);
 
                 div.innerHTML = `
                     <div class="item-header">
@@ -3654,7 +3310,10 @@
                 const colorTipo = v.tipo === 'CREDITO' ? '#e67e22' : (esAnulada ? 'var(--danger)' : 'var(--primary)');
                 const labelTipo = v.tipo === 'CREDITO' ? `💳 CRÉDITO (${v.clienteNombre})` : (v.metodoPago || 'CONTADO');
 
-                //                 const puedeAnular = window.canAnularVentasGlobal;
+                // Verificar permiso para anular ventas
+                const p = configMaestra.permisos;
+                const checkPermiso = (val) => String(val) === 'true' || val === true;
+                const puedeAnular = checkPermiso(p.anular_ventas);
 
                 // Lógica de Número de Factura / Nota de Entrega
                 const esTemporal = String(v.id).startsWith('TEMP-');
@@ -3672,8 +3331,8 @@
                         ${v.items.length} artículo(s) &mdash; ${labelTipo}
                     </div>
                     <div class="historial-item-items">${itemsDetalle}</div>
-                    ${!esAnulada && puedeAnular ? `<button class="btn-anular-venta" onclick="abrirModalAnulacion('${v.id}')">&#128683; ANULAR</button>` : (esAnulada ? `<div style="font-size:0.75rem; color:var(--danger); margin-top:4px;">Motivo: ${v.motivoAnulacion || ''}</div>` : '')}
-                </div>`;}</div>` : ''}
+                    ${!esAnulada && puedeAnular ? `<button class="btn-anular-venta" onclick="abrirModalAnulacion('${v.id}')">&#128683; ANULAR</button>` : ''}
+                    ${esAnulada ? `<div style="font-size:0.75rem; color:var(--danger); margin-top:4px;">Motivo: ${v.motivoAnulacion || ''}</div>` : ''}
                 </div>`;
             }).join('');
 
